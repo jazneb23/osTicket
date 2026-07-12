@@ -35,6 +35,7 @@ require_once(INCLUDE_DIR.'class.user.php');
 require_once(INCLUDE_DIR.'class.collaborator.php');
 require_once(INCLUDE_DIR.'class.task.php');
 require_once(INCLUDE_DIR.'class.faq.php');
+include_once INCLUDE_DIR.'Services/TicketAssignmentDecider.php';
 
 class Ticket extends VerySimpleModel
 implements RestrictedAccess, Threadable, Searchable {
@@ -2847,69 +2848,22 @@ implements RestrictedAccess, Threadable, Searchable {
     function assign(AssignmentForm $form, &$errors, $alert=true) {
         global $thisstaff;
 
-        $evd = array();
-        $audit = array();
-        $refer = null;
-        $dept = $this->getDept();
-        $assignee = $form->getAssignee();
-        if ($assignee instanceof Staff) {
-            if ($this->getStaffId() == $assignee->getId()) {
-                $errors['assignee'] = sprintf(__('%s already assigned to %s'),
-                        __('Ticket'),
-                        __('the agent')
-                        );
-            } elseif (!$assignee->isAvailable()) {
-                $errors['assignee'] = __('Agent is unavailable for assignment');
-            } elseif (!$dept->canAssign($assignee)) {
-                $errors['err'] = __('Permission denied');
-            } else {
-                $refer = $this->staff ?: null;
-                $this->staff_id = $assignee->getId();
-                if ($thisstaff && $thisstaff->getId() == $assignee->getId()) {
-                    $alert = false;
-                    $evd['claim'] = true;
-                    $audit = array('staff' => $assignee->getName()->name,'claim' => true);
-                } else {
-                    $evd['staff'] = array($assignee->getId(), (string) $assignee->getName()->getOriginal());
-                    $audit = array('staff' => $assignee->getName()->name);
-                }
-
-                if (($referral=$this->hasReferral($assignee,ObjectModel::OBJECT_TYPE_STAFF)))
-                    $referral->delete();
-            }
-        } elseif ($assignee instanceof Team) {
-            if ($this->getTeamId() == $assignee->getId()) {
-                $errors['assignee'] = sprintf(__('%s already assigned to %s'),
-                        __('Ticket'),
-                        __('the team')
-                        );
-            } elseif (!$dept->canAssign($assignee)) {
-                $errors['err'] = __('Permission denied');
-            } else {
-                $refer = $this->team ?: null;
-                $this->team_id = $assignee->getId();
-                $evd = array('team' => $assignee->getId());
-                $audit = array('team' => $assignee->getName());
-                if (($referral=$this->hasReferral($assignee,ObjectModel::OBJECT_TYPE_TEAM)))
-                    $referral->delete();
-            }
-        } else {
-            $errors['assignee'] = __('Unknown assignee');
-        }
+        $decision = (new TicketAssignmentDecider())->decide(
+                $this, $form, $errors, $alert, $thisstaff);
 
         if ($errors || !$this->save(true))
             return false;
 
-        $this->logEvent('assigned', $evd);
+        $this->logEvent('assigned', $decision['evd']);
 
         $type = array('type' => 'assigned');
-        $type += $audit;
+        $type += $decision['audit'];
         Signal::send('object.edited', $this, $type);
 
-        $this->onAssign($assignee, $form->getComments(), $alert);
+        $this->onAssign($decision['assignee'], $form->getComments(), $alert);
 
-        if ($refer && $form->refer())
-            $this->getThread()->refer($refer);
+        if ($decision['refer'] && $form->refer())
+            $this->getThread()->refer($decision['refer']);
 
         return true;
     }
