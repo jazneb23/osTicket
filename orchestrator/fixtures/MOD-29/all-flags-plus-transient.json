@@ -1,0 +1,8 @@
+{
+  "name": "all-flags-plus-transient",
+  "branch": "Transient bit set with every other flag also set (flags=15=1|2|4|8) — confirms only the 0x0008 bit is inspected regardless of surrounding bits",
+  "input": {
+    "flags": 15
+  },
+  "expected": 8
+}

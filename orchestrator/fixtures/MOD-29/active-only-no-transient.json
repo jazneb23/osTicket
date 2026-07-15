@@ -1,0 +1,8 @@
+{
+  "name": "active-only-no-transient",
+  "branch": "Only FLAG_ACTIVE set (flags=1) — guards against confusing FLAG_ACTIVE (0x0001) with FLAG_TRANSIENT (0x0008); must be falsy",
+  "input": {
+    "flags": 1
+  },
+  "expected": 0
+}

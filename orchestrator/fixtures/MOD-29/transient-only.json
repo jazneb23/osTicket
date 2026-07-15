@@ -1,0 +1,8 @@
+{
+  "name": "transient-only",
+  "branch": "Transient bit set in isolation (flags=8) — isTransient() returns truthy FLAG_TRANSIENT (8)",
+  "input": {
+    "flags": 8
+  },
+  "expected": 8
+}

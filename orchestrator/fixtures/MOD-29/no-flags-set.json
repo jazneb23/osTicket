@@ -1,0 +1,8 @@
+{
+  "name": "no-flags-set",
+  "branch": "Zero bitmask (flags=0) — baseline falsy path with no bits set at all",
+  "input": {
+    "flags": 0
+  },
+  "expected": 0
+}

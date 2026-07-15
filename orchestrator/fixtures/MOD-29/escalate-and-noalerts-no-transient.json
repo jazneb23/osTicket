@@ -1,0 +1,8 @@
+{
+  "name": "escalate-and-noalerts-no-transient",
+  "branch": "FLAG_ESCALATE and FLAG_NOALERTS set together without transient (flags=6=2|4) — guards against confusing either non-transient bit for the transient bit; must be falsy",
+  "input": {
+    "flags": 6
+  },
+  "expected": 0
+}
