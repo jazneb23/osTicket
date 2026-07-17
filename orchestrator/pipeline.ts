@@ -5,6 +5,7 @@ import {
   addIssueComment,
   buildInReviewComment,
   buildParityFailedComment,
+  handlePipelineFailure,
   updateTicketStatus,
 } from "./lib/linear";
 import { notifyPrOpened } from "./lib/slack";
@@ -163,8 +164,8 @@ const isMain = process.argv[1]?.includes("pipeline") ?? false;
 if (isMain) {
   const { ticketId, acceptanceCriteria, fromStage } = parseArgs();
 
-  runPipeline(ticketId, acceptanceCriteria, fromStage).catch((err) => {
-    console.error("Pipeline failed:", err);
+  runPipeline(ticketId, acceptanceCriteria, fromStage).catch(async (err) => {
+    await handlePipelineFailure(ticketId, err);
     process.exit(1);
   });
 }

@@ -185,7 +185,7 @@ export async function claimNextReadyTicket(): Promise<{
   const inProgress = await findTicketsByStatus(STATUS_IN_PROGRESS, 10);
   if (inProgress.length > 0) {
     console.log(
-      `Active pipeline · ${inProgress.map((t) => t.identifier).join(", ")} — skipping`
+      `Blocked · ${inProgress.map((t) => t.identifier).join(", ")} still In Progress in Linear — move to Ready if no pipeline is running`
     );
     return null;
   }
@@ -307,6 +307,47 @@ export function buildInReviewComment(
     "",
     prLine,
   ].join("\n");
+}
+
+/** Comment body when a pipeline stage throws — ticket returns to Ready for retry. */
+export function buildPipelineFailedComment(ticketId: string, error: unknown): string {
+  const message =
+    error instanceof Error ? error.message : String(error ?? "Unknown error");
+  return [
+    "## Pipeline failed",
+    "",
+    `Run halted for **${ticketId}** before parity / PR.`,
+    "",
+    "```",
+    message,
+    "```",
+    "",
+    "Ticket moved back to **Ready** so the listener can retry.",
+    "",
+    "Check [cursor.com/agents](https://cursor.com/agents) for nested cloud agent logs if a stage failed there.",
+  ].join("\n");
+}
+
+/** Agent/stage failure: comment on Linear and re-queue the ticket. */
+export async function handlePipelineFailure(
+  ticketId: string,
+  error: unknown
+): Promise<void> {
+  const message =
+    error instanceof Error ? error.message : String(error ?? "Unknown error");
+  console.error(`Pipeline failed for ${ticketId}: ${message}`);
+  try {
+    await addIssueComment(ticketId, buildPipelineFailedComment(ticketId, error));
+    console.error(`Posted pipeline-failure comment on ${ticketId}`);
+  } catch (commentErr) {
+    console.error(`Failed to comment pipeline failure on Linear: ${commentErr}`);
+  }
+  try {
+    await updateTicketStatus(ticketId, READY_STATUS);
+    console.error(`${ticketId} moved back to ${READY_STATUS} for retry`);
+  } catch (statusErr) {
+    console.error(`Failed to reset ${ticketId} to ${READY_STATUS}: ${statusErr}`);
+  }
 }
 
 /** Comment body when the parity gate fails — no PR, ticket stays In Progress. */
