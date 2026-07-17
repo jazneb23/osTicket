@@ -116,27 +116,113 @@ export async function getLinearTicket(ticketId: string): Promise<LinearTicket> {
   };
 }
 
-export async function findReadyTicket(): Promise<string | null> {
+type ProjectIssue = { identifier: string; createdAt: string };
+
+/** Tickets in a workflow state for the demo project (unsorted API page). */
+export async function findTicketsByStatus(
+  status: string,
+  first = 10
+): Promise<ProjectIssue[]> {
   const data = await linearGraphQL<{
-    issues: { nodes: Array<{ identifier: string }> };
+    issues: { nodes: ProjectIssue[] };
   }>(
-    `query FindReadyTicket($project: String!, $state: String!) {
+    `query FindTicketsByStatus($project: String!, $state: String!, $first: Int!) {
       issues(
         filter: {
           project: { name: { eq: $project } }
           state: { name: { eq: $state } }
         }
-        first: 1
+        orderBy: createdAt
+        first: $first
       ) {
         nodes {
           identifier
+          createdAt
         }
       }
     }`,
-    { project: SLA_MODERNIZATION_PROJECT, state: READY_STATUS }
+    { project: SLA_MODERNIZATION_PROJECT, state: status, first }
   );
 
-  return data.issues.nodes[0]?.identifier ?? null;
+  // Linear returns newest-first for orderBy: createdAt — normalize to oldest-first.
+  return [...data.issues.nodes].sort((a, b) =>
+    a.createdAt.localeCompare(b.createdAt)
+  );
+}
+
+export async function findReadyTicket(): Promise<string | null> {
+  // Fetch a page then pick oldest (Linear orderBy createdAt is newest-first).
+  const nodes = await findTicketsByStatus(READY_STATUS, 50);
+  return nodes[0]?.identifier ?? null;
+}
+
+export async function getTicketState(ticketId: string): Promise<string | null> {
+  const data = await linearGraphQL<{
+    issue: { state: { name: string } | null } | null;
+  }>(
+    `query GetIssueState($id: String!) {
+      issue(id: $id) {
+        state {
+          name
+        }
+      }
+    }`,
+    { id: ticketId }
+  );
+
+  return data.issue?.state?.name ?? null;
+}
+
+/**
+ * Serial claim for Automation / listener: skip if any ticket is In Progress,
+ * otherwise move the oldest Ready ticket to In Progress and return it.
+ * On a rare double-claim race, revert the newer claim back to Ready.
+ */
+export async function claimNextReadyTicket(): Promise<{
+  ticketId: string;
+  description: string;
+} | null> {
+  const inProgress = await findTicketsByStatus(STATUS_IN_PROGRESS, 10);
+  if (inProgress.length > 0) {
+    console.log(
+      `Active pipeline · ${inProgress.map((t) => t.identifier).join(", ")} — skipping`
+    );
+    return null;
+  }
+
+  const ready = await findTicketsByStatus(READY_STATUS, 50);
+  const ticketId = ready[0]?.identifier;
+  if (!ticketId) {
+    console.log("No Ready tickets in queue");
+    return null;
+  }
+
+  await updateTicketStatus(ticketId, STATUS_IN_PROGRESS);
+
+  const afterClaim = await findTicketsByStatus(STATUS_IN_PROGRESS, 10);
+  if (afterClaim.length > 1) {
+    const winner = [...afterClaim].sort((a, b) =>
+      a.createdAt.localeCompare(b.createdAt)
+    )[0];
+    if (winner && winner.identifier !== ticketId) {
+      console.log(
+        `Claim race · reverting ${ticketId} to Ready (winner ${winner.identifier})`
+      );
+      await updateTicketStatus(ticketId, READY_STATUS);
+      return null;
+    }
+  }
+
+  const state = await getTicketState(ticketId);
+  if (state !== STATUS_IN_PROGRESS) {
+    console.log(
+      `Claim aborted · ${ticketId} is "${state ?? "unknown"}", expected "${STATUS_IN_PROGRESS}"`
+    );
+    return null;
+  }
+
+  const ticket = await getLinearTicket(ticketId);
+  return { ticketId, description: ticket.description };
 }
 
 export async function updateTicketStatus(ticketId: string, status: string): Promise<void> {

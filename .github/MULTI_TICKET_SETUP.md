@@ -22,25 +22,30 @@ refs receive commits.
 ## Queue behavior
 
 1. Put N tickets in **Ready**.
-2. Exactly **one** run claims a ticket → **In Progress** and runs the pipeline.
-3. Other Ready tickets stay Ready until the active run finishes.
-4. Next Ready ticket is claimed, and so on.
+2. A scheduled Automation runs `orchestrator/automationWorker.ts --max 1`.
+3. The worker claims **one** ticket → **In Progress** only when none are In Progress.
+4. Other Ready tickets stay Ready until the next scheduled tick after the active run finishes.
+5. Repeat until the queue is empty.
 
 ### Cursor Automation (preferred)
 
-The Automation prompt must enforce a claim lock:
+**Trigger:** schedule every 2–5 minutes (not on every Ready status change).
 
-- If another ticket in the project is already **In Progress**, exit without
-  changing this ticket (leave it **Ready**).
-- Otherwise claim this ticket (**Ready** → **In Progress**), re-read status,
-  and run `npx tsx orchestrator/pipeline.ts <TICKET>` once.
-- Do not start a second pipeline while one is active.
+**Prompt (keep it short — claim lock lives in code):**
+
+```text
+bash .cursor/start.sh
+npx tsx orchestrator/automationWorker.ts --max 1
+```
+
+Do not use Cursor’s built-in Create PR action. Turn Create PRs to Off / Never.
+The pipeline opens PRs via the cloud pr-agent against jazneb23/osTicket.
 
 ### Local listener (debug only)
 
-`orchestrator/listener.ts` already polls Ready tickets and runs **one
-pipeline at a time** via `pipelineBusy`. Do **not** run the listener while the
-Linear Automation is active.
+`orchestrator/listener.ts` uses the same `claimNextReadyTicket` helper and runs
+**one pipeline at a time**. Do **not** run the listener while the Linear
+Automation is active.
 
 ## Required secrets (Automation / cloud agent)
 
