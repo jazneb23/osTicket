@@ -3,12 +3,12 @@ import { claimNextReadyTicket } from "./lib/linear";
 import { runPipeline } from "./pipeline";
 
 /**
- * Single-worker entry for Cursor Automation (scheduled).
+ * Single-worker entry for Cursor Automation (Linear Ready status change).
  *
  * Claims at most one Ready ticket when nothing is In Progress, then runs the
  * strangler pipeline. Put the claim lock here — not in a long Automation prompt.
  *
- * Automation prompt:
+ * Prompt:
  *   bash .cursor/start.sh
  *   npx tsx orchestrator/automationWorker.ts --max 1
  */

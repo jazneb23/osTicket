@@ -86,31 +86,31 @@ fixtures just to pass.
 - Uses `gh pr create --base <GITHUB_DEMO_BRANCH> --head strangler/<ticket>`
 - Scoped to facade + extraction target + ticket fixtures from manifest
 
-## Ready queue (serial)
+## Ready → one pipeline (serial)
 
-Put several tickets in **Ready**. Process **one at a time** via the worker:
+Move **one** ticket to **Ready**. The Linear Automation runs the worker:
 
 ```bash
 npx tsx orchestrator/automationWorker.ts --max 1
 ```
 
 1. Skip if any ticket is already In Progress
-2. Claim oldest Ready → In Progress
+2. Claim that Ready ticket → In Progress
 3. Create or resume `strangler/MOD-*` and run the pipeline (nested cloud agents)
 4. Publish that ticket's paths and open its own PR
 
-Prefer a **scheduled** Automation with the short prompt in
+Prefer a **Linear status → Ready** Automation (not a cron schedule). See
 `.github/MULTI_TICKET_SETUP.md`. Do not run `listener.ts` alongside Automation.
 
 ## Entry points
 
 ```bash
-# Prod: scheduled Cursor Automation → automationWorker.ts --max 1
+# Prod: Linear Ready Automation → automationWorker.ts --max 1
 
 # Full pipeline for a ticket (local debug or cloud agent shell)
 npx tsx orchestrator/pipeline.ts MOD-<id> --criteria "<acceptance text>" [--from-stage N]
 
-# Serial queue worker (Automation entry — claim lock in code)
+# Claim + run worker (Automation entry — claim lock in code)
 npx tsx orchestrator/automationWorker.ts --max 1
 
 # Deprecated local Linear poller (do not run alongside the Automation)

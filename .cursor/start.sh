@@ -78,9 +78,15 @@ start_dockerd_with_driver() {
 }
 
 bring_up_docker() {
+  # docker info can succeed while /var/run/docker.sock is missing or unusable
+  # for the current user. Never treat "info ok" as done without a working socket.
   if docker_ready; then
-    log "Docker is already running."
-    return 0
+    if fix_socket_perms && docker_ready; then
+      log "Docker is already running."
+      return 0
+    fi
+    log "Docker info succeeded but socket is not usable; restarting dockerd..."
+    stop_dockerd
   fi
 
   if ! command -v docker >/dev/null 2>&1; then
@@ -122,7 +128,14 @@ if ! bring_up_docker; then
   exit 1
 fi
 
-fix_socket_perms
+# Under set -e, fix_socket_perms must not abort the script on a transient miss —
+# that was exiting 1 right after "Docker is already running" with no diagnostics.
+if ! fix_socket_perms || ! docker_ready; then
+  log "Docker socket not usable after bring-up"
+  dump_docker_diagnostics
+  exit 1
+fi
+
 log "Docker is ready."
 docker version 2>/dev/null || sudo docker version || true
 
