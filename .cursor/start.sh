@@ -39,9 +39,9 @@ dump_docker_diagnostics() {
   cat /etc/docker/daemon.json >&2 2>/dev/null || true
   sudo service docker status >&2 2>/dev/null || true
   for f in /tmp/docker-service-start.log /tmp/dockerd.log; do
-    if [ -f "$f" ]; then
+    if sudo test -f "$f" 2>/dev/null; then
       log "$(basename "$f"):"
-      tail -n 120 "$f" >&2 || true
+      sudo tail -n 120 "$f" >&2 || true
     fi
   done
 }
@@ -69,8 +69,12 @@ wait_for_docker() {
 start_dockerd_with_driver() {
   local driver="$1"
   log "Launching dockerd --storage-driver=${driver}"
-  # Clear previous log so diagnostics match this attempt.
-  : >/tmp/dockerd.log
+  # Prior dockerd runs create root-owned /tmp/dockerd.log. Truncating as the
+  # non-root agent user fails under set -e ("Permission denied") and aborts
+  # before dockerd even launches — clear/recreate with sudo.
+  sudo rm -f /tmp/dockerd.log
+  sudo touch /tmp/dockerd.log
+  sudo chmod 666 /tmp/dockerd.log
   sudo sh -c "nohup dockerd \
     --host=unix:///var/run/docker.sock \
     --storage-driver=${driver} \
