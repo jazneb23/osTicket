@@ -1,18 +1,23 @@
 import { CLOUD_AGENT_HARD_RULES } from "../lib/cloudAgentGuardrails";
-import { logRunEnd, logRunStart, parseJsonResult, streamRunWithProgress, withCloudAgent } from "../lib/sdk";
-import { applyHarnessDefaults, manifestPath } from "../lib/manifest";
+import { logRunEnd, logRunStart, requireJsonResult, streamRunWithProgress, withCloudAgent } from "../lib/sdk";
+import {
+  applyHarnessDefaults,
+  manifestPath,
+  requireExtractionTarget,
+  requireFacadeFile,
+  requireHarnessScript,
+} from "../lib/manifest";
 import { logAgentLine } from "../lib/terminal";
 import type { SeamManifest } from "../lib/types";
 import * as fs from "fs";
 
 export async function cartographer(
   ticketId: string,
-  acceptanceCriteria: string,
-  fromCache: boolean = process.argv.includes("--from-cache") ||
-    process.argv.includes("--from-stage")
+  acceptanceCriteria: string
 ): Promise<SeamManifest> {
   const statePath = manifestPath(ticketId);
-  if (fromCache && fs.existsSync(statePath)) {
+  const forceRefresh = process.argv.includes("--force-cartographer");
+  if (!forceRefresh && fs.existsSync(statePath)) {
     logAgentLine("cartographer", `Using cached manifest for ${ticketId}.`);
     return applyHarnessDefaults(JSON.parse(fs.readFileSync(statePath, "utf-8")));
   }
@@ -99,10 +104,17 @@ is allowed to build the extraction.
     if (result.status === "error") {
       throw new Error(result.error?.message ?? "Cartographer run failed");
     }
+    const parsed = requireJsonResult<Partial<SeamManifest>>(
+      result.result,
+      "cartographer"
+    );
     const manifest = applyHarnessDefaults({
       ticketId,
-      ...parseJsonResult(result.result, {} as Partial<SeamManifest>),
+      ...parsed,
     } as SeamManifest);
+    requireFacadeFile(manifest);
+    requireExtractionTarget(manifest);
+    requireHarnessScript(manifest);
     fs.mkdirSync("orchestrator/.state", { recursive: true });
     fs.writeFileSync(statePath, JSON.stringify(manifest, null, 2));
     return manifest;

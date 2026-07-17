@@ -140,14 +140,42 @@ function isTerminalStreamStatus(status: string): boolean {
     || status === "EXPIRED";
 }
 
+/** Pull the first balanced JSON object or array out of prose-wrapped agent text. */
+function extractBalancedJson(text: string): string | null {
+  const start = text.search(/[{[]/);
+  if (start === -1) return null;
+
+  const slice = text.slice(start);
+  const consumed = tryConsumeJson(slice);
+  if (!consumed) return null;
+
+  const candidate = slice.slice(0, consumed.consumed);
+  try {
+    JSON.parse(candidate);
+    return candidate;
+  } catch {
+    return null;
+  }
+}
+
 function extractJsonPayload(raw: string): string {
-  const stripped = raw.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "").trim();
+  const trimmed = raw.trim();
+  const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)```\s*$/i);
+  const stripped = (fenced ? fenced[1] : trimmed)
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/```\s*$/i, "")
+    .trim();
+
   try {
     JSON.parse(stripped);
     return stripped;
   } catch {
-    const match = stripped.match(/\{[\s\S]*\}$/);
-    return match ? match[0] : stripped;
+    const embedded = extractBalancedJson(stripped);
+    if (embedded) return embedded;
+
+    // Legacy fallback: trailing object literal (cartographer manifests).
+    const objectMatch = stripped.match(/\{[\s\S]*\}$/);
+    return objectMatch ? objectMatch[0] : stripped;
   }
 }
 
@@ -562,5 +590,23 @@ export function parseJsonResult<T>(raw: string | undefined, fallback: T): T {
     return JSON.parse(payload) as T;
   } catch {
     return fallback;
+  }
+}
+
+/** Parse cloud-agent JSON output; throw with context instead of silently falling back. */
+export function requireJsonResult<T>(raw: string | undefined, label: string): T {
+  if (!raw?.trim()) {
+    throw new Error(`${label}: empty agent response (expected JSON)`);
+  }
+
+  const payload = extractJsonPayload(raw);
+  try {
+    return JSON.parse(payload) as T;
+  } catch (err) {
+    const detail = err instanceof Error ? err.message : String(err);
+    const preview = payload.slice(0, 200).replace(/\s+/g, " ");
+    throw new Error(
+      `${label}: could not parse JSON from agent response (${detail}); preview: ${preview}`
+    );
   }
 }
