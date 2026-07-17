@@ -48,9 +48,11 @@ RUN install -m 0755 -d /etc/apt/keyrings \
       docker-compose-plugin \
     && rm -rf /var/lib/apt/lists/*
 
+# vfs is slower than fuse-overlayfs but reliable on Cursor AnyOS DinD.
+# Working cloud sessions commonly run: dockerd --storage-driver=vfs
 RUN mkdir -p /etc/docker \
     && printf '%s\n' '{' \
-    '  "storage-driver": "fuse-overlayfs"' \
+    '  "storage-driver": "vfs"' \
     '}' > /etc/docker/daemon.json
 
 RUN update-alternatives --set iptables /usr/sbin/iptables-legacy \
