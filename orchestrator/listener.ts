@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { assertLocalDockerReady } from "./lib/dockerPreflight";
-import { claimNextReadyTicket } from "./lib/linear";
+import { claimNextReadyTicket, handlePipelineFailure } from "./lib/linear";
 import { runPipeline } from "./pipeline";
 
 const POLL_INTERVAL_MS = 5000;
@@ -28,9 +28,11 @@ async function poll(): Promise<void> {
     }
 
     console.log(`Starting pipeline for ticket ${claimed.ticketId}`);
-    await runPipeline(claimed.ticketId, claimed.description);
-  } catch (err) {
-    console.error("Poll failed:", err);
+    try {
+      await runPipeline(claimed.ticketId, claimed.description);
+    } catch (err) {
+      await handlePipelineFailure(claimed.ticketId, err);
+    }
   } finally {
     pipelineBusy = false;
   }
