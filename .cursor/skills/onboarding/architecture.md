@@ -36,8 +36,8 @@ in a small set of surfaces.
 
 ```
 orchestrator/
-├── pipeline.ts          # Full stage runner (CLI / Automation entry)
-├── listener.ts          # Deprecated local Linear poller (prefer Automation)
+├── pipeline.ts          # Full stage runner (CLI / listener entry)
+├── listener.ts          # Production: Linear Ready poller (local Docker)
 ├── capture-and-verify.ts
 ├── ci-parity-check.ts   # CI: all fixture suites
 ├── test-stage1.ts … test-stage3.ts
@@ -64,8 +64,12 @@ orchestrator/
 └── .state/              # Runtime cache (gitignored)
 ```
 
-Cloud Automation environment (repo root `.cursor/`): `environment.json`, `Dockerfile`,
-`install.sh`, `start.sh` — Compose + bootstrap for hands-off parity.
+Local demo: Docker Desktop + `scripts/local-demo-start.sh` for parity;
+`listener.ts` for Linear Ready. Nested SDK agents use Cursor cloud VMs via
+`withCloudAgent` — they do not run the parity harness.
+
+Cloud files under `.cursor/` (`environment.json`, `start-cloud-agent.sh`) bootstrap
+nested cloud agents only — no DinD. Local parity uses `scripts/local-demo-start.sh`.
 
 ## Key types (`orchestrator/lib/types.ts`)
 

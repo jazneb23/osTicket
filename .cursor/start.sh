@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Starts Docker daemon and bootstraps osTicket Compose (web + db + schema/seeds).
-# Idempotent — safe on every cloud agent wake.
+# DinD bootstrap for nested Cursor cloud agents (withCloudAgent stages).
+# NOT used by the local demo — use scripts/local-demo-start.sh + listener.ts instead.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

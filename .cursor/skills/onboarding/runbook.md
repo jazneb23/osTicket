@@ -4,45 +4,44 @@ Confirm commands and env names against the tree. Never print secret values.
 
 ## Hands-off production path (preferred)
 
-Prod trigger is the Cursor Automation **Linear Ready -> Strangler Pipeline**
-(Linear status change in Modernize / SLA Modernization). It runs on a **Cursor
-cloud VM** built from [`.cursor/environment.json`](../../environment.json) +
-[`.cursor/Dockerfile`](../../Dockerfile).
+**Local Docker + local listener.** Parity runs on your machine; nested SDK stages
+(cartographer, fixture-generator, pr-agent) still use Cursor cloud agents.
+
+Full setup: [`.github/LOCAL_DEMO_SETUP.md`](../../../.github/LOCAL_DEMO_SETUP.md).
 
 Flow:
 
-1. Move a `MOD-*` ticket to **Ready**
-2. Automation sets **In Progress** and runs
-   `npx tsx orchestrator/pipeline.ts <TICKET> --criteria "<description>"`
-3. Cloud `start` script brings up Compose + bootstrap so baseline/verifier work
-4. On parity pass: commit/push artifacts → PR → Slack → Linear **In Review**
-5. On fail: Linear failure comment; ticket stays **In Progress**; no PR
+1. `bash scripts/local-demo-start.sh` (once per session)
+2. `npx tsx orchestrator/listener.ts` (leave running)
+3. Move **one** `MOD-*` ticket to **Ready** in Linear
+4. Listener claims → **In Progress** → `pipeline.ts`
+5. On parity pass: publish → cloud pr-agent → PR → Slack → **In Review**
 
-You do **not** need `listener.ts`, local Docker, or a laptop left on for this
-path. Mirror secrets from local `.env` into the Cloud Agents / Automation
-environment (names only in docs — never commit values).
+**Disable Cursor Automation** for this repo — cloud Docker-in-Docker (`start.sh`)
+is not used for the demo and has been unreliable.
 
-**If you previously saved an interactive cloud snapshot for this repo**, delete
-it in the Cloud Agents dashboard so Dockerfile-based builds are used.
+Requirements on your laptop: Node 22+, Docker Desktop, `.env` with API keys
+(names only in docs — never commit values).
 
-### Cloud environment files
+### Cloud environment files (nested SDK agents only)
 
 | Path | Role |
 |------|------|
-| `.cursor/environment.json` | `build` / `install` / `start` for cloud agents |
-| `.cursor/Dockerfile` | Node 22 + Docker CE / Compose (DinD) |
+| `.cursor/environment.json` | Cloud agent VM bootstrap (not the demo parity path) |
+| `.cursor/Dockerfile` | Node 22 image for nested `withCloudAgent` stages |
 | `.cursor/install.sh` | `npm ci` |
-| `.cursor/start.sh` | Start Docker daemon + `scripts/ci-docker-bootstrap.sh` |
+| `.cursor/start.sh` | Legacy DinD bootstrap — **retired** for demo; use `start-cloud-agent.sh` |
+| `.cursor/start-cloud-agent.sh` | Cloud agent wake (no DinD) |
 
 Install `PIPELINE_PAUSE_FOR_REVIEW=1` only if you want the old demo pause
 log lines; hands-off default proceeds straight to the PR agent after a pass.
 
-## Local optional (debug / UI)
+## Local requirements
 
 - Node.js 22+; `npm ci` / `npm install`
-- Docker + Docker Compose if you want parity **on this machine** or the product UI
-- Port `:8080` is **optional product UI** — not required for hands-off cloud runs
-- PHP 8.4 + `mysqli` only if you run harness outside Compose (CI installs it; cloud uses container PHP)
+- **Docker Desktop** running (parity harness via Compose)
+- Port `:8080` is **optional product UI** — not required for the pipeline
+- PHP 8.4 + `mysqli` only if you run harness outside Compose (CI installs it)
 
 ## Environment variables
 
@@ -61,17 +60,18 @@ names into Cloud Agent secrets:
 
 Load via `dotenv/config` in pipeline/listener entrypoints.
 
-## Local Docker bootstrap (optional)
+## Local Docker bootstrap
 
 ```bash
-docker compose up -d
+bash scripts/local-demo-start.sh
+# or: docker compose up -d && bash scripts/ci-docker-bootstrap.sh
 # db: MySQL 8 on 3306 (root/osticket, db osticket)
 # web: PHP 8.4 Apache on 8080, repo mounted at /var/www/html
 ```
 
-CI and cloud `start` use `scripts/ci-docker-bootstrap.sh` to wait for MySQL with
-an authenticated `SELECT 1` check, import schema if needed, and create
-`include/ost-config.php` when missing.
+`scripts/ci-docker-bootstrap.sh` waits for MySQL with an authenticated
+`SELECT 1` check, imports schema if needed, and creates `include/ost-config.php`
+when missing.
 
 `include/ost-config.php` is gitignored — local/CI/cloud generate it; do not
 commit secrets.
@@ -99,15 +99,14 @@ Resume from a later stage (reuse earlier artifacts):
 npx tsx orchestrator/pipeline.ts MOD-26 --criteria "..." --from-stage 3
 ```
 
-### Deprecated: local Linear poller
-
-Prefer the Cursor Automation. Keep only for offline debug:
+### Production: local Linear listener
 
 ```bash
-npx tsx orchestrator/listener.ts
+bash scripts/local-demo-start.sh   # once
+npx tsx orchestrator/listener.ts   # leave running; polls Ready every 5s
 ```
 
-Do **not** run the listener while the Automation is Active — double starts.
+Do **not** run the listener while Cursor Automation is Active — double starts.
 
 ### Re-capture baselines and verify one seam
 
