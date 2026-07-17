@@ -1,0 +1,8 @@
+{
+  "name": "all-flags-combined",
+  "branch": "flags=15 (FLAG_ACTIVE|FLAG_ESCALATE|FLAG_NOALERTS|FLAG_TRANSIENT = 1+2+4+8): full bitmask with every currently defined flag set — AND yields 8, the edge case where the transient bit must still be extracted correctly from a saturated mask.",
+  "input": {
+    "flags": 15
+  },
+  "expected": 8
+}

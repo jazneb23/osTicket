@@ -1,0 +1,8 @@
+{
+  "name": "transient-flag-only",
+  "branch": "flags=8: only FLAG_TRANSIENT is set, isolating the exact bit under test — AND yields 8, the canonical truthy case.",
+  "input": {
+    "flags": 8
+  },
+  "expected": 8
+}

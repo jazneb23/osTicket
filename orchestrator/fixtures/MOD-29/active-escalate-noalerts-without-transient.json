@@ -1,0 +1,8 @@
+{
+  "name": "active-escalate-noalerts-without-transient",
+  "branch": "flags=7 (FLAG_ACTIVE|FLAG_ESCALATE|FLAG_NOALERTS = 1+2+4): all three other defined flags set but FLAG_TRANSIENT absent — AND yields 0, proving the check ignores every sibling bit even when all are on.",
+  "input": {
+    "flags": 7
+  },
+  "expected": 0
+}

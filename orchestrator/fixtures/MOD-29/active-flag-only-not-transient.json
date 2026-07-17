@@ -1,0 +1,8 @@
+{
+  "name": "active-flag-only-not-transient",
+  "branch": "flags=1: only FLAG_ACTIVE is set (a different, non-adjacent low bit) — AND yields 0, confirming unrelated bits don't leak into the transient check.",
+  "input": {
+    "flags": 1
+  },
+  "expected": 0
+}

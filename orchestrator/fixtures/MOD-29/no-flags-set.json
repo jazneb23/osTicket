@@ -1,0 +1,8 @@
+{
+  "name": "no-flags-set",
+  "branch": "flags=0: no bits set at all, so the AND with FLAG_TRANSIENT (0x0008) yields 0 — baseline falsy case with an empty bitmask.",
+  "input": {
+    "flags": 0
+  },
+  "expected": 0
+}

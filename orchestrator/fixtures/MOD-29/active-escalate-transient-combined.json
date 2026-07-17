@@ -1,0 +1,8 @@
+{
+  "name": "active-escalate-transient-combined",
+  "branch": "flags=11 (FLAG_ACTIVE|FLAG_ESCALATE|FLAG_TRANSIENT = 1+2+8): transient bit set alongside two other flags — AND yields 8, confirming the bit is correctly isolated out of a mixed bitmask rather than requiring an exact/exclusive match.",
+  "input": {
+    "flags": 11
+  },
+  "expected": 8
+}
