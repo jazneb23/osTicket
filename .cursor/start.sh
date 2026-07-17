@@ -48,9 +48,25 @@ dump_docker_diagnostics() {
 
 stop_dockerd() {
   sudo service docker stop >/dev/null 2>&1 || true
+  if [ -f /var/run/docker.pid ]; then
+    sudo kill -9 "$(sudo cat /var/run/docker.pid 2>/dev/null)" 2>/dev/null || true
+  fi
   sudo killall -9 dockerd containerd docker-containerd 2>/dev/null || true
-  sleep 1
+  sleep 2
   sudo rm -f /var/run/docker.sock /var/run/docker.pid
+}
+
+write_storage_driver() {
+  local driver="$1"
+  sudo mkdir -p /etc/docker
+  # Must match how we launch dockerd. Passing --storage-driver=X while
+  # daemon.json says Y makes dockerd exit immediately:
+  #   "directives are specified both as a flag and in the configuration file"
+  sudo tee /etc/docker/daemon.json >/dev/null <<EOF
+{
+  "storage-driver": "${driver}"
+}
+EOF
 }
 
 wait_for_docker() {
@@ -58,7 +74,7 @@ wait_for_docker() {
   local i
   for i in $(seq 1 "$seconds"); do
     fix_socket_perms || true
-    if [ -S /var/run/docker.sock ] && docker_ready; then
+    if docker_ready; then
       return 0
     fi
     sleep 1
@@ -68,29 +84,31 @@ wait_for_docker() {
 
 start_dockerd_with_driver() {
   local driver="$1"
-  log "Launching dockerd --storage-driver=${driver}"
+  log "Launching dockerd (storage-driver=${driver} via daemon.json)"
+  write_storage_driver "$driver"
   # Prior dockerd runs create root-owned /tmp/dockerd.log. Truncating as the
   # non-root agent user fails under set -e ("Permission denied") and aborts
   # before dockerd even launches — clear/recreate with sudo.
   sudo rm -f /tmp/dockerd.log
   sudo touch /tmp/dockerd.log
   sudo chmod 666 /tmp/dockerd.log
+  # Do NOT pass --storage-driver here — it conflicts with daemon.json.
   sudo sh -c "nohup dockerd \
     --host=unix:///var/run/docker.sock \
-    --storage-driver=${driver} \
     >/tmp/dockerd.log 2>&1 &"
 }
 
 bring_up_docker() {
-  # docker info can succeed while /var/run/docker.sock is missing or unusable
-  # for the current user. Never treat "info ok" as done without a working socket.
+  # If docker info already works, keep it. Earlier logic killed a working
+  # daemon whenever /var/run/docker.sock failed a strict -S/perms check, then
+  # could not restart. That caused a restart death spiral.
   if docker_ready; then
-    if fix_socket_perms && docker_ready; then
+    fix_socket_perms || true
+    if docker_ready; then
       log "Docker is already running."
       return 0
     fi
-    log "Docker info succeeded but socket is not usable; restarting dockerd..."
-    stop_dockerd
+    log "Docker became unusable while fixing socket perms; will restart."
   fi
 
   if ! command -v docker >/dev/null 2>&1; then
@@ -98,6 +116,10 @@ bring_up_docker() {
     log "Delete any personal/team snapshot override and rebuild from the repo Dockerfile."
     return 1
   fi
+
+  # Prefer vfs on Cursor AnyOS; fuse-overlayfs in the image often leaves a
+  # dockerd process with no usable socket.
+  write_storage_driver vfs
 
   log "Starting Docker via service wrapper..."
   sudo sh -c 'service docker start >/tmp/docker-service-start.log 2>&1' || \
@@ -107,13 +129,11 @@ bring_up_docker() {
     return 0
   fi
 
-  # Stuck dockerd (process alive, no usable socket) is common with fuse failures.
   log "Docker not ready after service start; restarting with explicit drivers..."
   stop_dockerd
 
-  # Official Cursor driver first, then vfs (observed on healthy AnyOS sessions).
   local driver
-  for driver in fuse-overlayfs vfs; do
+  for driver in vfs fuse-overlayfs; do
     start_dockerd_with_driver "$driver"
     if wait_for_docker 40; then
       log "Docker is ready (storage-driver=${driver})."
