@@ -1,0 +1,8 @@
+{
+  "name": "disabled-no-flags",
+  "branch": "No bits set (flags=0) — normal disabled path, isEnabled() returns raw 0",
+  "input": {
+    "flags": 0
+  },
+  "expected": 0
+}

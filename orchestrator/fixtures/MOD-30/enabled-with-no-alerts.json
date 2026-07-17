@@ -1,0 +1,8 @@
+{
+  "name": "enabled-with-no-alerts",
+  "branch": "FLAG_ENABLED and FLAG_NOALERTS both set (flags=3) — proves isEnabled() isolates only the low bit and still returns enabled (1) despite NOALERTS also being set",
+  "input": {
+    "flags": 3
+  },
+  "expected": 1
+}

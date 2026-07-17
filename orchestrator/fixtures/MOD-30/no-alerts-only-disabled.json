@@ -1,0 +1,8 @@
+{
+  "name": "no-alerts-only-disabled",
+  "branch": "FLAG_NOALERTS set but FLAG_ENABLED unset (flags=2) — proves isEnabled() ignores the NOALERTS bit and reports disabled (0)",
+  "input": {
+    "flags": 2
+  },
+  "expected": 0
+}

@@ -1,0 +1,8 @@
+{
+  "name": "enabled-only",
+  "branch": "FLAG_ENABLED bit set alone (flags=1) — normal enabled path, isEnabled() returns raw 1",
+  "input": {
+    "flags": 1
+  },
+  "expected": 1
+}

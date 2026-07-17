@@ -1,0 +1,8 @@
+{
+  "name": "enabled-with-unrelated-high-bits",
+  "branch": "FLAG_ENABLED set together with unrelated higher-order bits (flags=5, i.e. 0x1|0x4) — proves the bitwise-AND extraction returns 1 regardless of other unrelated flags in the bitmask",
+  "input": {
+    "flags": 5
+  },
+  "expected": 1
+}
