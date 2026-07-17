@@ -1,0 +1,8 @@
+{
+  "name": "active-and-archived-together",
+  "branch": "Edge case: FLAG_ACTIVE (0x0002) + FLAG_ARCHIVED (0x0004) both set -> isActive() true; confirms archived bit set alongside active does not suppress the active result",
+  "input": {
+    "flags": 6
+  },
+  "expected": true
+}

@@ -1,0 +1,8 @@
+{
+  "name": "archived-only-not-active",
+  "branch": "Edge case: FLAG_ARCHIVED (0x0004) set without FLAG_ACTIVE -> isActive() false; confirms archived bit is non-overlapping and does not get conflated with active",
+  "input": {
+    "flags": 4
+  },
+  "expected": false
+}

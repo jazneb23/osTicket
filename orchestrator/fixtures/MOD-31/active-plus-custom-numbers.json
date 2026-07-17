@@ -1,0 +1,8 @@
+{
+  "name": "active-plus-custom-numbers",
+  "branch": "Other-bits-ignored path: FLAG_ACTIVE (0x0002) + FLAG_CUSTOM_NUMBERS (0x0001) set -> isActive() true; confirms unrelated bit does not affect outcome",
+  "input": {
+    "flags": 3
+  },
+  "expected": true
+}

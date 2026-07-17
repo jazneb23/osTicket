@@ -1,0 +1,8 @@
+{
+  "name": "no-flags-inactive",
+  "branch": "Fallback/disabled path: flags=0, no bits set -> isActive() false",
+  "input": {
+    "flags": 0
+  },
+  "expected": false
+}

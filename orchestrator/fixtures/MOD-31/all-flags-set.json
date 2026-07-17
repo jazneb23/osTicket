@@ -1,0 +1,8 @@
+{
+  "name": "all-flags-set",
+  "branch": "Comprehensive multi-flag path: FLAG_CUSTOM_NUMBERS + FLAG_ACTIVE + FLAG_ARCHIVED all set (0x0001|0x0002|0x0004=7) -> isActive() true; confirms bitmask isolation holds with maximal flag combination",
+  "input": {
+    "flags": 7
+  },
+  "expected": true
+}

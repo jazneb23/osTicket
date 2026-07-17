@@ -1,0 +1,8 @@
+{
+  "name": "active-only",
+  "branch": "Normal path: FLAG_ACTIVE bit set alone -> isActive() true (baseline truthy case)",
+  "input": {
+    "flags": 2
+  },
+  "expected": true
+}
