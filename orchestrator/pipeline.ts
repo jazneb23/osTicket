@@ -10,6 +10,7 @@ import {
 import { notifyPrOpened } from "./lib/slack";
 import { writeStageBanner } from "./lib/sdk";
 import { logPipelineLine } from "./lib/terminal";
+import { assertLocalDockerReady } from "./lib/dockerPreflight";
 import { publishArtifactsForPr } from "./lib/gitPublish";
 import { baselineCapture } from "./agents/baselineCapture";
 import { cartographer } from "./agents/cartographer";
@@ -30,6 +31,8 @@ export async function runPipeline(
   acceptanceCriteria: string,
   fromStage = 1
 ): Promise<void> {
+  assertLocalDockerReady();
+
   writeStageBanner("cartographer", ticketId);
   const manifest = await cartographer(
     ticketId,

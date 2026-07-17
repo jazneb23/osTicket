@@ -87,13 +87,12 @@ fixtures just to pass.
 ## Entry points
 
 ```bash
-# Prod: Cursor Automation on Linear Ready (cloud VM + Compose) — no listener
-
-# Full pipeline for a ticket (local debug or cloud agent shell)
-npx tsx orchestrator/pipeline.ts MOD-<id> --criteria "<acceptance text>" [--from-stage N]
-
-# Deprecated local Linear poller (do not run alongside the Automation)
+# Prod: local listener (see .github/LOCAL_DEMO_SETUP.md)
+bash scripts/local-demo-start.sh
 npx tsx orchestrator/listener.ts
+
+# Full pipeline for one ticket (manual / debug)
+npx tsx orchestrator/pipeline.ts MOD-<id> --criteria "<acceptance text>" [--from-stage N]
 
 # Capture baselines then verify one ticket
 npx tsx orchestrator/capture-and-verify.ts [MOD-id]
@@ -109,15 +108,14 @@ npx tsx orchestrator/test-stage3.ts
 
 ## Listener flow
 
-`orchestrator/listener.ts` is a **legacy local poller**. Prefer the Cursor
-Automation (Linear status → Ready). If you use the listener for debug:
+`orchestrator/listener.ts` is the **production demo entry**. It polls Linear for
+Ready tickets (one at a time via `claimNextReadyTicket` + `pipelineBusy`):
 
-1. Poll Linear for a Ready ticket
+1. Claim next Ready ticket (skip if another is In Progress)
 2. Mark In Progress
 3. `runPipeline(ticketId, ticket.description)`
-4. Deduplicate with an in-memory `processed` set
 
-Do not run listener + Automation at the same time.
+Requires local Docker (`scripts/local-demo-start.sh`). Disable Cursor Automation.
 
 ## Manifest + state locations
 

@@ -5,20 +5,27 @@ This repo is a **strangler-fig migration demo**: a Cursor SDK orchestrator (Type
 gated by a **sacred parity check**. See `.cursor/rules/repo-context.mdc` and
 `.cursor/skills/onboarding/runbook.md` for the authoritative overview and command list.
 
-## Cursor Cloud specific instructions
+## Local demo instructions
 
-Environment source of truth is `.cursor/environment.json` → `.cursor/Dockerfile`
-(build: Ubuntu 24.04 + Node 22 + `gh` + Docker CE/Compose + `fuse-overlayfs`),
-`.cursor/install.sh` (`npm ci`), and `.cursor/start.sh` (start dockerd →
-`scripts/ci-docker-bootstrap.sh`). Because the repo pins a Dockerfile, saving a
-cloud snapshot is a no-op — make environment changes in the Dockerfile, not a snapshot.
+**Production path:** local Docker + `orchestrator/listener.ts`. See
+`.github/LOCAL_DEMO_SETUP.md` and `.cursor/skills/onboarding/runbook.md`.
 
-Services (all standard commands live in `.cursor/skills/onboarding/runbook.md`):
+Parity runs via `docker compose exec` on your machine (`scripts/local-demo-start.sh`).
+Nested SDK stages (cartographer, fixture-generator, pr-agent) use Cursor cloud
+agents via `@cursor/sdk` — they do not need Docker on the cloud VM.
+
+## Cursor Cloud files (nested agents only)
+
+`.cursor/environment.json`, `.cursor/install.sh`, and `.cursor/start-cloud-agent.sh`
+bootstrap nested `withCloudAgent` VMs (no DinD). Legacy `.cursor/start.sh` is
+retired for the demo. **Do not** use Cursor Automation to run the full pipeline.
+
+Services (commands in `.cursor/skills/onboarding/runbook.md`):
 
 | Service | What / how | Notes |
 |---------|-----------|-------|
-| `db` (MySQL 8) + `web` (PHP 8.4/Apache) | `docker compose` via `scripts/ci-docker-bootstrap.sh`; web on `:8080`, db on `:3306` | Started by `.cursor/start.sh`; bootstrap is idempotent |
-| Orchestrator (TypeScript) | run with `npx tsx orchestrator/<entry>.ts` — **no build step** | `tsx` strips types; do not rely on `tsc` |
+| `db` (MySQL 8) + `web` (PHP 8.4/Apache) | Local `docker compose` via `scripts/local-demo-start.sh`; web on `:8080`, db on `:3306` | Required for parity on the demo machine |
+| Orchestrator (TypeScript) | `npx tsx orchestrator/<entry>.ts` — **no build step** | `tsx` strips types; do not rely on `tsc` |
 
 Non-obvious gotchas (durable):
 
@@ -44,7 +51,6 @@ Non-obvious gotchas (durable):
   (untracked) — do not commit it.
 - Full pipeline (`orchestrator/pipeline.ts`) needs
   `CURSOR_API_KEY`, `LINEAR_API_KEY`, `GITHUB_*` (and optional `SLACK_WEBHOOK_URL`);
-  these are injected as cloud secrets. The parity check itself needs no external APIs.
-- If `docker` is missing at runtime, the VM was **not** built from `.cursor/Dockerfile`
-  (a snapshot/override). `.cursor/start.sh` prints diagnostics; the fix is to rebuild
-  from the repo Dockerfile rather than installing Docker ad hoc.
+  run locally with Docker Desktop for parity. The parity check itself needs no external APIs beyond Compose.
+- If parity fails with "docker compose" errors, run `bash scripts/local-demo-start.sh`
+  and confirm Docker Desktop is running — do not use cloud `start.sh` for the demo.

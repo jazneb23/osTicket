@@ -174,7 +174,7 @@ export async function getTicketState(ticketId: string): Promise<string | null> {
 }
 
 /**
- * Serial claim for Automation / listener: skip if any ticket is In Progress,
+ * Serial claim for local listener: skip if any ticket is In Progress,
  * otherwise move the oldest Ready ticket to In Progress and return it.
  * On a rare double-claim race, revert the newer claim back to Ready.
  */
