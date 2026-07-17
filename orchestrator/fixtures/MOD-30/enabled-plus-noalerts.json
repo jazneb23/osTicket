@@ -1,0 +1,8 @@
+{
+  "name": "enabled-plus-noalerts",
+  "branch": "flags=3 (both FLAG_ENABLED and FLAG_NOALERTS set): proves enabling no-alerts does not suppress the enabled bit; isEnabled() must still return 1 despite FLAG_NOALERTS also being set.",
+  "input": {
+    "flags": 3
+  },
+  "expected": 1
+}

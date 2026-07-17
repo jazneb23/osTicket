@@ -1,0 +1,8 @@
+{
+  "name": "noalerts-only-still-disabled",
+  "branch": "flags=2 (FLAG_NOALERTS set, FLAG_ENABLED clear): proves FLAG_ENABLED is evaluated independently of FLAG_NOALERTS - having no-alerts set must not make the team appear enabled; isEnabled() returns 0.",
+  "input": {
+    "flags": 2
+  },
+  "expected": 0
+}

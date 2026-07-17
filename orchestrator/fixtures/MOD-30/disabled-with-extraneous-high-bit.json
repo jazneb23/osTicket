@@ -1,0 +1,8 @@
+{
+  "name": "disabled-with-extraneous-high-bit",
+  "branch": "flags=4 (only an unrelated higher bit 0x0004 set, FLAG_ENABLED clear): proves that non-FLAG_ENABLED bits being set never falsely trigger enabled status; isEnabled() returns 0.",
+  "input": {
+    "flags": 4
+  },
+  "expected": 0
+}

@@ -1,0 +1,8 @@
+{
+  "name": "enabled-with-extraneous-high-bit",
+  "branch": "flags=5 (FLAG_ENABLED bit 0x0001 set plus an unrelated higher bit 0x0004): proves the bitwise AND masks strictly to FLAG_ENABLED (bit 0) and extraneous set bits elsewhere in the bitmask do not change the raw 0/1 result; isEnabled() returns 1.",
+  "input": {
+    "flags": 5
+  },
+  "expected": 1
+}
