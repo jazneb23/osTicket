@@ -86,16 +86,16 @@ fixtures just to pass.
 - Uses `gh pr create --base <GITHUB_DEMO_BRANCH> --head strangler/<ticket>`
 - Scoped to facade + extraction target + ticket fixtures from manifest
 
-## Multi-ticket Ready
+## Ready queue (serial)
 
-Move 2–3 tickets to **Ready** concurrently (Cursor Automation). Each run:
+Put several tickets in **Ready**. Process **one at a time**:
 
-1. Creates or resumes `strangler/MOD-*` from the base branch
-2. Publishes only that ticket's paths
-3. Opens its own PR
+1. Claim one ticket → In Progress (skip if another is already In Progress)
+2. Create or resume `strangler/MOD-*` from the base branch
+3. Run nested cloud agents (cartographer, fixture-generator, pr-agent)
+4. Publish that ticket's paths and open its own PR
 
-Do not run `listener.ts` alongside Automation. Overlapping facade PRs: merge one
-at a time and rebase the rest. See `.github/MULTI_TICKET_SETUP.md`.
+Do not run `listener.ts` alongside Automation. See `.github/MULTI_TICKET_SETUP.md`.
 
 ## Entry points
 
@@ -131,7 +131,8 @@ Automation (Linear status → Ready). If you use the listener for debug:
 4. Deduplicate with an in-memory `processed` set
 5. **One pipeline at a time** — `pipelineBusy` gate prevents overlapping polls
 
-Do not run listener + Automation at the same time. Use Automation for concurrent Ready tickets.
+Do not run listener + Automation at the same time. Prefer Automation with a
+serial claim lock; use the listener only for local one-at-a-time debug.
 
 ## Manifest + state locations
 
