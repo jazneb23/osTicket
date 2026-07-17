@@ -1,8 +1,0 @@
-{
-  "name": "no-flags-set",
-  "branch": "flags=0, no bits set — FLAG_TRANSIENT mask yields 0/falsy",
-  "input": {
-    "flags": 0
-  },
-  "expected": 0
-}

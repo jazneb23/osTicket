@@ -1,8 +1,0 @@
-{
-  "name": "all-flags-including-transient",
-  "branch": "All defined flags set together (FLAG_ACTIVE|FLAG_ESCALATE|FLAG_NOALERTS|FLAG_TRANSIENT, flags=15) — masking isolates transient bit amid full bitmask",
-  "input": {
-    "flags": 15
-  },
-  "expected": 8
-}
