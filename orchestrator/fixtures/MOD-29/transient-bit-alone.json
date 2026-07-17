@@ -1,0 +1,8 @@
+{
+  "name": "transient-bit-alone",
+  "branch": "Normal path: only FLAG_TRANSIENT (0x0008) set -> isTransient() bitwise-AND is truthy",
+  "input": {
+    "flags": 8
+  },
+  "expected": 8
+}

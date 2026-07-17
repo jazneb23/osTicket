@@ -1,0 +1,8 @@
+{
+  "name": "transient-plus-all-other-flags",
+  "branch": "Normal path: FLAG_TRANSIENT combined with every other defined flag (FLAG_ACTIVE|FLAG_ESCALATE|FLAG_NOALERTS|FLAG_TRANSIENT = 15) -> FLAG_TRANSIENT bit set, truthy",
+  "input": {
+    "flags": 15
+  },
+  "expected": 8
+}

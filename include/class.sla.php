@@ -14,6 +14,7 @@
 **********************************************************************/
 include_once INCLUDE_DIR.'class.businesshours.php';
 include_once INCLUDE_DIR.'class.schedule.php';
+require_once INCLUDE_DIR . 'Services/SlaTransientChecker.php';
 
 class SLA extends VerySimpleModel
 implements TemplateVariable {
@@ -99,7 +100,7 @@ implements TemplateVariable {
     }
 
     function isTransient() {
-        return $this->flags & self::FLAG_TRANSIENT;
+        return (new SlaTransientChecker())->check($this) ? self::FLAG_TRANSIENT : 0;
     }
 
     function sendAlerts() {

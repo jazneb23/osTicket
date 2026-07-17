@@ -1,0 +1,8 @@
+{
+  "name": "transient-plus-active",
+  "branch": "Normal path: FLAG_TRANSIENT combined with one other flag (FLAG_ACTIVE|FLAG_TRANSIENT = 9) -> FLAG_TRANSIENT bit still set, truthy",
+  "input": {
+    "flags": 9
+  },
+  "expected": 8
+}

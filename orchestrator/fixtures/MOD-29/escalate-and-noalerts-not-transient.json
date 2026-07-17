@@ -1,0 +1,8 @@
+{
+  "name": "escalate-and-noalerts-not-transient",
+  "branch": "Guard: multiple unrelated flags set (FLAG_ESCALATE|FLAG_NOALERTS = 6) without FLAG_TRANSIENT -> bitwise-AND is 0, falsy",
+  "input": {
+    "flags": 6
+  },
+  "expected": 0
+}
