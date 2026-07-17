@@ -8,12 +8,12 @@ Confirm stage order against `orchestrator/pipeline.ts` before briefing.
 |---|-------|------------|---------|---------|
 | 1 | cartographer | `agents/cartographer.ts` | Cloud | Investigate legacy PHP; write seam manifest JSON (no implementation) |
 | 2a | harnessBuilder | `agents/harnessBuilder.ts` | Local | Create/reuse `legacy/harness/<seam>_capture.php` |
-| 2b | fixtureGenerator | `agents/fixtureGenerator.ts` | Local | Propose fixture cases under `orchestrator/fixtures/<ticket>/` |
+| 2b | fixtureGenerator | `agents/fixtureGenerator.ts` | Cloud | Propose fixture cases under `orchestrator/fixtures/<ticket>/` |
 | 2c | baselineCapture | `agents/baselineCapture.ts` | Local (harness) | Run harness; fill real `expected` values |
 | 3 | extractor | `agents/extractor.ts` | Local | Create thin service at `extractionTarget` |
 | 4 | strangler | `agents/strangler.ts` | Local | Smallest facade patch at `facadeFile` |
 | 5 | verifier | `agents/verifier.ts` | Local (harness) | Compare harness output to fixture expecteds → `ParityReport` |
-| 6 | prAgent | `agents/prAgent.ts` | Local (`gh`) | Open PR **only if** `gatePassed` |
+| 6 | prAgent | `agents/prAgent.ts` | Cloud | Open PR **only if** `gatePassed` |
 
 `fromStage` in `runPipeline(ticketId, criteria, fromStage)` skips earlier work
 (e.g. `--from-stage 3` reuses harness/fixtures/baseline).
@@ -27,10 +27,9 @@ After verifier:
 
 **Pass** (`report.gatePassed === true`):
 
-1. Hands-off by default: checkout `strangler/<ticket>` from `GITHUB_DEMO_BRANCH`,
-   publish scoped artifacts on that branch, then open PR with `gh`
+1. Hands-off by default: publish artifacts (`gitPublish`) then open PR
    (set `PIPELINE_PAUSE_FOR_REVIEW=1` only for legacy demo pause **logs**)
-2. `prAgent` opens PR against the base branch (`--base` / `--head` explicit)
+2. `prAgent` opens PR
 3. Slack `notifyPrOpened`
 4. Linear comment + status → **In Review**
 
@@ -83,35 +82,15 @@ fixtures just to pass.
 ### PR agent
 
 - Runs only after gate pass
-- Uses `gh pr create --base <GITHUB_DEMO_BRANCH> --head strangler/<ticket>`
-- Scoped to facade + extraction target + ticket fixtures from manifest
-
-## Ready → one pipeline (serial)
-
-Move **one** ticket to **Ready**. The Linear Automation runs the worker:
-
-```bash
-npx tsx orchestrator/automationWorker.ts --max 1
-```
-
-1. Skip if any ticket is already In Progress
-2. Claim that Ready ticket → In Progress
-3. Create or resume `strangler/MOD-*` and run the pipeline (nested cloud agents)
-4. Publish that ticket's paths and open its own PR
-
-Prefer a **Linear status → Ready** Automation (not a cron schedule). See
-`.github/MULTI_TICKET_SETUP.md`. Do not run `listener.ts` alongside Automation.
+- Scoped to facade + extraction target from manifest
 
 ## Entry points
 
 ```bash
-# Prod: Linear Ready Automation → automationWorker.ts --max 1
+# Prod: Cursor Automation on Linear Ready (cloud VM + Compose) — no listener
 
 # Full pipeline for a ticket (local debug or cloud agent shell)
 npx tsx orchestrator/pipeline.ts MOD-<id> --criteria "<acceptance text>" [--from-stage N]
-
-# Claim + run worker (Automation entry — claim lock in code)
-npx tsx orchestrator/automationWorker.ts --max 1
 
 # Deprecated local Linear poller (do not run alongside the Automation)
 npx tsx orchestrator/listener.ts
@@ -137,10 +116,8 @@ Automation (Linear status → Ready). If you use the listener for debug:
 2. Mark In Progress
 3. `runPipeline(ticketId, ticket.description)`
 4. Deduplicate with an in-memory `processed` set
-5. **One pipeline at a time** — `pipelineBusy` gate prevents overlapping polls
 
-Do not run listener + Automation at the same time. Prefer Automation with a
-serial claim lock; use the listener only for local one-at-a-time debug.
+Do not run listener + Automation at the same time.
 
 ## Manifest + state locations
 
@@ -149,7 +126,7 @@ serial claim lock; use the listener only for local one-at-a-time debug.
 | `orchestrator/manifests/MOD-*-manifest.json` | Committed source of truth for known seams |
 | `orchestrator/.state/MOD-*-manifest.json` | Runtime cache (gitignored); cartographer/CI may copy committed → state |
 | `orchestrator/fixtures/MOD-*/` | One JSON file per case |
-| `orchestrator/fixtures/MOD-*/parity.json` | Per-ticket parity report from verifier |
+| `orchestrator/fixtures/parity.json` | Aggregate parity artifact if present |
 
 `ci-parity-check.ts` discovers ticket ids from fixture directories and ensures
 state manifests exist (copying from `orchestrator/manifests/` when needed).
@@ -159,6 +136,6 @@ state manifests exist (copying from `orchestrator/manifests/` when needed).
 - `withLocalAgent` / `withCloudAgent`, streaming helpers — `lib/sdk.ts`
 - `loadManifest`, `requireFacadeFile`, `requireExtractionTarget`, `requireHarnessScript`, `fixtureHarnessInput` — `lib/manifest.ts`
 - `runHarness` — `lib/harness.ts`
-- `publishArtifactsForPr`, `ensureStranglerBranch`, `openPullRequest` — `lib/gitPublish.ts`
+- `publishArtifactsForPr` — `lib/gitPublish.ts` (before nested cloud PR agent)
 - Linear/Slack helpers — `lib/linear.ts`, `lib/slack.ts`
 - Keep agents **thin**: prompts + I/O only

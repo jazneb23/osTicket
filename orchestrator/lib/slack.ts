@@ -1,11 +1,12 @@
 import * as fs from "fs";
 import * as path from "path";
-import { listGoldenFixtureFiles } from "./fixtures";
 import type { Fixture, ParityReport } from "./types";
 
 function listFixtureNames(ticketId: string): string[] {
   const dir = `orchestrator/fixtures/${ticketId}`;
-  return listGoldenFixtureFiles(dir)
+  return fs
+    .readdirSync(dir)
+    .filter((f) => f.endsWith(".json"))
     .map(
       (f) =>
         (JSON.parse(fs.readFileSync(path.join(dir, f), "utf-8")) as Fixture)

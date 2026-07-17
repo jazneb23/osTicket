@@ -42,7 +42,7 @@ Non-obvious gotchas (durable):
   → `output` should be `2024-01-15T12:00:00`.
 - The verifier writes a generated `orchestrator/fixtures/MOD-*/parity.json` report
   (untracked) — do not commit it.
-- Full pipeline (`orchestrator/pipeline.ts` / `automationWorker.ts`) needs
+- Full pipeline (`orchestrator/pipeline.ts`) needs
   `CURSOR_API_KEY`, `LINEAR_API_KEY`, `GITHUB_*` (and optional `SLACK_WEBHOOK_URL`);
   these are injected as cloud secrets. The parity check itself needs no external APIs.
 - If `docker` is missing at runtime, the VM was **not** built from `.cursor/Dockerfile`
