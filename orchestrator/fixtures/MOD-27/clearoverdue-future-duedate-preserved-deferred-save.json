@@ -1,0 +1,13 @@
+{
+  "name": "clearoverdue-future-duedate-preserved-deferred-save",
+  "branch": "clearOverdue() on an overdue ticket with a future duedate leaves duedate untouched (db2gmtime(duedate) > gmtime()) while still zeroing isoverdue, and with save=false defers persistence for the caller instead of issuing its own UPDATE",
+  "input": {
+    "action": "clearOverdue",
+    "status_state": "open",
+    "isoverdue": 1,
+    "duedate": "2030-01-15 10:00:00",
+    "est_duedate": null,
+    "save": false
+  },
+  "expected": true
+}

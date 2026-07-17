@@ -1,0 +1,13 @@
+{
+  "name": "markoverdue-already-overdue-idempotent",
+  "branch": "markOverdue() short-circuits to true with no save, logEvent, or onOverdue alert when isOverdue() is already true on an open ticket",
+  "input": {
+    "action": "markOverdue",
+    "status_state": "open",
+    "isoverdue": 1,
+    "duedate": "2020-01-15 10:00:00",
+    "est_duedate": null,
+    "whine": true
+  },
+  "expected": true
+}

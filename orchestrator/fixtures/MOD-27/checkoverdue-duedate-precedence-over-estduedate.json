@@ -1,0 +1,34 @@
+{
+  "name": "checkoverdue-duedate-precedence-over-estduedate",
+  "branch": "checkOverdue()'s batch filter enforces duedate-over-est_duedate precedence and the status__state='open' + isoverdue=0 gate: a past duedate flags a ticket regardless of est_duedate, a null-duedate ticket falls back to a past est_duedate, a future duedate excludes the ticket even with a past est_duedate, and a closed ticket with a past duedate is excluded entirely",
+  "input": {
+    "action": "checkOverdue",
+    "tickets": [
+      {
+        "status_state": "open",
+        "isoverdue": 0,
+        "duedate": "2020-01-15 10:00:00",
+        "est_duedate": null
+      },
+      {
+        "status_state": "open",
+        "isoverdue": 0,
+        "duedate": null,
+        "est_duedate": "2020-02-01 10:00:00"
+      },
+      {
+        "status_state": "open",
+        "isoverdue": 0,
+        "duedate": "2030-01-15 10:00:00",
+        "est_duedate": "2020-02-01 10:00:00"
+      },
+      {
+        "status_state": "closed",
+        "isoverdue": 0,
+        "duedate": "2020-01-15 10:00:00",
+        "est_duedate": null
+      }
+    ]
+  },
+  "expected": null
+}

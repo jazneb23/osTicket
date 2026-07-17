@@ -1,0 +1,13 @@
+{
+  "name": "clearoverdue-not-overdue-noop-guard",
+  "branch": "clearOverdue() guard: isOverdue() is false, so the zeroing branch is skipped entirely and isoverdue/duedate/est_duedate are left untouched even though duedate is in the past",
+  "input": {
+    "action": "clearOverdue",
+    "status_state": "open",
+    "isoverdue": 0,
+    "duedate": "2020-01-15 10:00:00",
+    "est_duedate": null,
+    "save": true
+  },
+  "expected": true
+}

@@ -1,0 +1,13 @@
+{
+  "name": "markoverdue-normal-transition-with-alert",
+  "branch": "markOverdue() on an open, not-yet-overdue ticket takes the full success path: sets isoverdue=1, saves, logs the 'overdue' event, and runs onOverdue() with whine=true enabling alert dispatch",
+  "input": {
+    "action": "markOverdue",
+    "status_state": "open",
+    "isoverdue": 0,
+    "duedate": "2020-01-15 10:00:00",
+    "est_duedate": null,
+    "whine": true
+  },
+  "expected": true
+}
