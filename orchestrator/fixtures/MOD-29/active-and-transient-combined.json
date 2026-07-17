@@ -1,0 +1,8 @@
+{
+  "name": "active-and-transient-combined",
+  "branch": "FLAG_ACTIVE|FLAG_TRANSIENT combined (flags=9) — transient bit truthy despite additional unrelated bit set",
+  "input": {
+    "flags": 9
+  },
+  "expected": 8
+}

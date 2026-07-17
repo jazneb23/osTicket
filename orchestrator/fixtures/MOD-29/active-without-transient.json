@@ -1,0 +1,8 @@
+{
+  "name": "active-without-transient",
+  "branch": "FLAG_ACTIVE set but FLAG_TRANSIENT unset (flags=1) — other flag bit must not affect transient result",
+  "input": {
+    "flags": 1
+  },
+  "expected": 0
+}
