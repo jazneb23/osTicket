@@ -11,23 +11,23 @@ cloud VM** built from [`.cursor/environment.json`](../../environment.json) +
 
 Flow:
 
-1. Move one or more `MOD-*` tickets to **Ready** (2–3 concurrent runs are supported)
-2. Each Automation sets its ticket **In Progress** and runs
-   `npx tsx orchestrator/pipeline.ts <TICKET> --criteria "<description>"`
-3. Pipeline checks out `strangler/<TICKET>` from `GITHUB_DEMO_BRANCH` and pushes early
-4. Cloud `start` script brings up Compose + bootstrap so baseline/verifier work
-5. On parity pass: commit/push artifacts on the ticket branch → PR → Slack → Linear **In Review**
-6. On fail: Linear failure comment; ticket stays **In Progress**; no PR
+1. Move one or more `MOD-*` tickets to **Ready** (they form a queue)
+2. Automation claims **one** ticket → **In Progress** (skips if another is already In Progress)
+3. Runs `npx tsx orchestrator/pipeline.ts <TICKET> --criteria "<description>"`
+4. Pipeline checks out `strangler/<TICKET>` from `GITHUB_DEMO_BRANCH` and pushes early
+5. Cloud `start` script brings up Compose + bootstrap so baseline/verifier work
+6. On parity pass: commit/push artifacts → cloud PR agent → Slack → Linear **In Review**
+7. On fail: Linear failure comment; ticket stays **In Progress**; no PR
+8. Next Ready ticket is claimed when the active run finishes
 
-### Multi-ticket concurrency
+### Serial Ready queue (one at a time)
 
-Each Ready ticket gets its own cloud VM and `strangler/MOD-*` branch. The base
-branch (`GITHUB_DEMO_BRANCH`, e.g. `demo/sla-strangler`) is the PR target only —
-the orchestrator does not push to it.
+Put several tickets in Ready; they drain **one pipeline at a time**. Nested
+`withCloudAgent` stages (cartographer, fixture-generator, pr-agent) still show
+as separate cloud agents on cursor.com/agents — that is the demo beat.
 
-Move several tickets to Ready at once; each finishes independently with its own
-PR. If two tickets touch the same facade file, merge their PRs one at a time and
-rebase the second onto the updated base.
+Each ticket uses `strangler/MOD-*`. The base branch (`GITHUB_DEMO_BRANCH`) is
+the PR target only — the orchestrator does not push to it.
 
 GitHub prerequisites: see [`.github/MULTI_TICKET_SETUP.md`](../../.github/MULTI_TICKET_SETUP.md).
 
@@ -121,8 +121,8 @@ npx tsx orchestrator/listener.ts
 ```
 
 Do **not** run the listener while the Automation is Active — double starts.
-The listener processes one pipeline at a time in a single checkout; use
-Automation for concurrent Ready tickets.
+The listener already processes one pipeline at a time; Automation should use
+the same serial claim lock (skip if another ticket is In Progress).
 
 ### Re-capture baselines and verify one seam
 
