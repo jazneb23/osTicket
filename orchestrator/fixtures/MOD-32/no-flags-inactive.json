@@ -1,0 +1,8 @@
+{
+  "name": "no-flags-inactive",
+  "branch": "flags == 0, no bits set; isActive() returns false (default/inactive department)",
+  "input": {
+    "flags": 0
+  },
+  "expected": false
+}

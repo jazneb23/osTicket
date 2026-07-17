@@ -1,0 +1,8 @@
+{
+  "name": "active-plus-disable-reopen-auto-assign",
+  "branch": "FLAG_ACTIVE combined with unrelated FLAG_DISABLE_REOPEN_AUTO_ASSIGN (0x0020) bit; another unrelated-flag combination still yielding true",
+  "input": {
+    "flags": 36
+  },
+  "expected": true
+}

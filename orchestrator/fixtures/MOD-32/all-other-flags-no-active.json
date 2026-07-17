@@ -1,0 +1,8 @@
+{
+  "name": "all-other-flags-no-active",
+  "branch": "All non-ACTIVE flag bits set simultaneously (ASSIGN_MEMBERS_ONLY, DISABLE_AUTO_CLAIM, ARCHIVED, ASSIGN_PRIMARY_ONLY, DISABLE_REOPEN_AUTO_ASSIGN) but FLAG_ACTIVE bit absent; confirms result is false regardless of how many other bits are on",
+  "input": {
+    "flags": 59
+  },
+  "expected": false
+}

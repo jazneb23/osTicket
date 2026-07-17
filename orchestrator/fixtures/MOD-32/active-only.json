@@ -1,0 +1,8 @@
+{
+  "name": "active-only",
+  "branch": "FLAG_ACTIVE bit set alone; isActive() returns true via the normal !!($this->flags & FLAG_ACTIVE) path",
+  "input": {
+    "flags": 4
+  },
+  "expected": true
+}
