@@ -1,0 +1,8 @@
+{
+  "name": "transient-bit-only",
+  "branch": "FLAG_TRANSIENT (0x0008) set alone: normal/intended path where the SLA is explicitly marked transient, `flags & FLAG_TRANSIENT` yields the nonzero int 8 (truthy)",
+  "input": {
+    "flags": 8
+  },
+  "expected": 8
+}

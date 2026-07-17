@@ -1,0 +1,8 @@
+{
+  "name": "all-known-flags-including-transient",
+  "branch": "All known flags combined (FLAG_ACTIVE | FLAG_ESCALATE | FLAG_NOALERTS | FLAG_TRANSIENT = 0x000F): upper-bound sanity case where every documented bit is set, AND with FLAG_TRANSIENT still returns 8 (truthy)",
+  "input": {
+    "flags": 15
+  },
+  "expected": 8
+}

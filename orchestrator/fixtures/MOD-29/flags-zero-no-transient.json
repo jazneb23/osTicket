@@ -1,0 +1,8 @@
+{
+  "name": "flags-zero-no-transient",
+  "branch": "flags = 0x0000: no bits set at all, `flags & FLAG_TRANSIENT` on an all-clear bitmask returns 0 (falsy) — baseline/guard case with nothing set",
+  "input": {
+    "flags": 0
+  },
+  "expected": 0
+}

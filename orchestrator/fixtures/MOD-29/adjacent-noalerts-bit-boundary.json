@@ -1,0 +1,8 @@
+{
+  "name": "adjacent-noalerts-bit-boundary",
+  "branch": "FLAG_NOALERTS (0x0004) set alone, one bit position below FLAG_TRANSIENT (0x0008): boundary case confirming the adjacent bit does not falsely trip the transient check, `flags & FLAG_TRANSIENT` returns 0 (falsy)",
+  "input": {
+    "flags": 4
+  },
+  "expected": 0
+}

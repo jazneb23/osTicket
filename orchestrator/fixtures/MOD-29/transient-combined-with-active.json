@@ -1,0 +1,8 @@
+{
+  "name": "transient-combined-with-active",
+  "branch": "FLAG_ACTIVE | FLAG_TRANSIENT (0x0001|0x0008 = 0x0009): transient bit set alongside one unrelated bit, `flags & FLAG_TRANSIENT` still isolates and returns 8 (truthy), confirming other set bits don't interfere",
+  "input": {
+    "flags": 9
+  },
+  "expected": 8
+}

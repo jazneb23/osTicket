@@ -1,0 +1,8 @@
+{
+  "name": "other-flags-without-transient",
+  "branch": "FLAG_ACTIVE | FLAG_ESCALATE | FLAG_NOALERTS (0x0001|0x0002|0x0004 = 0x0007) with FLAG_TRANSIENT unset: nonzero bitmask but none of the set bits overlap 0x0008, so the AND yields 0 (falsy) despite flags being nonzero — proves the check isolates the exact bit, not just truthiness of `flags`",
+  "input": {
+    "flags": 7
+  },
+  "expected": 0
+}
