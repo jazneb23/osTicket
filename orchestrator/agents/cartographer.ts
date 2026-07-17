@@ -1,3 +1,4 @@
+import { CLOUD_AGENT_HARD_RULES } from "../lib/cloudAgentGuardrails";
 import { logRunEnd, logRunStart, parseJsonResult, streamRunWithProgress, withCloudAgent } from "../lib/sdk";
 import { applyHarnessDefaults, manifestPath } from "../lib/manifest";
 import { logAgentLine } from "../lib/terminal";
@@ -21,8 +22,13 @@ export async function cartographer(
     const run = await agent.send(`
 Ticket ${ticketId}: ${acceptanceCriteria}
 
+${CLOUD_AGENT_HARD_RULES}
+
 You investigate legacy PHP code to confirm and document a strangler-fig seam
 before any extraction begins. You do not write implementation code.
+Prefer reading files under include/ and related PHP call sites — do not explore
+orchestrator bootstrap, Docker scripts, or onboarding runbooks unless the ticket
+text explicitly requires it.
 
 Your final output is a single JSON object matching the seam-manifest schema.
 You trace real call sites using file reads, not assumptions. If a function

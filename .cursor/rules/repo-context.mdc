@@ -25,3 +25,9 @@ Do **not** treat the upstream osTicket README or contribution guidance as the so
 ## Leave unrelated trees alone
 
 Do not edit `include/*/vendor/`, mpdf/laminas vendor trees, or unrelated osTicket files unless the current ticket's seam manifest **explicitly** names them.
+
+## Nested cloud agents (no Docker)
+
+Cartographer and fixture-generator run in Cursor cloud VMs. They must **not** start
+Docker, DinD, `docker compose`, or `scripts/local-demo-start.sh`. Parity Compose
+runs only on the local demo machine (`listener.ts` / `assertLocalDockerReady`).

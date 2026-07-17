@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
+import { CLOUD_AGENT_HARD_RULES } from "../lib/cloudAgentGuardrails";
 import {
   logRunEnd,
   logRunStart,
@@ -30,6 +31,8 @@ async function generateFixturesViaCloud(
   return withCloudAgent(
     async (agent) => {
       const run = await agent.send(`
+${CLOUD_AGENT_HARD_RULES}
+
 Seam manifest for ticket ${manifest.ticketId}:
 ${JSON.stringify(manifest, null, 2)}
 
@@ -50,6 +53,7 @@ For each fixture provide:
 
 Do NOT include an expected field — baseline outputs are captured automatically
 by the pipeline after fixture generation.
+Do NOT run Docker, harnesses, or the parity verifier — only propose fixture inputs.
 
 Respond with ONLY a valid JSON array of fixture objects. No prose before or after.
   `);

@@ -68,8 +68,10 @@ Local demo: Docker Desktop + `scripts/local-demo-start.sh` for parity;
 `listener.ts` for Linear Ready. Nested SDK agents use Cursor cloud VMs via
 `withCloudAgent` — they do not run the parity harness.
 
-Cloud files under `.cursor/` (`environment.json`, `start-cloud-agent.sh`) bootstrap
-nested cloud agents only — no DinD. Local parity uses `scripts/local-demo-start.sh`.
+Cloud files under `.cursor/` (`environment.json`, `Dockerfile`, `start-cloud-agent.sh`)
+bootstrap nested cloud agents only — **no Docker/DinD in the cloud image**. Local
+parity uses `scripts/local-demo-start.sh`. Nested stage prompts include hard rules
+against starting compose on the cloud VM.
 
 ## Key types (`orchestrator/lib/types.ts`)
 
