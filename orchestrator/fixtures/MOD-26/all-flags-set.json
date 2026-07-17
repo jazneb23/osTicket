@@ -1,0 +1,8 @@
+{
+  "name": "all-flags-set",
+  "branch": "All known flags combined (FLAG_ACTIVE | FLAG_ESCALATE | FLAG_NOALERTS | FLAG_TRANSIENT = 0x000F): fully nonzero bitmask, upper-bound sanity case confirming truthy result regardless of which/how many bits are set",
+  "input": {
+    "flags": 15
+  },
+  "expected": true
+}

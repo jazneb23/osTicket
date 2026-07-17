@@ -1,0 +1,8 @@
+{
+  "name": "active-bit-without-escalate",
+  "branch": "FLAG_ACTIVE (0x0001) set, FLAG_ESCALATE bit NOT set: demonstrates the logical-AND-vs-bitwise-AND bug — flags is nonzero so && short-circuits to truthy self::FLAG_ESCALATE, returning true even though escalation is not actually enabled",
+  "input": {
+    "flags": 1
+  },
+  "expected": true
+}

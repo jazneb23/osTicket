@@ -1,0 +1,8 @@
+{
+  "name": "escalate-bit-only",
+  "branch": "FLAG_ESCALATE (0x0002) set alone: intended normal path, left operand nonzero, && with truthy FLAG_ESCALATE yields true",
+  "input": {
+    "flags": 2
+  },
+  "expected": true
+}

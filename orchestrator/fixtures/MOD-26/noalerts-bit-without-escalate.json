@@ -1,0 +1,8 @@
+{
+  "name": "noalerts-bit-without-escalate",
+  "branch": "FLAG_NOALERTS (0x0004) set alone, FLAG_ESCALATE bit NOT set: another instance of the over-broad bug where any unrelated nonzero bit still yields true",
+  "input": {
+    "flags": 4
+  },
+  "expected": true
+}

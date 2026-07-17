@@ -1,0 +1,8 @@
+{
+  "name": "flags-zero-edge-case",
+  "branch": "flags=0 edge case: no bits set, right side of && never reached as truthy operand but left side is falsy, so result is false",
+  "input": {
+    "flags": 0
+  },
+  "expected": false
+}
