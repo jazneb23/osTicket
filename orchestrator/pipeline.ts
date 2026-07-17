@@ -40,11 +40,7 @@ export async function runPipeline(
   assertLocalDockerReady();
 
   writeStageBanner("cartographer", ticketId);
-  const manifest = await cartographer(
-    ticketId,
-    acceptanceCriteria,
-    fromStage > 1
-  );
+  const manifest = await cartographer(ticketId, acceptanceCriteria);
   logPipelineLine(
     `Manifest ready · ${(manifest.sideEffects ?? []).length} side effects · facade ${manifest.facadeFile ?? "(unknown)"}`
   );

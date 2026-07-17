@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { assertLocalDockerReady } from "./lib/dockerPreflight";
 import { claimNextReadyTicket, handlePipelineFailure } from "./lib/linear";
+import { resolvePipelineFromStage } from "./lib/manifest";
 import { runPipeline } from "./pipeline";
 
 const POLL_INTERVAL_MS = 5000;
@@ -27,9 +28,13 @@ async function poll(): Promise<void> {
       return;
     }
 
-    console.log(`Starting pipeline for ticket ${claimed.ticketId}`);
+    const fromStage = resolvePipelineFromStage(claimed.ticketId);
+    console.log(
+      `Starting pipeline for ticket ${claimed.ticketId}` +
+        (fromStage > 1 ? " (resuming from stage 2 — cached manifest)" : "")
+    );
     try {
-      await runPipeline(claimed.ticketId, claimed.description);
+      await runPipeline(claimed.ticketId, claimed.description, fromStage);
     } catch (err) {
       await handlePipelineFailure(claimed.ticketId, err);
     }

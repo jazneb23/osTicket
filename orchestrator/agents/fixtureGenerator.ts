@@ -4,7 +4,7 @@ import { CLOUD_AGENT_HARD_RULES } from "../lib/cloudAgentGuardrails";
 import {
   logRunEnd,
   logRunStart,
-  parseJsonResult,
+  requireJsonResult,
   streamRunWithProgress,
   withCloudAgent,
 } from "../lib/sdk";
@@ -66,7 +66,13 @@ Respond with ONLY a valid JSON array of fixture objects. No prose before or afte
         throw new Error(`Fixture generator cloud run failed: ${detail}`);
       }
 
-      const fixtures = parseJsonResult<Fixture[]>(result.result, []);
+      const fixtures = requireJsonResult<Fixture[]>(
+        result.result,
+        "fixture-generator"
+      );
+      if (!Array.isArray(fixtures)) {
+        throw new Error("Fixture generator response must be a JSON array");
+      }
       if (fixtures.length < 4 || fixtures.length > 6) {
         throw new Error(
           `Fixture generator returned ${fixtures.length} fixtures; expected 4-6`

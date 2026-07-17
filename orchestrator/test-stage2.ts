@@ -11,7 +11,7 @@ if (!ticketId) {
 }
 
 async function main() {
-  const manifest = await cartographer(ticketId, "", true);
+  const manifest = await cartographer(ticketId, "");
   console.log("Running extractor with cached manifest for", manifest.ticketId);
 
   const result = await extractor(manifest);

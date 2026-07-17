@@ -10,6 +10,11 @@ export function manifestPath(ticketId: string): string {
   return `orchestrator/.state/${ticketId}-manifest.json`;
 }
 
+/** Resume after a stage failure without re-running cartographer when manifest exists. */
+export function resolvePipelineFromStage(ticketId: string): number {
+  return fs.existsSync(manifestPath(ticketId)) ? 2 : 1;
+}
+
 export function loadManifest(ticketId: string): SeamManifest {
   const path = manifestPath(ticketId);
   if (!fs.existsSync(path)) {
