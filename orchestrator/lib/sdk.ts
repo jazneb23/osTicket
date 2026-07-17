@@ -33,7 +33,7 @@ const VAGUE_TOOL_SUMMARIES = new Set([
   "finding files",
 ]);
 
-/** Current git branch for cloud startingRef (per-ticket strangler/* after pipeline start). */
+/** Current git branch name (local checkout). */
 export function getCurrentBranch(): string {
   try {
     return execSync("git rev-parse --abbrev-ref HEAD", {
@@ -51,9 +51,42 @@ export function getCurrentBranch(): string {
   }
 }
 
+function branchExistsOnOrigin(branch: string): boolean {
+  try {
+    const out = execSync(`git ls-remote --heads origin ${branch}`, {
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+    return out.length > 0;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Ref cloud agents clone — must exist on GitHub.
+ * Local-only feature branches fall back to GITHUB_DEMO_BRANCH (develop).
+ */
+export function getCloudStartingRef(): string {
+  const current = getCurrentBranch();
+  if (branchExistsOnOrigin(current)) {
+    return current;
+  }
+  const base = process.env.GITHUB_DEMO_BRANCH;
+  if (base) {
+    console.warn(
+      `Cloud startingRef: '${current}' is not on origin — using '${base}'`
+    );
+    return base;
+  }
+  throw new Error(
+    `Branch '${current}' is not pushed to origin and GITHUB_DEMO_BRANCH is not set`
+  );
+}
+
 export function createCloudAgent(options: AgentRunOptions = {}) {
   const { model = "composer-2.5", name } = options;
-  const startingRef = getCurrentBranch();
+  const startingRef = getCloudStartingRef();
   return Agent.create({
     apiKey: process.env.CURSOR_API_KEY!,
     model: { id: model },

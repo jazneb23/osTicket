@@ -328,6 +328,51 @@ export function buildPipelineFailedComment(ticketId: string, error: unknown): st
   ].join("\n");
 }
 
+/** Comment body when publish/PR fails after parity passed — stay In Progress. */
+export function buildPostParityFailedComment(
+  ticketId: string,
+  error: unknown
+): string {
+  const message =
+    error instanceof Error ? error.message : String(error ?? "Unknown error");
+  return [
+    "## Publish / PR step failed",
+    "",
+    `Parity passed for **${ticketId}**, but publish or PR creation failed.`,
+    "",
+    "```",
+    message,
+    "```",
+    "",
+    "Ticket remains **In Progress** — extraction work is preserved locally.",
+    "",
+    "Resume after fixing git auth or network:",
+    "",
+    `\`npx tsx orchestrator/pipeline.ts ${ticketId} --from-stage 2\``,
+    "",
+    "(Manifest must still exist under `orchestrator/.state/`.)",
+  ].join("\n");
+}
+
+/** Publish/PR failure after parity: comment and keep In Progress (no full restart). */
+export async function handlePostParityFailure(
+  ticketId: string,
+  error: unknown
+): Promise<void> {
+  const message =
+    error instanceof Error ? error.message : String(error ?? "Unknown error");
+  console.error(`Post-parity step failed for ${ticketId}: ${message}`);
+  try {
+    await addIssueComment(ticketId, buildPostParityFailedComment(ticketId, error));
+    console.error(`Posted post-parity failure comment on ${ticketId}`);
+  } catch (commentErr) {
+    console.error(`Failed to comment post-parity failure on Linear: ${commentErr}`);
+  }
+  console.error(
+    `${ticketId} remains in ${STATUS_IN_PROGRESS} — not reset to ${READY_STATUS}`
+  );
+}
+
 /** Agent/stage failure: comment on Linear and re-queue the ticket. */
 export async function handlePipelineFailure(
   ticketId: string,

@@ -29,8 +29,9 @@ not double-start pipelines.
 
 1. Move **one** `MOD-*` ticket to **Ready** in Linear.
 2. Listener claims it → **In Progress** → runs `pipeline.ts`.
-3. On parity pass → publish → cloud pr-agent opens PR → Slack → **In Review**.
-4. Move the next ticket to Ready when ready.
+3. On parity pass → publish to `strangler/MOD-*` → cloud pr-agent opens PR → Slack → **In Review**.
+4. **Demo only:** close the PR and delete the strangler branch after the demo — never merge MOD-* into `develop`.
+5. Move the next ticket to Ready when ready.
 
 ## Required `.env` keys (local machine)
 
@@ -39,7 +40,7 @@ not double-start pipelines.
 | `CURSOR_API_KEY` | Nested cloud agents |
 | `LINEAR_API_KEY` | Claim + status + comments |
 | `GITHUB_REPO_URL` | Cloud agent repo |
-| `GITHUB_DEMO_BRANCH` | `develop` — PR base |
+| `GITHUB_DEMO_BRANCH` | `develop` — PR base (demo PRs never merge here) |
 | `SLACK_WEBHOOK_URL` | Optional PR notification |
 
 ## Smoke test (no Linear)

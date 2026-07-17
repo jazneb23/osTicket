@@ -1,3 +1,4 @@
+import { getBaseBranch, stranglerBranchName } from "../lib/gitPublish";
 import { logRunEnd, logRunStart, streamAndWait, withCloudAgent } from "../lib/sdk";
 import { requireExtractionTarget, requireFacadeFile } from "../lib/manifest";
 import type { SeamManifest, ParityReport } from "../lib/types";
@@ -37,7 +38,11 @@ This is a delegating extraction, not a reimplementation. The new service at
 ${extractionTarget} wraps existing logic from ${manifest.coreLogic}
 rather than reimplementing it.
 
-Create the PR with gh pr create and ensure it is opened against the base branch.
+Create the PR with gh pr create:
+- Base branch: ${getBaseBranch()}
+- Head branch: ${stranglerBranchName(manifest.ticketId)}
+
+This is a demo-only PR — do not merge into the base branch.
   `);
 
     logRunStart("pr-agent");
