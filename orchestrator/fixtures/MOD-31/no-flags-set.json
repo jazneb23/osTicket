@@ -1,0 +1,8 @@
+{
+  "name": "no-flags-set",
+  "branch": "Guard/edge case: flags is 0 (no bits set) -> FLAG_ACTIVE bit absent, returns false",
+  "input": {
+    "flags": 0
+  },
+  "expected": false
+}

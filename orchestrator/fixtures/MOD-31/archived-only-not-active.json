@@ -1,0 +1,8 @@
+{
+  "name": "archived-only-not-active",
+  "branch": "Archived-only case from constraints: FLAG_ARCHIVED (0x0004) set without FLAG_ACTIVE -> must yield false since active/archived are independent bits",
+  "input": {
+    "flags": 4
+  },
+  "expected": false
+}

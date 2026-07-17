@@ -1,0 +1,8 @@
+{
+  "name": "active-plus-archived",
+  "branch": "Active combined with FLAG_ARCHIVED: FLAG_ACTIVE|FLAG_ARCHIVED = 6 -> must yield true because FLAG_ACTIVE bit is present regardless of archived bit",
+  "input": {
+    "flags": 6
+  },
+  "expected": true
+}
