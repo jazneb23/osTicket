@@ -6,13 +6,18 @@ import {
   buildInReviewComment,
   buildParityFailedComment,
   handlePipelineFailure,
+  handlePostParityFailure,
   updateTicketStatus,
 } from "./lib/linear";
 import { notifyPrOpened } from "./lib/slack";
 import { writeStageBanner } from "./lib/sdk";
 import { logPipelineLine } from "./lib/terminal";
 import { assertLocalDockerReady } from "./lib/dockerPreflight";
-import { publishArtifactsForPr } from "./lib/gitPublish";
+import {
+  ensureStranglerBranch,
+  publishArtifactsForPr,
+  stranglerBranchName,
+} from "./lib/gitPublish";
 import { baselineCapture } from "./agents/baselineCapture";
 import { cartographer } from "./agents/cartographer";
 import { fixtureGenerator } from "./agents/fixtureGenerator";
@@ -41,7 +46,7 @@ export async function runPipeline(
     fromStage > 1
   );
   logPipelineLine(
-    `Manifest ready · ${manifest.sideEffects.length} side effects · facade ${manifest.facadeFile ?? "(unknown)"}`
+    `Manifest ready · ${(manifest.sideEffects ?? []).length} side effects · facade ${manifest.facadeFile ?? "(unknown)"}`
   );
 
   if (fromStage <= 2) {
@@ -100,25 +105,42 @@ export async function runPipeline(
     console.log("Parity gate passed — publishing artifacts and opening PR (hands-off).");
   }
 
-  const publish = publishArtifactsForPr({
-    ticketId,
-    paths: [manifest.facadeFile, manifest.extractionTarget].filter(
-      (p): p is string => typeof p === "string" && p.length > 0
-    ),
-  });
-  if (publish.published) {
-    logPipelineLine(`Published artifacts · ${publish.sha}`);
-  } else {
-    logPipelineLine("No new artifacts to publish (working tree clean for staged paths)");
-  }
+  try {
+    const branch = ensureStranglerBranch(ticketId);
+    logPipelineLine(
+      `Publish branch · ${branch} (demo PR base · ${process.env.GITHUB_DEMO_BRANCH})`
+    );
 
-  writeStageBanner("pr-agent", ticketId);
-  const { prUrl } = await prAgent(manifest, report);
-  console.log(`PR URL: ${prUrl}`);
-  await notifyPrOpened(ticketId, report, prUrl);
-  await addIssueComment(ticketId, buildInReviewComment(manifest, report, prUrl));
-  await updateTicketStatus(ticketId, STATUS_IN_REVIEW);
-  console.log(`Linear ticket ${ticketId} moved to ${STATUS_IN_REVIEW}`);
+    const publish = publishArtifactsForPr({
+      ticketId,
+      branch: stranglerBranchName(ticketId),
+      paths: [manifest.facadeFile, manifest.extractionTarget].filter(
+        (p): p is string => typeof p === "string" && p.length > 0
+      ),
+      harnessScript: manifest.harnessScript,
+    });
+    if (publish.published) {
+      logPipelineLine(`Published artifacts · ${publish.sha}`);
+    } else {
+      logPipelineLine(
+        "No new artifacts to publish (working tree clean for staged paths)"
+      );
+    }
+
+    writeStageBanner("pr-agent", ticketId);
+    const { prUrl } = await prAgent(manifest, report);
+    if (!prUrl) {
+      throw new Error("PR agent did not return a pull request URL");
+    }
+    console.log(`PR URL: ${prUrl}`);
+    await notifyPrOpened(ticketId, report, prUrl);
+    await addIssueComment(ticketId, buildInReviewComment(manifest, report, prUrl));
+    await updateTicketStatus(ticketId, STATUS_IN_REVIEW);
+    console.log(`Linear ticket ${ticketId} moved to ${STATUS_IN_REVIEW}`);
+  } catch (err) {
+    await handlePostParityFailure(ticketId, err);
+    return;
+  }
 }
 
 function parseArgs(): {

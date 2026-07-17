@@ -3,9 +3,10 @@
 **Parity runs on your machine** via Docker Compose. Cursor cloud Automations do
 **not** run this pipeline — cloud Docker-in-Docker has been unreliable for this demo.
 
-Nested SDK stages (cartographer, fixture-generator, pr-agent) still use
-`withCloudAgent` and appear on cursor.com/agents. Baseline capture and the
-verifier call `docker compose exec` on **local** Docker.
+Nested SDK stages (cartographer, fixture-generator) use `withCloudAgent` and
+appear on cursor.com/agents. The **PR step runs locally** via `gh pr create` on
+the machine running the listener (cloud agents lack GitHub PR permissions).
+Baseline capture and the verifier call `docker compose exec` on **local** Docker.
 
 ## First-time setup (new clone or after `package-lock.json` changes)
 
@@ -29,8 +30,9 @@ not double-start pipelines.
 
 1. Move **one** `MOD-*` ticket to **Ready** in Linear.
 2. Listener claims it → **In Progress** → runs `pipeline.ts`.
-3. On parity pass → publish → cloud pr-agent opens PR → Slack → **In Review**.
-4. Move the next ticket to Ready when ready.
+3. On parity pass → publish to `strangler/MOD-*` → local `gh` opens PR → Slack → **In Review**.
+4. **Demo only:** close the PR and delete the strangler branch after the demo — never merge MOD-* into `develop`.
+5. Move the next ticket to Ready when ready.
 
 ## Required `.env` keys (local machine)
 
@@ -39,7 +41,8 @@ not double-start pipelines.
 | `CURSOR_API_KEY` | Nested cloud agents |
 | `LINEAR_API_KEY` | Claim + status + comments |
 | `GITHUB_REPO_URL` | Cloud agent repo |
-| `GITHUB_DEMO_BRANCH` | `develop` — PR base |
+| `GITHUB_DEMO_BRANCH` | `develop` — PR base (demo PRs never merge here) |
+| `gh` CLI | `brew install gh && gh auth login` — opens demo PRs locally |
 | `SLACK_WEBHOOK_URL` | Optional PR notification |
 
 ## Smoke test (no Linear)
