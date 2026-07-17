@@ -11,33 +11,12 @@ cloud VM** built from [`.cursor/environment.json`](../../environment.json) +
 
 Flow:
 
-1. Move **one** `MOD-*` ticket to **Ready**
-2. Linear status-change Automation runs `npx tsx orchestrator/automationWorker.ts --max 1`
-3. Worker claims that ticket → **In Progress** (skips if another is already In Progress)
-4. Pipeline checks out `strangler/<TICKET>` from `GITHUB_DEMO_BRANCH` and pushes early
-5. Cloud `start` script brings up Compose + bootstrap so baseline/verifier work
-6. On parity pass: commit/push artifacts → cloud PR agent → Slack → Linear **In Review**
-7. On fail: Linear failure comment; ticket stays **In Progress**; no PR
-8. Move the next ticket to **Ready** when you want the next run
-
-### One ticket at a time (Linear Ready trigger)
-
-Move a single ticket to Ready to start a run. Nested `withCloudAgent` stages
-(cartographer, fixture-generator, pr-agent) still show as separate cloud agents
-on cursor.com/agents — that is the demo beat. Do **not** use a recurring
-schedule; idle ticks burn cloud credits.
-
-Each ticket uses `strangler/MOD-*`. The base branch (`GITHUB_DEMO_BRANCH`) is
-the PR target only — the orchestrator does not push to it.
-
-**Automation prompt:**
-
-```text
-bash .cursor/start.sh
-npx tsx orchestrator/automationWorker.ts --max 1
-```
-
-GitHub prerequisites: see [`.github/MULTI_TICKET_SETUP.md`](../../.github/MULTI_TICKET_SETUP.md).
+1. Move a `MOD-*` ticket to **Ready**
+2. Automation sets **In Progress** and runs
+   `npx tsx orchestrator/pipeline.ts <TICKET> --criteria "<description>"`
+3. Cloud `start` script brings up Compose + bootstrap so baseline/verifier work
+4. On parity pass: commit/push artifacts → PR → Slack → Linear **In Review**
+5. On fail: Linear failure comment; ticket stays **In Progress**; no PR
 
 You do **not** need `listener.ts`, local Docker, or a laptop left on for this
 path. Mirror secrets from local `.env` into the Cloud Agents / Automation
@@ -74,7 +53,7 @@ names into Cloud Agent secrets:
 |------|----------|
 | `CURSOR_API_KEY` | Cursor SDK agents |
 | `GITHUB_REPO_URL` | Cloud agent repo URL |
-| `GITHUB_DEMO_BRANCH` | **Required** — PR base branch; per-ticket work branches are `strangler/MOD-*` |
+| `GITHUB_DEMO_BRANCH` | Optional fallback if `git rev-parse` fails; cloud `startingRef` normally comes from the current checkout |
 | `LINEAR_API_KEY` | Ticket status / comments |
 | `SLACK_WEBHOOK_URL` | PR-opened notification (optional; warns and skips if unset) |
 | `LEGACY_APP_URL` | Legacy app URL for local demo context |
@@ -129,7 +108,6 @@ npx tsx orchestrator/listener.ts
 ```
 
 Do **not** run the listener while the Automation is Active — double starts.
-Both use `claimNextReadyTicket`; prefer the Linear Ready Automation worker.
 
 ### Re-capture baselines and verify one seam
 
@@ -163,8 +141,7 @@ Parity failure fails the job. Do not weaken the check.
 | Manifest I/O helpers | `orchestrator/lib/manifest.ts` |
 | SDK agent wiring | `orchestrator/lib/sdk.ts` |
 | Harness execution | `orchestrator/lib/harness.ts`, `legacy/harness/*.php` |
-| Publish before PR | `orchestrator/lib/gitPublish.ts` (per-ticket branch + scoped paths) |
-| Multi-ticket GitHub setup | `.github/MULTI_TICKET_SETUP.md` |
+| Publish before cloud PR | `orchestrator/lib/gitPublish.ts` |
 | Fixtures | `orchestrator/fixtures/MOD-*/` |
 | Extracted services | `include/Services/` |
 | Facade patches | Paths in manifest `facadeFile` (often `include/class.sla.php`) |

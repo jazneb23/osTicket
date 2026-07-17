@@ -1,6 +1,5 @@
 import * as fs from "fs";
 import * as path from "path";
-import { listGoldenFixtureFiles } from "../lib/fixtures";
 import { logRunEnd, logRunStart, parseJsonResult, streamRunWithProgress, withCloudAgent } from "../lib/sdk";
 import { requireHarnessScript } from "../lib/manifest";
 import { logAgentLine } from "../lib/terminal";
@@ -15,7 +14,7 @@ export async function fixtureGenerator(manifest: SeamManifest): Promise<Fixture[
   const dir = fixtureDir(manifest.ticketId);
   fs.mkdirSync(dir, { recursive: true });
 
-  const existing = listGoldenFixtureFiles(dir);
+  const existing = fs.readdirSync(dir).filter((f) => f.endsWith(".json"));
   if (existing.length > 0) {
     logAgentLine(
       "fixture-generator",
@@ -76,6 +75,6 @@ Respond with ONLY a valid JSON array of fixture objects. No prose before or afte
 
     return fixtures;
     },
-    { model: "composer-2.5", name: `fixture-generator · ${manifest.ticketId}` }
+    { model: "claude-sonnet-5", name: `fixture-generator · ${manifest.ticketId}` }
   );
 }
