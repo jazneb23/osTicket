@@ -5,14 +5,24 @@ This repo is a **strangler-fig migration demo**: a Cursor SDK orchestrator (Type
 gated by a **sacred parity check**. See `.cursor/rules/repo-context.mdc` and
 `.cursor/skills/onboarding/runbook.md` for the authoritative overview and command list.
 
+## Nested cloud agents (cartographer / fixture-generator)
+
+If you are running inside a Cursor **cloud** VM via `withCloudAgent`:
+
+- Your job is **only** the stage prompt (investigate PHP → JSON, or propose fixtures → JSON).
+- **Do not** start Docker, `dockerd`, `docker compose`, `local-demo-start.sh`, or DinD.
+- **Do not** run `orchestrator/pipeline.ts`, `listener.ts`, or parity capture/verify.
+- Parity Compose lives on the operator's Mac. Ignore local-demo Docker instructions below.
+
 ## Local demo instructions
 
 **Production path:** local Docker + `orchestrator/listener.ts`. See
 `.github/LOCAL_DEMO_SETUP.md` and `.cursor/skills/onboarding/runbook.md`.
 
 Parity runs via `docker compose exec` on your machine (`scripts/local-demo-start.sh`).
-Nested SDK stages (cartographer, fixture-generator, pr-agent) use Cursor cloud
-agents via `@cursor/sdk` — they do not need Docker on the cloud VM.
+Nested SDK stages (cartographer, fixture-generator) use Cursor cloud agents via
+`@cursor/sdk` — they do not need Docker on the cloud VM. The PR step runs locally
+via `gh` on the listener machine.
 
 ## Cursor Cloud files (nested agents only)
 

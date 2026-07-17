@@ -4,7 +4,8 @@
 **not** run this pipeline — cloud Docker-in-Docker has been unreliable for this demo.
 
 Nested SDK stages (cartographer, fixture-generator) use `withCloudAgent` and
-appear on cursor.com/agents. The **PR step runs locally** via `gh pr create` on
+appear on cursor.com/agents. The cloud image has **no Docker** — those agents must
+only read code and return JSON. The **PR step runs locally** via `gh pr create` on
 the machine running the listener (cloud agents lack GitHub PR permissions).
 Baseline capture and the verifier call `docker compose exec` on **local** Docker.
 

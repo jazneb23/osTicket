@@ -30,8 +30,9 @@ Requirements on your laptop: Node 22+, Docker Desktop, `.env` with API keys
 | `.cursor/environment.json` | Cloud agent VM bootstrap (not the demo parity path) |
 | `.cursor/Dockerfile` | Node 22 image for nested `withCloudAgent` stages |
 | `.cursor/install.sh` | `npm ci` |
+| `.cursor/Dockerfile` | Nested cloud image — Node/gh only; **no Docker CE** |
 | `.cursor/start.sh` | Legacy DinD bootstrap — **retired** for demo; use `start-cloud-agent.sh` |
-| `.cursor/start-cloud-agent.sh` | Cloud agent wake (no DinD) |
+| `.cursor/start-cloud-agent.sh` | Cloud agent wake (echo only; no DinD) |
 
 Install `PIPELINE_PAUSE_FOR_REVIEW=1` only if you want the old demo pause
 log lines; hands-off default proceeds straight to the PR agent after a pass.
