@@ -1,0 +1,8 @@
+{
+  "name": "noalerts-bit-alone-no-escalate",
+  "branch": "Bug-exposed path: only FLAG_NOALERTS (0x0004) set, FLAG_ESCALATE absent -> && expression still truthy due to the pre-existing &&-vs-& bug",
+  "input": {
+    "flags": 4
+  },
+  "expected": true
+}

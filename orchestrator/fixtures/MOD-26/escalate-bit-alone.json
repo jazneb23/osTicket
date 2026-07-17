@@ -1,0 +1,8 @@
+{
+  "name": "escalate-bit-alone",
+  "branch": "Normal/intended path: only FLAG_ESCALATE (0x0002) set -> && expression truthy, matches both buggy and intended semantics",
+  "input": {
+    "flags": 2
+  },
+  "expected": true
+}

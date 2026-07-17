@@ -1,0 +1,8 @@
+{
+  "name": "all-flags-combined",
+  "branch": "Normal path: all flags combined (FLAG_ACTIVE|FLAG_ESCALATE|FLAG_NOALERTS|FLAG_TRANSIENT = 15) -> truthy, combined-bitmask case including FLAG_ESCALATE",
+  "input": {
+    "flags": 15
+  },
+  "expected": true
+}

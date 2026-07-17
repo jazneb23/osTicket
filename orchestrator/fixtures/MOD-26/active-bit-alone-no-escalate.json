@@ -1,0 +1,8 @@
+{
+  "name": "active-bit-alone-no-escalate",
+  "branch": "Bug-exposed path: only FLAG_ACTIVE (0x0001) set, FLAG_ESCALATE absent -> && expression still truthy because $this->flags is any nonzero value, despite escalation not being intended",
+  "input": {
+    "flags": 1
+  },
+  "expected": true
+}

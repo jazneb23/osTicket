@@ -1,0 +1,8 @@
+{
+  "name": "no-flags-set",
+  "branch": "Falsy edge case: flags=0 -> && expression evaluates to false, the only case producing a falsy result",
+  "input": {
+    "flags": 0
+  },
+  "expected": false
+}
