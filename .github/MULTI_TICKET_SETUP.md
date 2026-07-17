@@ -21,21 +21,32 @@ refs receive commits.
 
 ## Queue behavior
 
-1. Put N tickets in **Ready**.
-2. A scheduled Automation runs `orchestrator/automationWorker.ts --max 1`.
-3. The worker claims **one** ticket → **In Progress** only when none are In Progress.
-4. Other Ready tickets stay Ready until the next scheduled tick after the active run finishes.
-5. Repeat until the queue is empty.
+1. Move **one** ticket to **Ready** (demo: do not batch several at once).
+2. Linear **status changed → Ready** fires the Automation.
+3. The worker claims that ticket → **In Progress** only when none are already In Progress.
+4. Pipeline runs to PR / In Review (or failure comment).
+5. Move the next ticket to **Ready** when you want the next run.
+
+Do **not** use a 2‑minute schedule — every tick is a billed cloud agent, even when idle.
 
 ### Cursor Automation (preferred)
 
-**Trigger:** schedule every 2–5 minutes (not on every Ready status change).
+**Trigger:** Linear → **Status changed** → **Ready** (team/project for MOD tickets).
 
 **Prompt (keep it short — claim lock lives in code):**
 
 ```text
-bash .cursor/start.sh
-npx tsx orchestrator/automationWorker.ts --max 1
+Run the strangler worker for jazneb23/osTicket on develop.
+
+1. bash .cursor/start.sh
+2. npx tsx orchestrator/automationWorker.ts --max 1
+
+Rules:
+- Do not set DOCKER_HOST or troubleshoot docker manually.
+- Do not use Cursor’s Create PR tool — the pipeline opens PRs via the cloud pr-agent.
+- Do not run pipeline.ts directly — the worker owns claim + run.
+- If the worker logs "idle" or "skipping", exit successfully (another run is active or queue is empty).
+- If start.sh or the worker fails, report the error and stop.
 ```
 
 Do not use Cursor’s built-in Create PR action. Turn Create PRs to Off / Never.
@@ -112,5 +123,5 @@ After merge, delete remote `strangler/MOD-*` branches via:
 
 - **Automation XOR listener** — do not run `orchestrator/listener.ts` while
   the Linear Automation is active.
-- Move N tickets to **Ready** → they drain **one at a time** → N PRs → N
-  Linear **In Review**
+- Move **one** ticket to **Ready** at a time → one pipeline → one PR →
+  Linear **In Review**. Repeat for the next ticket when ready.
