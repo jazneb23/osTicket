@@ -202,6 +202,31 @@ export function buildPrBody(manifest: SeamManifest, report: ParityReport): strin
   ].join("\n");
 }
 
+function ghRepoArgs(): string[] {
+  const url = process.env.GITHUB_REPO_URL;
+  if (!url) return [];
+  const match = url.match(/github\.com[:/]([^/]+)\/([^/?.]+)/);
+  if (!match) return [];
+  return ["--repo", `${match[1]}/${match[2]}`];
+}
+
+function requireGhCli(): void {
+  try {
+    execFileSync("gh", ["--version"], { stdio: "ignore" });
+  } catch {
+    throw new Error(
+      "GitHub CLI (gh) is required for the demo PR step. Install gh and run `gh auth login`."
+    );
+  }
+  try {
+    execFileSync("gh", ["auth", "status"], { stdio: "ignore" });
+  } catch {
+    throw new Error(
+      "gh is not authenticated. Run `gh auth login` before starting the listener."
+    );
+  }
+}
+
 function findOpenPrUrl(headBranch: string): string | undefined {
   try {
     const raw = execFileSync(
@@ -209,6 +234,7 @@ function findOpenPrUrl(headBranch: string): string | undefined {
       [
         "pr",
         "list",
+        ...ghRepoArgs(),
         "--head",
         headBranch,
         "--state",
@@ -234,11 +260,13 @@ export function openPullRequest(options: {
   title: string;
   body: string;
 }): { prUrl: string } {
+  requireGhCli();
   const base = getBaseBranch();
   const { branch, title, body } = options;
 
   const existing = findOpenPrUrl(branch);
   if (existing) {
+    console.log(`PR already open for ${branch}: ${existing}`);
     return { prUrl: existing };
   }
 
@@ -248,6 +276,7 @@ export function openPullRequest(options: {
       [
         "pr",
         "create",
+        ...ghRepoArgs(),
         "--base",
         base,
         "--head",
@@ -262,8 +291,8 @@ export function openPullRequest(options: {
 
     const urlMatch = output.match(/https:\/\/github\.com\/\S+/);
     const prUrl = urlMatch?.[0] ?? output;
-    if (!prUrl) {
-      throw new Error("gh pr create returned no URL");
+    if (!prUrl.startsWith("https://")) {
+      throw new Error(`gh pr create returned unexpected output: ${output}`);
     }
     return { prUrl };
   } catch (err) {
@@ -271,6 +300,9 @@ export function openPullRequest(options: {
     if (recovered) {
       return { prUrl: recovered };
     }
-    throw err;
+    const msg = err instanceof Error ? err.message : String(err);
+    throw new Error(
+      `Failed to open PR (${branch} → ${base}): ${msg}. Check \`gh auth status\` and that ${branch} is pushed to origin.`
+    );
   }
 }
