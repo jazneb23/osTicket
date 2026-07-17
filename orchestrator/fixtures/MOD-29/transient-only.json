@@ -1,0 +1,8 @@
+{
+  "name": "transient-only",
+  "branch": "flags=8, only FLAG_TRANSIENT set — mask isolates the bit cleanly, evaluates truthy (8)",
+  "input": {
+    "flags": 8
+  },
+  "expected": 8
+}

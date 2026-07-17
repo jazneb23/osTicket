@@ -1,0 +1,8 @@
+{
+  "name": "noalerts-only-no-transient",
+  "branch": "flags=4 (FLAG_NOALERTS only), transient bit absent — evaluates falsy (0), confirms mask does not false-positive on adjacent bits",
+  "input": {
+    "flags": 4
+  },
+  "expected": 0
+}

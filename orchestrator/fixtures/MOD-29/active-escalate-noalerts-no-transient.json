@@ -1,0 +1,8 @@
+{
+  "name": "active-escalate-noalerts-no-transient",
+  "branch": "flags=7 (FLAG_ACTIVE|FLAG_ESCALATE|FLAG_NOALERTS), transient bit absent despite three other bits set — evaluates falsy (0)",
+  "input": {
+    "flags": 7
+  },
+  "expected": 0
+}

@@ -1,0 +1,8 @@
+{
+  "name": "all-flags-with-transient",
+  "branch": "flags=15, all four flags including FLAG_TRANSIENT — mask isolates bit 0x0008 regardless of other bits, evaluates truthy (8)",
+  "input": {
+    "flags": 15
+  },
+  "expected": 8
+}
