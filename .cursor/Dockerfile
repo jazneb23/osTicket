@@ -1,6 +1,7 @@
 # Cloud Agent environment for the strangler-fig demo.
-# Builds Docker-in-Docker + Node 22 so parity harness (Compose web/db) can run
-# on Cursor cloud VMs. Do not COPY the project — Cursor checks out the commit.
+# Based on Cursor's recommended DinD recipe:
+# https://cursor.com/docs/cloud-agent/setup#running-docker
+# Do not COPY the project — Cursor checks out the commit.
 
 FROM ubuntu:24.04
 
@@ -14,6 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     sudo \
     iptables \
     fuse-overlayfs \
+    procps \
     && rm -rf /var/lib/apt/lists/*
 
 # Node.js 22 (matches CI / local runbook)
@@ -21,7 +23,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y --no-install-recommends nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-# GitHub CLI — pipeline opens/resumes PRs via `gh` on this VM after parity.
+# GitHub CLI — nested PR agent / local gh fallbacks need this on the VM.
 RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
       | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
     && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
@@ -31,7 +33,7 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
     && apt-get install -y --no-install-recommends gh \
     && rm -rf /var/lib/apt/lists/*
 
-# Docker CE + Compose (Cursor-recommended DinD stack)
+# Docker CE + Compose (versions pinned to Cursor's recommended DinD stack)
 RUN install -m 0755 -d /etc/apt/keyrings \
     && curl --retry 3 --retry-delay 5 -fsSL https://download.docker.com/linux/ubuntu/gpg \
       | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
@@ -48,6 +50,7 @@ RUN install -m 0755 -d /etc/apt/keyrings \
       docker-compose-plugin \
     && rm -rf /var/lib/apt/lists/*
 
+# Prefer Cursor's documented driver; start.sh falls back to vfs if fuse fails at runtime.
 RUN mkdir -p /etc/docker \
     && printf '%s\n' '{' \
     '  "storage-driver": "fuse-overlayfs"' \
@@ -56,13 +59,14 @@ RUN mkdir -p /etc/docker \
 RUN update-alternatives --set iptables /usr/sbin/iptables-legacy \
     && update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
 
-# Non-root agent user with docker + passwordless sudo
+# Non-root agent user with docker + passwordless sudo (Cursor recommended)
 RUN id -u ubuntu >/dev/null 2>&1 || useradd -m -s /bin/bash ubuntu \
     && groupadd -f docker \
     && usermod -aG docker ubuntu \
     && usermod -aG sudo ubuntu \
     && echo "ubuntu ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ubuntu \
-    && chmod 0440 /etc/sudoers.d/ubuntu
+    && chmod 0440 /etc/sudoers.d/ubuntu \
+    && echo "ubuntu:ubuntu" | chpasswd
 
 WORKDIR /workspace
 USER ubuntu

@@ -41,6 +41,17 @@ npx tsx orchestrator/automationWorker.ts --max 1
 Do not use Cursor’s built-in Create PR action. Turn Create PRs to Off / Never.
 The pipeline opens PRs via the cloud pr-agent against jazneb23/osTicket.
 
+**One-time environment checklist (avoid repeated Setup Agent burns):**
+
+1. Environment must be built from repo `.cursor/Dockerfile` + `environment.json`
+   on `develop` — not a stale personal snapshot.
+2. In Cloud Agents → Environments for this repo: remove any **personal override**
+   snapshot so the Dockerfile is authoritative.
+3. After changing `.cursor/Dockerfile` or `start.sh`, run **Start Setup Agent**
+   **once**, wait until it finishes, then test Automation.
+4. If start fails with “Docker CLI missing”, the VM fell back to the default
+   image — rebuild from the Dockerfile; do not keep retrying tickets.
+
 ### Local listener (debug only)
 
 `orchestrator/listener.ts` uses the same `claimNextReadyTicket` helper and runs
