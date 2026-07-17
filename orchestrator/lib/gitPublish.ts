@@ -1,4 +1,5 @@
 import { execFileSync } from "child_process";
+import type { SeamManifest, ParityReport } from "./types";
 
 export type PublishPaths = {
   ticketId: string;
@@ -172,4 +173,104 @@ export function publishArtifactsForPr(options: PublishPaths): {
     encoding: "utf-8",
   }).trim();
   return { published: true, sha };
+}
+
+export function buildPrBody(manifest: SeamManifest, report: ParityReport): string {
+  return [
+    "## Summary",
+    "",
+    `Seam manifest for ticket ${manifest.ticketId}:`,
+    `- Entry point: ${manifest.entryPoint}`,
+    `- Core logic: ${manifest.coreLogic}`,
+    `- Consumers: ${manifest.consumers.join(", ")}`,
+    `- Input: ${manifest.inputShape}`,
+    `- Output: ${manifest.outputShape}`,
+    `- Side effects: ${manifest.sideEffects.join("; ")}`,
+    `- Constraints: ${manifest.constraints.join("; ")}`,
+    "",
+    "## Parity verification",
+    "",
+    `${report.passed}/${report.totalCases} golden fixture cases passed.`,
+    "",
+    "## Note",
+    "",
+    "This is a delegating extraction, not a reimplementation. The new service at",
+    `${manifest.extractionTarget} wraps existing logic from ${manifest.coreLogic}`,
+    "rather than reimplementing it.",
+    "",
+    "**Demo only — do not merge into the base branch.**",
+  ].join("\n");
+}
+
+function findOpenPrUrl(headBranch: string): string | undefined {
+  try {
+    const raw = execFileSync(
+      "gh",
+      [
+        "pr",
+        "list",
+        "--head",
+        headBranch,
+        "--state",
+        "open",
+        "--limit",
+        "1",
+        "--json",
+        "url",
+      ],
+      { encoding: "utf-8", stdio: ["ignore", "pipe", "pipe"] }
+    ).trim();
+    const rows = JSON.parse(raw) as Array<{ url?: string }>;
+    return rows[0]?.url?.trim() || undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Open (or return existing) PR with explicit base/head branches via local gh. */
+export function openPullRequest(options: {
+  ticketId: string;
+  branch: string;
+  title: string;
+  body: string;
+}): { prUrl: string } {
+  const base = getBaseBranch();
+  const { branch, title, body } = options;
+
+  const existing = findOpenPrUrl(branch);
+  if (existing) {
+    return { prUrl: existing };
+  }
+
+  try {
+    const output = execFileSync(
+      "gh",
+      [
+        "pr",
+        "create",
+        "--base",
+        base,
+        "--head",
+        branch,
+        "--title",
+        title,
+        "--body",
+        body,
+      ],
+      { encoding: "utf-8", stdio: ["ignore", "pipe", "inherit"] }
+    ).trim();
+
+    const urlMatch = output.match(/https:\/\/github\.com\/\S+/);
+    const prUrl = urlMatch?.[0] ?? output;
+    if (!prUrl) {
+      throw new Error("gh pr create returned no URL");
+    }
+    return { prUrl };
+  } catch (err) {
+    const recovered = findOpenPrUrl(branch);
+    if (recovered) {
+      return { prUrl: recovered };
+    }
+    throw err;
+  }
 }

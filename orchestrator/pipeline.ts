@@ -46,7 +46,7 @@ export async function runPipeline(
     fromStage > 1
   );
   logPipelineLine(
-    `Manifest ready · ${manifest.sideEffects.length} side effects · facade ${manifest.facadeFile ?? "(unknown)"}`
+    `Manifest ready · ${(manifest.sideEffects ?? []).length} side effects · facade ${manifest.facadeFile ?? "(unknown)"}`
   );
 
   if (fromStage <= 2) {
@@ -129,6 +129,9 @@ export async function runPipeline(
 
     writeStageBanner("pr-agent", ticketId);
     const { prUrl } = await prAgent(manifest, report);
+    if (!prUrl) {
+      throw new Error("PR agent did not return a pull request URL");
+    }
     console.log(`PR URL: ${prUrl}`);
     await notifyPrOpened(ticketId, report, prUrl);
     await addIssueComment(ticketId, buildInReviewComment(manifest, report, prUrl));
