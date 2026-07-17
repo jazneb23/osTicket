@@ -12,22 +12,30 @@ cloud VM** built from [`.cursor/environment.json`](../../environment.json) +
 Flow:
 
 1. Move one or more `MOD-*` tickets to **Ready** (they form a queue)
-2. Automation claims **one** ticket → **In Progress** (skips if another is already In Progress)
-3. Runs `npx tsx orchestrator/pipeline.ts <TICKET> --criteria "<description>"`
+2. Scheduled Automation runs `npx tsx orchestrator/automationWorker.ts --max 1`
+3. Worker claims **one** ticket → **In Progress** (skips if another is already In Progress)
 4. Pipeline checks out `strangler/<TICKET>` from `GITHUB_DEMO_BRANCH` and pushes early
 5. Cloud `start` script brings up Compose + bootstrap so baseline/verifier work
 6. On parity pass: commit/push artifacts → cloud PR agent → Slack → Linear **In Review**
 7. On fail: Linear failure comment; ticket stays **In Progress**; no PR
-8. Next Ready ticket is claimed when the active run finishes
+8. Next scheduled tick claims the next Ready ticket when the active run is done
 
 ### Serial Ready queue (one at a time)
 
-Put several tickets in Ready; they drain **one pipeline at a time**. Nested
-`withCloudAgent` stages (cartographer, fixture-generator, pr-agent) still show
-as separate cloud agents on cursor.com/agents — that is the demo beat.
+Put several tickets in Ready; they drain **one pipeline at a time** via
+`automationWorker.ts`. Nested `withCloudAgent` stages (cartographer,
+fixture-generator, pr-agent) still show as separate cloud agents on
+cursor.com/agents — that is the demo beat.
 
 Each ticket uses `strangler/MOD-*`. The base branch (`GITHUB_DEMO_BRANCH`) is
 the PR target only — the orchestrator does not push to it.
+
+**Automation prompt:**
+
+```text
+bash .cursor/start.sh
+npx tsx orchestrator/automationWorker.ts --max 1
+```
 
 GitHub prerequisites: see [`.github/MULTI_TICKET_SETUP.md`](../../.github/MULTI_TICKET_SETUP.md).
 
@@ -121,8 +129,7 @@ npx tsx orchestrator/listener.ts
 ```
 
 Do **not** run the listener while the Automation is Active — double starts.
-The listener already processes one pipeline at a time; Automation should use
-the same serial claim lock (skip if another ticket is In Progress).
+Both use `claimNextReadyTicket`; prefer the scheduled Automation worker.
 
 ### Re-capture baselines and verify one seam
 

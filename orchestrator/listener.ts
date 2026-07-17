@@ -1,14 +1,8 @@
 import "dotenv/config";
-import {
-  findReadyTicket,
-  getLinearTicket,
-  STATUS_IN_PROGRESS,
-  updateTicketStatus,
-} from "./lib/linear";
+import { claimNextReadyTicket } from "./lib/linear";
 import { runPipeline } from "./pipeline";
 
 const POLL_INTERVAL_MS = 5000;
-const processed = new Set<string>();
 let pipelineBusy = false;
 
 async function poll(): Promise<void> {
@@ -20,16 +14,13 @@ async function poll(): Promise<void> {
   pipelineBusy = true;
 
   try {
-    const ticketId = await findReadyTicket();
-    if (!ticketId || processed.has(ticketId)) {
+    const claimed = await claimNextReadyTicket();
+    if (!claimed) {
       return;
     }
 
-    processed.add(ticketId);
-    await updateTicketStatus(ticketId, STATUS_IN_PROGRESS);
-    console.log(`Starting pipeline for ticket ${ticketId}`);
-    const ticket = await getLinearTicket(ticketId);
-    await runPipeline(ticketId, ticket.description);
+    console.log(`Starting pipeline for ticket ${claimed.ticketId}`);
+    await runPipeline(claimed.ticketId, claimed.description);
   } catch (err) {
     console.error("Poll failed:", err);
   } finally {
@@ -39,6 +30,9 @@ async function poll(): Promise<void> {
 
 console.log(
   "Listener started — polling Linear for Ready tickets every 5s (one pipeline at a time)"
+);
+console.log(
+  "Prefer Automation: npx tsx orchestrator/automationWorker.ts --max 1 (do not run both)"
 );
 
 setInterval(() => {

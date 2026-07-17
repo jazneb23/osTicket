@@ -88,22 +88,30 @@ fixtures just to pass.
 
 ## Ready queue (serial)
 
-Put several tickets in **Ready**. Process **one at a time**:
+Put several tickets in **Ready**. Process **one at a time** via the worker:
 
-1. Claim one ticket → In Progress (skip if another is already In Progress)
-2. Create or resume `strangler/MOD-*` from the base branch
-3. Run nested cloud agents (cartographer, fixture-generator, pr-agent)
+```bash
+npx tsx orchestrator/automationWorker.ts --max 1
+```
+
+1. Skip if any ticket is already In Progress
+2. Claim oldest Ready → In Progress
+3. Create or resume `strangler/MOD-*` and run the pipeline (nested cloud agents)
 4. Publish that ticket's paths and open its own PR
 
-Do not run `listener.ts` alongside Automation. See `.github/MULTI_TICKET_SETUP.md`.
+Prefer a **scheduled** Automation with the short prompt in
+`.github/MULTI_TICKET_SETUP.md`. Do not run `listener.ts` alongside Automation.
 
 ## Entry points
 
 ```bash
-# Prod: Cursor Automation on Linear Ready (cloud VM + Compose) — no listener
+# Prod: scheduled Cursor Automation → automationWorker.ts --max 1
 
 # Full pipeline for a ticket (local debug or cloud agent shell)
 npx tsx orchestrator/pipeline.ts MOD-<id> --criteria "<acceptance text>" [--from-stage N]
+
+# Serial queue worker (Automation entry — claim lock in code)
+npx tsx orchestrator/automationWorker.ts --max 1
 
 # Deprecated local Linear poller (do not run alongside the Automation)
 npx tsx orchestrator/listener.ts
