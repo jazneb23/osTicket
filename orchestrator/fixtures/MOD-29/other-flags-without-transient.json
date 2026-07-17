@@ -1,0 +1,8 @@
+{
+  "name": "other-flags-without-transient",
+  "branch": "FLAG_ACTIVE|FLAG_ESCALATE|FLAG_NOALERTS set but FLAG_TRANSIENT unset (flags=7) — confirms unrelated bits don't leak into a truthy result",
+  "input": {
+    "flags": 7
+  },
+  "expected": 0
+}

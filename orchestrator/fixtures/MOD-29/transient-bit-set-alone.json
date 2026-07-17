@@ -1,0 +1,8 @@
+{
+  "name": "transient-bit-set-alone",
+  "branch": "FLAG_TRANSIENT (0x0008) is the only bit set — isTransient() returns truthy int 8",
+  "input": {
+    "flags": 8
+  },
+  "expected": 8
+}

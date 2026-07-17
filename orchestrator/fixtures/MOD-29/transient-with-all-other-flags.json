@@ -1,0 +1,8 @@
+{
+  "name": "transient-with-all-other-flags",
+  "branch": "FLAG_TRANSIENT set alongside FLAG_ACTIVE|FLAG_ESCALATE|FLAG_NOALERTS (flags=15) — confirms the bitmask isolates bit 0x0008 as truthy even when every other flag is also on",
+  "input": {
+    "flags": 15
+  },
+  "expected": 8
+}

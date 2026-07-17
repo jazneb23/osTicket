@@ -1,0 +1,9 @@
+{
+  "name": "convenience-transient-true-sets-bit",
+  "branch": "Optional `transient` convenience field sets the 0x0008 bit on top of an otherwise transient-unset flags value (flags=1, transient=true) — result is truthy",
+  "input": {
+    "flags": 1,
+    "transient": true
+  },
+  "expected": 8
+}

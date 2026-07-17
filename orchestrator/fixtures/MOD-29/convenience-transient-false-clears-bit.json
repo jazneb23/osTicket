@@ -1,0 +1,9 @@
+{
+  "name": "convenience-transient-false-clears-bit",
+  "branch": "Optional `transient` convenience field clears the 0x0008 bit even though raw flags already includes it (flags=9, transient=false) — result is falsy",
+  "input": {
+    "flags": 9,
+    "transient": false
+  },
+  "expected": 0
+}

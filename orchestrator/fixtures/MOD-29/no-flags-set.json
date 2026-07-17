@@ -1,0 +1,8 @@
+{
+  "name": "no-flags-set",
+  "branch": "flags is 0 (no bits set) — bitmask-AND against FLAG_TRANSIENT yields falsy int 0",
+  "input": {
+    "flags": 0
+  },
+  "expected": 0
+}
