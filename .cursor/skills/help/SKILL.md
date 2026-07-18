@@ -58,6 +58,7 @@ Routing hints (confirm against discovered descriptions):
 | Full new-engineer briefing, canvas tour, refresher | `/onboarding` |
 | Live demo walkthrough of pipeline / parity / manifests | `/architecture` |
 | Clean baseline, git reset, discard local demo mess | `/rollback` |
+| Reset MOD-* tickets only (Linear, PRs, branches, artifacts) | `/cleanup` |
 | Just the skill list | Stay on `/help` (catalog only) |
 
 If they already attached a skill, follow that skill instead of only linking it.
