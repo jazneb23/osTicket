@@ -163,16 +163,12 @@ for b in $(git branch -r | sed 's|origin/||' | grep -E '^strangler/MOD-[0-9]+$')
 done
 ```
 
-Delete local strangler branches:
-
-```bash
-git branch | sed 's/^[* ] //' | grep -E '^strangler/MOD-[0-9]+$' | xargs -r git branch -D
-```
-
-(On macOS without `xargs -r`, use a `while read` loop instead.)
-
 Also close **already-merged** open PRs if any remain from search — the goal is
 no open MOD strangler PRs.
+
+Do **not** delete local strangler branches here — if the operator is still on
+one, `git branch -D` refuses to delete the checked-out branch. Local cleanup
+happens in step 6 after `git checkout develop`.
 
 ### 6. Reset git to develop
 
@@ -183,16 +179,30 @@ git status
 git branch --show-current
 ```
 
-Then:
+Then check out `develop` **before** deleting local strangler branches (Git
+cannot delete the branch you are on):
 
 ```bash
 git checkout develop
+```
+
+Delete local strangler branches (portable on macOS and Linux):
+
+```bash
+git branch | sed 's/^[* ] //' | grep -E '^strangler/MOD-[0-9]+$' | while read -r b; do
+  git branch -D "$b"
+done
+```
+
+Then reset to the remote baseline:
+
+```bash
 git fetch origin develop
 git reset --hard origin/develop
 ```
 
-This drops tracked facade patches and staged extraction files on the current
-branch. Untracked artifacts are handled in step 7.
+This drops tracked facade patches and staged extraction files on the former
+strangler branch. Untracked artifacts are handled in step 7.
 
 ### 7. Remove local extraction artifacts
 
