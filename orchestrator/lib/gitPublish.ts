@@ -175,6 +175,56 @@ export function publishArtifactsForPr(options: PublishPaths): {
   return { published: true, sha };
 }
 
+/** Conventional-commit type for MOD strangler PR titles (squash-merge friendly). */
+export type ConventionalPrType = "refactor" | "chore" | "feat" | "fix" | "docs";
+
+/**
+ * Pick a conventional prefix for the PR title.
+ * Strangler delegations are refactors (same behavior, new structure).
+ * E2E discard tickets use chore (demo PR — do not merge).
+ */
+export function conventionalPrType(ticketId: string): ConventionalPrType {
+  if (/^MOD-(28|29|30|31|32)$/.test(ticketId)) {
+    return "chore";
+  }
+  return "refactor";
+}
+
+/** Compact seam label for PR titles — strips cartographer prose after Class::method. */
+export function shortSeamLabel(entryPoint: string): string {
+  const matches = [
+    ...entryPoint.matchAll(/([A-Za-z_\\]+::[A-Za-z_]+)\s*(?:\(|(?=[,\s]|$))/g),
+  ];
+  if (matches.length > 0) {
+    const primary = `${matches[0][1]}()`;
+    if (matches.length === 1) {
+      return primary;
+    }
+    return `${primary} (+${matches.length - 1})`;
+  }
+
+  const firstLine =
+    entryPoint.split(/\r?\n/)[0]?.replace(/\s+/g, " ").trim() ?? entryPoint;
+  const max = 60;
+  return firstLine.length > max ? `${firstLine.slice(0, max - 1)}…` : firstLine;
+}
+
+/** GitHub PR title: conventional prefix + scope + short seam (details in body). */
+export function buildPrTitle(manifest: SeamManifest): string {
+  const type = conventionalPrType(manifest.ticketId);
+  const scope = manifest.ticketId;
+  const seam = shortSeamLabel(manifest.entryPoint);
+  const prefix = `${type}(${scope}): `;
+  const description = `extract ${seam}`;
+  const title = `${prefix}${description}`;
+  const max = 72;
+  if (title.length <= max) {
+    return title;
+  }
+  const budget = max - prefix.length - 1;
+  return `${prefix}${description.slice(0, Math.max(budget, 8))}…`;
+}
+
 export function buildPrBody(manifest: SeamManifest, report: ParityReport): string {
   return [
     "## Summary",

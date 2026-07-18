@@ -1,5 +1,6 @@
 import {
   buildPrBody,
+  buildPrTitle,
   openPullRequest,
   stranglerBranchName,
 } from "../lib/gitPublish";
@@ -15,7 +16,7 @@ export async function prAgent(manifest: SeamManifest, report: ParityReport) {
   requireFacadeFile(manifest);
 
   const branch = stranglerBranchName(manifest.ticketId);
-  const title = `${manifest.ticketId}: Strangler extraction (${manifest.entryPoint})`;
+  const title = buildPrTitle(manifest);
   const body = buildPrBody(manifest, report);
 
   return openPullRequest({ ticketId: manifest.ticketId, branch, title, body });
