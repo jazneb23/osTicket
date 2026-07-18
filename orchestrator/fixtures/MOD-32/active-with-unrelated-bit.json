@@ -1,0 +1,8 @@
+{
+  "name": "active-with-unrelated-bit",
+  "branch": "FLAG_ACTIVE combined with an unrelated bit, FLAG_ASSIGN_MEMBERS_ONLY (0x0004 | 0x0001 = 5) — isActive() returns true, unaffected by unrelated flag",
+  "input": {
+    "flags": 5
+  },
+  "expected": true
+}

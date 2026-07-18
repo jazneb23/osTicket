@@ -1,0 +1,8 @@
+{
+  "name": "all-other-flags-without-active",
+  "branch": "Every non-active flag set simultaneously (FLAG_ASSIGN_MEMBERS_ONLY 0x0001 | FLAG_DISABLE_AUTO_CLAIM 0x0002 | FLAG_ARCHIVED 0x0008 | FLAG_ASSIGN_PRIMARY_ONLY 0x0010 | FLAG_DISABLE_REOPEN_AUTO_ASSIGN 0x0020 = 59), FLAG_ACTIVE clear — isActive() returns false, proving no combination of other bits can flip the result",
+  "input": {
+    "flags": 59
+  },
+  "expected": false
+}

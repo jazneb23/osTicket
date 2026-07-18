@@ -1,0 +1,8 @@
+{
+  "name": "active-only",
+  "branch": "Normal path: only FLAG_ACTIVE (0x0004) set — isActive() returns true",
+  "input": {
+    "flags": 4
+  },
+  "expected": true
+}

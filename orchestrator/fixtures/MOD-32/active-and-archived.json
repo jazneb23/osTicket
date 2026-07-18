@@ -1,0 +1,8 @@
+{
+  "name": "active-and-archived",
+  "branch": "FLAG_ACTIVE combined with FLAG_ARCHIVED (0x0004 | 0x0008 = 12) — isActive() must still return true, proving FLAG_ARCHIVED has no effect on the result",
+  "input": {
+    "flags": 12
+  },
+  "expected": true
+}

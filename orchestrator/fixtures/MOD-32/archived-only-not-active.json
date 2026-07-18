@@ -1,0 +1,8 @@
+{
+  "name": "archived-only-not-active",
+  "branch": "Archived without active bit: FLAG_ARCHIVED (0x0008) set, FLAG_ACTIVE clear — isActive() returns false despite FLAG_ARCHIVED being set",
+  "input": {
+    "flags": 8
+  },
+  "expected": false
+}
