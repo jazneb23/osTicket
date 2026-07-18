@@ -1,0 +1,8 @@
+{
+  "name": "no-flags-alerts-enabled",
+  "branch": "No bits set (flags=0); FLAG_NOALERTS bit is off, so sendAlerts() returns true (alerts enabled) — the default/no-flags path.",
+  "input": {
+    "flags": 0
+  },
+  "expected": true
+}

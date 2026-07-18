@@ -1,0 +1,8 @@
+{
+  "name": "all-flags-set-suppressed",
+  "branch": "FLAG_ACTIVE | FLAG_ESCALATE | FLAG_NOALERTS | FLAG_TRANSIENT (flags=15); upper-bound case with every bit set confirms NOALERTS still dominates and returns false.",
+  "input": {
+    "flags": 15
+  },
+  "expected": false
+}

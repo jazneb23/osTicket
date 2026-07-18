@@ -1,0 +1,8 @@
+{
+  "name": "noalerts-and-transient-suppressed",
+  "branch": "FLAG_NOALERTS | FLAG_TRANSIENT (flags=12); NOALERTS bit set alongside a different combination of unrelated flag still yields false.",
+  "input": {
+    "flags": 12
+  },
+  "expected": false
+}

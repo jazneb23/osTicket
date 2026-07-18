@@ -1,0 +1,8 @@
+{
+  "name": "noalerts-only-suppressed",
+  "branch": "Exactly FLAG_NOALERTS set (flags=4); bit is on, so sendAlerts() returns false — the primary suppression path.",
+  "input": {
+    "flags": 4
+  },
+  "expected": false
+}

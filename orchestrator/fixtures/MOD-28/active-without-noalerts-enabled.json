@@ -1,0 +1,8 @@
+{
+  "name": "active-without-noalerts-enabled",
+  "branch": "FLAG_ACTIVE set without FLAG_NOALERTS (flags=1); confirms unrelated bits don't trip the check and alerts remain enabled (true).",
+  "input": {
+    "flags": 1
+  },
+  "expected": true
+}

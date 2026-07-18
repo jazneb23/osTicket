@@ -1,0 +1,8 @@
+{
+  "name": "escalate-and-noalerts-suppressed",
+  "branch": "FLAG_ESCALATE | FLAG_NOALERTS (flags=6); NOALERTS bit set alongside another unrelated flag still yields false.",
+  "input": {
+    "flags": 6
+  },
+  "expected": false
+}
