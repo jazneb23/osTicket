@@ -1,0 +1,8 @@
+{
+  "name": "archived-only-not-active",
+  "branch": "FLAG_ARCHIVED set but FLAG_ACTIVE unset -> isActive() returns false despite archived bit being nonzero",
+  "input": {
+    "flags": 8
+  },
+  "expected": false
+}

@@ -1,0 +1,8 @@
+{
+  "name": "active-plus-unrelated-flag",
+  "branch": "FLAG_ACTIVE set alongside an unrelated bit (FLAG_ASSIGN_MEMBERS_ONLY) -> unrelated bits are ignored, result is true",
+  "input": {
+    "flags": 5
+  },
+  "expected": true
+}

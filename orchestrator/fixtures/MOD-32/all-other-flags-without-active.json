@@ -1,0 +1,8 @@
+{
+  "name": "all-other-flags-without-active",
+  "branch": "every non-FLAG_ACTIVE bit set (assign-members-only, disable-auto-claim, archived, assign-primary-only, disable-reopen-auto-assign) but FLAG_ACTIVE bit itself unset -> isActive() returns false",
+  "input": {
+    "flags": 59
+  },
+  "expected": false
+}

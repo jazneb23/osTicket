@@ -1,0 +1,8 @@
+{
+  "name": "active-plus-archived",
+  "branch": "FLAG_ACTIVE and FLAG_ARCHIVED both set -> only bit 0x0004 matters, result is true regardless of archived bit",
+  "input": {
+    "flags": 12
+  },
+  "expected": true
+}
