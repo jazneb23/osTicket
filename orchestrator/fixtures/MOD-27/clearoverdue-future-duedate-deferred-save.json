@@ -1,0 +1,13 @@
+{
+  "name": "clearoverdue-future-duedate-deferred-save",
+  "branch": "clearOverdue(save=false) with a future duedate (preserved, not nulled) but a past est_duedate (nulled): mutations stay in-memory only, returns literal true without issuing a DB write",
+  "input": {
+    "action": "clearOverdue",
+    "ticket_id": 20,
+    "isoverdue": 1,
+    "duedate": "2099-01-01 00:00:00",
+    "est_duedate": "2020-01-01 00:00:00",
+    "save": false
+  },
+  "expected": "{\"return\":true,\"isoverdue\":0,\"duedate\":\"2099-01-01 00:00:00\",\"est_duedate\":null}"
+}

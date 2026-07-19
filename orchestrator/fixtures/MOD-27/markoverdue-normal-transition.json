@@ -1,0 +1,12 @@
+{
+  "name": "markoverdue-normal-transition",
+  "branch": "markOverdue() on open, not-yet-overdue ticket: sets isoverdue=1, save() succeeds, logEvent('overdue') fires, onOverdue(whine=true) alert path taken",
+  "input": {
+    "action": "markOverdue",
+    "ticket_id": 19,
+    "status_state": "open",
+    "isoverdue": 0,
+    "whine": true
+  },
+  "expected": "{\"return\":true,\"isoverdue\":1,\"duedate\":null,\"est_duedate\":null}"
+}

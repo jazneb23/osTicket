@@ -1,0 +1,12 @@
+{
+  "name": "markoverdue-closed-ticket-guard",
+  "branch": "markOverdue() on a non-open ticket: isOpen() guard fails, returns false with no mutation/save/log/alert",
+  "input": {
+    "action": "markOverdue",
+    "ticket_id": 23,
+    "status_state": "closed",
+    "isoverdue": 0,
+    "whine": true
+  },
+  "expected": "{\"return\":false,\"isoverdue\":0,\"duedate\":null,\"est_duedate\":null}"
+}

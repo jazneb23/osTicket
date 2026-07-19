@@ -1,0 +1,13 @@
+{
+  "name": "clearoverdue-past-dates-with-save",
+  "branch": "clearOverdue(save=true) with duedate and est_duedate both already past: isoverdue reset to 0, duedate nulled, est_duedate nulled, save() persists immediately",
+  "input": {
+    "action": "clearOverdue",
+    "ticket_id": 21,
+    "isoverdue": 1,
+    "duedate": "2020-01-01 00:00:00",
+    "est_duedate": "2020-01-01 00:00:00",
+    "save": true
+  },
+  "expected": "{\"return\":true,\"isoverdue\":0,\"duedate\":null,\"est_duedate\":null}"
+}

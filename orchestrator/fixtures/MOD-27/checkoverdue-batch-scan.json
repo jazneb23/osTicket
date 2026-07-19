@@ -1,0 +1,8 @@
+{
+  "name": "checkoverdue-batch-scan",
+  "branch": "static checkOverdue() batch query: selects open, isoverdue=0 tickets matching the duedate/est_duedate-past Q::any() filter (capped at limit(100)) and delegates each to markOverdue()",
+  "input": {
+    "action": "checkOverdue"
+  },
+  "expected": "{\"return\":null,\"isoverdue\":null,\"duedate\":null,\"est_duedate\":null}"
+}

@@ -1,0 +1,12 @@
+{
+  "name": "markoverdue-idempotent-noop",
+  "branch": "markOverdue() on an already-overdue open ticket: isOverdue() true short-circuits, returns true with no re-save/re-log/re-alert",
+  "input": {
+    "action": "markOverdue",
+    "ticket_id": 24,
+    "status_state": "open",
+    "isoverdue": 1,
+    "whine": true
+  },
+  "expected": "{\"return\":true,\"isoverdue\":1,\"duedate\":\"2020-01-15 10:00:00\",\"est_duedate\":null}"
+}
