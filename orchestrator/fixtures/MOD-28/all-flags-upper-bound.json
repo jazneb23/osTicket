@@ -1,0 +1,8 @@
+{
+  "name": "all-flags-upper-bound",
+  "branch": "flags=15 (all four flags set: FLAG_ACTIVE | FLAG_ESCALATE | FLAG_NOALERTS | FLAG_TRANSIENT) -> sendAlerts() returns false; upper-bound case with every bit set",
+  "input": {
+    "flags": 15
+  },
+  "expected": false
+}

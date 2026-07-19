@@ -1,0 +1,8 @@
+{
+  "name": "escalate-plus-noalerts-still-disabled",
+  "branch": "flags=6 (FLAG_ESCALATE | FLAG_NOALERTS) -> sendAlerts() returns false; confirms FLAG_ESCALATE bit does not interfere with the NOALERTS bitwise check",
+  "input": {
+    "flags": 6
+  },
+  "expected": false
+}

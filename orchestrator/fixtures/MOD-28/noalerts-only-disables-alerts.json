@@ -1,0 +1,8 @@
+{
+  "name": "noalerts-only-disables-alerts",
+  "branch": "flags=4 (FLAG_NOALERTS only) -> sendAlerts() returns false (pure disable case)",
+  "input": {
+    "flags": 4
+  },
+  "expected": false
+}

@@ -1,0 +1,8 @@
+{
+  "name": "other-flags-set-without-noalerts",
+  "branch": "flags=11 (FLAG_ACTIVE | FLAG_ESCALATE | FLAG_TRANSIENT, NOALERTS bit unset) -> sendAlerts() returns true; guards against a mistaken logical-OR/truthy-int implementation where any set bit would wrongly disable alerts",
+  "input": {
+    "flags": 11
+  },
+  "expected": true
+}

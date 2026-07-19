@@ -1,0 +1,8 @@
+{
+  "name": "no-flags-alerts-enabled",
+  "branch": "flags=0, FLAG_NOALERTS bit unset -> sendAlerts() returns true (default/normal path, alerts enabled)",
+  "input": {
+    "flags": 0
+  },
+  "expected": true
+}

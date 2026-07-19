@@ -1,0 +1,8 @@
+{
+  "name": "active-plus-noalerts-still-disabled",
+  "branch": "flags=5 (FLAG_ACTIVE | FLAG_NOALERTS) -> sendAlerts() returns false; confirms FLAG_ACTIVE bit does not mask/interfere with the NOALERTS bitwise check",
+  "input": {
+    "flags": 5
+  },
+  "expected": false
+}
