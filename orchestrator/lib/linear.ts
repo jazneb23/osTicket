@@ -1,4 +1,5 @@
 import type { ParityReport, SeamManifest } from "./types";
+import { incrementAttempts, maxStageRetries } from "./attempts";
 import { paritySummary, passedFixtureNames } from "./slack";
 
 const LINEAR_GRAPHQL_URL = "https://api.linear.app/graphql";
@@ -16,6 +17,7 @@ function sleep(ms: number): Promise<void> {
 /** Modernize (MOD) team workflow states — verified via list_issue_statuses */
 export const STATUS_IN_PROGRESS = "In Progress";
 export const STATUS_IN_REVIEW = "In Review";
+export const STATUS_BLOCKED = "Blocked";
 
 export interface LinearTicket {
   title: string;
@@ -185,7 +187,7 @@ export async function claimNextReadyTicket(): Promise<{
   const inProgress = await findTicketsByStatus(STATUS_IN_PROGRESS, 10);
   if (inProgress.length > 0) {
     console.log(
-      `Blocked · ${inProgress.map((t) => t.identifier).join(", ")} still In Progress in Linear — move to Ready if no pipeline is running`
+      `Queue paused · ${inProgress.map((t) => t.identifier).join(", ")} still In Progress in Linear — move to Ready if no pipeline is running`
     );
     return null;
   }
@@ -309,10 +311,20 @@ export function buildInReviewComment(
   ].join("\n");
 }
 
-/** Comment body when a pipeline stage throws — ticket returns to Ready for retry. */
-export function buildPipelineFailedComment(ticketId: string, error: unknown): string {
+/** Comment body when a pipeline stage throws — ticket returns to Ready or moves to Blocked. */
+export function buildPipelineFailedComment(
+  ticketId: string,
+  error: unknown,
+  attempt: number,
+  capped: boolean
+): string {
   const message =
     error instanceof Error ? error.message : String(error ?? "Unknown error");
+  const maxRetries = maxStageRetries();
+  const statusLine = capped
+    ? `Ticket moved to **Blocked** after **${attempt}** consecutive stage failure(s) (limit: ${maxRetries}). Fix the issue, then move it back to **Ready** to retry.`
+    : `Ticket moved back to **Ready** for retry (attempt **${attempt}/${maxRetries}**).`;
+
   return [
     "## Pipeline failed",
     "",
@@ -322,13 +334,13 @@ export function buildPipelineFailedComment(ticketId: string, error: unknown): st
     message,
     "```",
     "",
-    "Ticket moved back to **Ready** so the listener can retry.",
+    statusLine,
     "",
     "Check [cursor.com/agents](https://cursor.com/agents) for nested cloud agent logs if a stage failed there.",
   ].join("\n");
 }
 
-/** Comment body when publish/PR fails after parity passed — stay In Progress. */
+/** Comment body when publish/PR fails after parity passed — move to Blocked. */
 export function buildPostParityFailedComment(
   ticketId: string,
   error: unknown
@@ -344,9 +356,9 @@ export function buildPostParityFailedComment(
     message,
     "```",
     "",
-    "Ticket remains **In Progress** — extraction work is preserved locally.",
+    "Ticket moved to **Blocked** — extraction work is preserved locally.",
     "",
-    "Resume after fixing git auth or network:",
+    "Fix git auth or network, then move the ticket back to **Ready** and resume:",
     "",
     `\`npx tsx orchestrator/pipeline.ts ${ticketId} --from-stage 2\``,
     "",
@@ -354,7 +366,7 @@ export function buildPostParityFailedComment(
   ].join("\n");
 }
 
-/** Publish/PR failure after parity: comment and keep In Progress (no full restart). */
+/** Publish/PR failure after parity: comment and move to Blocked (no full restart). */
 export async function handlePostParityFailure(
   ticketId: string,
   error: unknown
@@ -368,34 +380,48 @@ export async function handlePostParityFailure(
   } catch (commentErr) {
     console.error(`Failed to comment post-parity failure on Linear: ${commentErr}`);
   }
-  console.error(
-    `${ticketId} remains in ${STATUS_IN_PROGRESS} — not reset to ${READY_STATUS}`
-  );
+  try {
+    await updateTicketStatus(ticketId, STATUS_BLOCKED);
+    console.error(`${ticketId} moved to ${STATUS_BLOCKED}`);
+  } catch (statusErr) {
+    console.error(`Failed to move ${ticketId} to ${STATUS_BLOCKED}: ${statusErr}`);
+  }
 }
 
-/** Agent/stage failure: comment on Linear and re-queue the ticket. */
+/** Agent/stage failure: comment on Linear and re-queue or block the ticket. */
 export async function handlePipelineFailure(
   ticketId: string,
   error: unknown
 ): Promise<void> {
   const message =
     error instanceof Error ? error.message : String(error ?? "Unknown error");
+  const attempt = incrementAttempts(ticketId);
+  const capped = attempt > maxStageRetries();
+  const nextStatus = capped ? STATUS_BLOCKED : READY_STATUS;
+
   console.error(`Pipeline failed for ${ticketId}: ${message}`);
   try {
-    await addIssueComment(ticketId, buildPipelineFailedComment(ticketId, error));
+    await addIssueComment(
+      ticketId,
+      buildPipelineFailedComment(ticketId, error, attempt, capped)
+    );
     console.error(`Posted pipeline-failure comment on ${ticketId}`);
   } catch (commentErr) {
     console.error(`Failed to comment pipeline failure on Linear: ${commentErr}`);
   }
   try {
-    await updateTicketStatus(ticketId, READY_STATUS);
-    console.error(`${ticketId} moved back to ${READY_STATUS} for retry`);
+    await updateTicketStatus(ticketId, nextStatus);
+    console.error(
+      capped
+        ? `${ticketId} moved to ${STATUS_BLOCKED} after ${attempt} stage failure(s)`
+        : `${ticketId} moved back to ${READY_STATUS} for retry (attempt ${attempt}/${maxStageRetries()})`
+    );
   } catch (statusErr) {
-    console.error(`Failed to reset ${ticketId} to ${READY_STATUS}: ${statusErr}`);
+    console.error(`Failed to update ${ticketId} to ${nextStatus}: ${statusErr}`);
   }
 }
 
-/** Comment body when the parity gate fails — no PR, ticket stays In Progress. */
+/** Comment body when the parity gate fails — no PR, ticket moves to Blocked. */
 export function buildParityFailedComment(
   ticketId: string,
   report: ParityReport
@@ -411,7 +437,7 @@ export function buildParityFailedComment(
     "",
     `Result: **${report.passed}/${report.totalCases}** passed, **${report.failed}** failed.`,
     "",
-    "Ticket remains **In Progress**.",
+    "Ticket moved to **Blocked** — fix the extraction or fixtures, then move it back to **Ready** to retry.",
     "",
     "### Mismatches",
     "",

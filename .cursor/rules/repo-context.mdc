@@ -20,6 +20,7 @@ Do **not** treat the upstream osTicket README or contribution guidance as the so
 
 - Never skip, weaken, or bypass the verifier.
 - Do not open a PR or move a Linear ticket to **In Review** if parity fails.
+- On parity or publish/PR failure, move the ticket to **Blocked** (not In Progress) so the listener can pick up the next Ready ticket.
 - Never invent expected values or edit fixtures just to make a run pass.
 
 ## Leave unrelated trees alone

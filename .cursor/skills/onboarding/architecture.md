@@ -123,7 +123,7 @@ proven harness path. New tickets should be **manifest-driven**, not hardcoded.
 | System | Role |
 |--------|------|
 | Cursor SDK (`@cursor/sdk`) | Local/cloud agents for cartography, codegen, PR |
-| Linear | Ticket Ready → In Progress → In Review |
+| Linear | Ticket Ready → In Progress → In Review; failures → Blocked (manual return to Ready) |
 | Slack | Notify only after parity pass + PR |
 | GitHub Actions | Golden fixture parity on PRs |
 | Docker Compose | MySQL + PHP Apache for local/CI app runtime |
