@@ -1,0 +1,8 @@
+{
+  "name": "all-flags-combined",
+  "branch": "All four flags set together (flags=15, ACTIVE|ESCALATE|NOALERTS|TRANSIENT) — normal-path case where ESCALATE is genuinely set among other bits, returns true",
+  "input": {
+    "flags": 15
+  },
+  "expected": true
+}

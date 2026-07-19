@@ -1,0 +1,8 @@
+{
+  "name": "zero-flags-edge-case",
+  "branch": "flags=0, no bits set — falsy edge case, `0 && 2` evaluates to real PHP boolean false",
+  "input": {
+    "flags": 0
+  },
+  "expected": false
+}

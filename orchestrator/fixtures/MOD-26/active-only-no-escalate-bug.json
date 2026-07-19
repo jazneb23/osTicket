@@ -1,0 +1,8 @@
+{
+  "name": "active-only-no-escalate-bug",
+  "branch": "ACTIVE bit set but ESCALATE bit clear (flags=1) — exercises the logical-AND bug: intended semantics would be false, but buggy `&&` returns true since flags is nonzero",
+  "input": {
+    "flags": 1
+  },
+  "expected": true
+}

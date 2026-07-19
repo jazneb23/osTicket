@@ -1,0 +1,8 @@
+{
+  "name": "escalate-plus-active",
+  "branch": "ESCALATE bit combined with ACTIVE bit (flags=3) — escalation enabled alongside another real flag, returns true",
+  "input": {
+    "flags": 3
+  },
+  "expected": true
+}

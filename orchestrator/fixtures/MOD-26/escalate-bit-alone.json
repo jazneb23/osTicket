@@ -1,0 +1,8 @@
+{
+  "name": "escalate-bit-alone",
+  "branch": "ESCALATE bit set in isolation (flags=2) — intended 'escalation enabled' path, returns true",
+  "input": {
+    "flags": 2
+  },
+  "expected": true
+}

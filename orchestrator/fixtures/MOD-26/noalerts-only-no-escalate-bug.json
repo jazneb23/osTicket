@@ -1,0 +1,8 @@
+{
+  "name": "noalerts-only-no-escalate-bug",
+  "branch": "NOALERTS bit set but ESCALATE bit clear (flags=4) — a second, distinct unrelated-bit case confirming the bug triggers on ANY nonzero flag, not just ACTIVE",
+  "input": {
+    "flags": 4
+  },
+  "expected": true
+}
