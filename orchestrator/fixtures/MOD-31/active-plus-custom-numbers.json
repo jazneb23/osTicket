@@ -1,0 +1,8 @@
+{
+  "name": "active-plus-custom-numbers",
+  "branch": "FLAG_ACTIVE set alongside unrelated FLAG_CUSTOM_NUMBERS bit -> extra bits must not affect result, still true",
+  "input": {
+    "flags": 3
+  },
+  "expected": true
+}

@@ -1,0 +1,8 @@
+{
+  "name": "all-flags-set",
+  "branch": "all three known flag bits set (custom-numbers + active + archived) -> confirms isolation of FLAG_ACTIVE bit amid maximal bitmask noise, result true",
+  "input": {
+    "flags": 7
+  },
+  "expected": true
+}

@@ -1,0 +1,8 @@
+{
+  "name": "active-only",
+  "branch": "FLAG_ACTIVE bit set alone -> isActive()/isEnabled() return true",
+  "input": {
+    "flags": 2
+  },
+  "expected": true
+}

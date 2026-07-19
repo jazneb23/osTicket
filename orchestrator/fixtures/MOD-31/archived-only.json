@@ -1,0 +1,8 @@
+{
+  "name": "archived-only",
+  "branch": "FLAG_ARCHIVED set, FLAG_ACTIVE clear -> isActive() must be false, not conflated with archived status",
+  "input": {
+    "flags": 4
+  },
+  "expected": false
+}
