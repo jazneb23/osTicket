@@ -421,14 +421,77 @@ export async function handlePipelineFailure(
   }
 }
 
+/**
+ * Field-level diff between two JSON-object-shaped strings (the fixture
+ * harness contract). Falls back to raw expected/actual display when either
+ * side isn't a parseable JSON object, so this stays safe for any ticket's
+ * harness output shape (plain strings included).
+ */
+function describeMismatchDiff(expected: string | null, actual: string): string {
+  try {
+    const expectedObj = expected === null ? null : JSON.parse(expected);
+    const actualObj = JSON.parse(actual);
+    if (
+      expectedObj &&
+      typeof expectedObj === "object" &&
+      typeof actualObj === "object" &&
+      actualObj !== null
+    ) {
+      const keys = new Set([...Object.keys(expectedObj), ...Object.keys(actualObj)]);
+      const diffs: string[] = [];
+      for (const key of keys) {
+        const e = (expectedObj as Record<string, unknown>)[key];
+        const a = (actualObj as Record<string, unknown>)[key];
+        if (JSON.stringify(e) !== JSON.stringify(a)) {
+          diffs.push(`\`${key}\`: expected \`${JSON.stringify(e)}\`, got \`${JSON.stringify(a)}\``);
+        }
+      }
+      if (diffs.length > 0) {
+        return diffs.join("; ");
+      }
+    }
+  } catch {
+    // Not JSON objects on both sides — fall through to raw display below.
+  }
+  return `expected \`${expected}\`, got \`${actual}\``;
+}
+
 /** Comment body when the parity gate fails — no PR, ticket moves to Blocked. */
 export function buildParityFailedComment(
   ticketId: string,
-  report: ParityReport
+  report: ParityReport,
+  manifest?: SeamManifest
 ): string {
   const mismatches = report.mismatches
-    .map((m) => `- \`${m.name}\`: expected \`${m.expected}\`, got \`${m.actual}\``)
+    .map((m) => `- \`${m.name}\` — ${describeMismatchDiff(m.expected, m.actual)}`)
     .join("\n");
+
+  const constraintsSection =
+    manifest && manifest.constraints.length > 0
+      ? [
+          "",
+          "### Seam constraints (from investigation)",
+          "",
+          "One of these is almost certainly what the extraction violates — check the field(s) named above against these:",
+          "",
+          manifest.constraints.map((c) => `- ${c}`).join("\n"),
+        ].join("\n")
+      : "";
+
+  const suggestedFixSection = manifest
+    ? [
+        "",
+        "### Suggested fix",
+        "",
+        `1. Compare \`${manifest.extractionTarget ?? "the extracted service"}\` against the constraint(s) above for the mismatched field(s).`,
+        `2. Patch the service (or re-run the extractor) so it honors the violated constraint, without touching ${manifest.facadeFile ?? "the facade file"}'s signature or the fixtures.`,
+        "3. Re-verify locally, then move the ticket back to **Ready** once it's fixed:",
+        "",
+        "```",
+        `npx tsx orchestrator/capture-and-verify.ts ${ticketId}`,
+        "```",
+      ].join("\n")
+    : "";
 
   return [
     "## Parity gate failed",
@@ -442,7 +505,11 @@ export function buildParityFailedComment(
     "### Mismatches",
     "",
     mismatches || "_No mismatch details available._",
-  ].join("\n");
+    constraintsSection,
+    suggestedFixSection,
+  ]
+    .filter((section) => section !== "")
+    .join("\n");
 }
 
 export async function addIssueComment(ticketId: string, body: string): Promise<void> {

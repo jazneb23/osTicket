@@ -30,6 +30,7 @@ include_once(INCLUDE_DIR.'class.variable.php');
 include_once(INCLUDE_DIR.'class.priority.php');
 include_once(INCLUDE_DIR.'class.sla.php');
 include_once(INCLUDE_DIR.'class.canned.php');
+include_once(INCLUDE_DIR.'Services/TicketOverdueService.php');
 require_once(INCLUDE_DIR.'class.dynamic_forms.php');
 require_once(INCLUDE_DIR.'class.user.php');
 require_once(INCLUDE_DIR.'class.collaborator.php');
@@ -375,7 +376,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function isOverdue() {
-        return $this->ht['isoverdue'];
+        return (new TicketOverdueService())->isOverdue($this);
     }
 
     function isAnswered() {
@@ -2425,40 +2426,11 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function markOverdue($whine=true) {
-        global $cfg;
-
-        // Only open tickets can be marked overdue
-        if (!$this->isOpen())
-            return false;
-
-        if ($this->isOverdue())
-            return true;
-
-        $this->isoverdue = 1;
-        if (!$this->save())
-            return false;
-
-        $this->logEvent('overdue');
-        $this->onOverdue($whine);
-
-        return true;
+        return (new TicketOverdueService())->markOverdue($this, $whine);
     }
 
     function clearOverdue($save=true) {
-
-        //NOTE: Previously logged overdue event is NOT annuled.
-        if ($this->isOverdue())
-            $this->isoverdue = 0;
-
-        // clear due date if it's in the past
-        if ($this->getDueDate() && Misc::db2gmtime($this->getDueDate()) <= Misc::gmtime())
-            $this->duedate = null;
-
-        // Clear SLA if est. due date is in the past
-        if ($this->getSLADueDate() && Misc::db2gmtime($this->getSLADueDate()) <= Misc::gmtime())
-            $this->est_duedate = null;
-
-        return $save ? $this->save() : true;
+        return (new TicketOverdueService())->clearOverdue($this, $save);
     }
 
     function unlinkChild($parent) {
@@ -4721,27 +4693,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     static function checkOverdue() {
-        $overdue = static::objects()
-            ->filter(array(
-                'isoverdue' => 0,
-                'status__state' => 'open',
-                Q::any(array(
-                    Q::all(array(
-                        'duedate__isnull' => true,
-                        'est_duedate__isnull' => false,
-                        'est_duedate__lt' => SqlFunction::NOW())
-                        ),
-                    Q::all(array(
-                        'duedate__isnull' => false,
-                        'duedate__lt' => SqlFunction::NOW())
-                        )
-                    ))
-                ))
-            ->limit(100);
-
-        foreach ($overdue as $ticket)
-            $ticket->markOverdue();
-
+        return (new TicketOverdueService())->checkOverdue(static::class);
     }
 
     static function agentActions($agent, $options=array()) {

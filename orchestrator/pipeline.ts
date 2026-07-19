@@ -19,6 +19,7 @@ import {
   publishArtifactsForPr,
   stranglerBranchName,
 } from "./lib/gitPublish";
+import { isPinnedRegressionTicket } from "./lib/manifest";
 import { baselineCapture } from "./agents/baselineCapture";
 import { cartographer } from "./agents/cartographer";
 import { fixtureGenerator } from "./agents/fixtureGenerator";
@@ -39,6 +40,14 @@ export async function runPipeline(
   fromStage = 1
 ): Promise<void> {
   assertLocalDockerReady();
+
+  if (isPinnedRegressionTicket(ticketId) && fromStage < 5) {
+    fromStage = 5;
+    logPipelineLine(
+      `${ticketId} is a pinned demo regression — skipping harness/fixture/extractor/strangler ` +
+        `stages and verifying the already-seeded artifacts directly (see include/Services/).`
+    );
+  }
 
   writeStageBanner("cartographer", ticketId);
   const manifest = await cartographer(ticketId, acceptanceCriteria);
@@ -82,7 +91,7 @@ export async function runPipeline(
     }
     console.error("=".repeat(72));
     try {
-      await addIssueComment(ticketId, buildParityFailedComment(ticketId, report));
+      await addIssueComment(ticketId, buildParityFailedComment(ticketId, report, manifest));
       console.error(`Posted parity-failure comment on ${ticketId}`);
     } catch (err) {
       console.error(`Failed to comment parity failure on Linear: ${err}`);

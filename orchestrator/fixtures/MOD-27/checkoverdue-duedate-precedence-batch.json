@@ -1,0 +1,13 @@
+{
+  "name": "checkoverdue-duedate-precedence-batch",
+  "branch": "checkOverdue() batch selection: a future duedate takes precedence over a past est_duedate — the ticket must NOT be marked overdue",
+  "input": {
+    "action": "checkOverdue",
+    "ticket_id": 22,
+    "status_state": "open",
+    "isoverdue": 0,
+    "duedate": "2099-01-01 00:00:00",
+    "est_duedate": "2020-01-01 00:00:00"
+  },
+  "expected": "{\"isoverdue\":0,\"duedate\":\"2099-01-01 00:00:00\",\"est_duedate\":\"2020-01-01 00:00:00\"}"
+}
