@@ -1,0 +1,8 @@
+{
+  "name": "no-flags-set",
+  "branch": "flags=0, transient bit unset — isTransient() returns falsy (0)",
+  "input": {
+    "flags": 0
+  },
+  "expected": 0
+}

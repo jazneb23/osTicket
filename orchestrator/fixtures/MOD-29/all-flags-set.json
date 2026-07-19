@@ -1,0 +1,8 @@
+{
+  "name": "all-flags-set",
+  "branch": "FLAG_ACTIVE|FLAG_ESCALATE|FLAG_NOALERTS|FLAG_TRANSIENT (0x0001|0x0002|0x0004|0x0008=15) — every known flag set including transient — isTransient() returns truthy (8)",
+  "input": {
+    "flags": 15
+  },
+  "expected": 8
+}

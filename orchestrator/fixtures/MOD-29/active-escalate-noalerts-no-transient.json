@@ -1,0 +1,8 @@
+{
+  "name": "active-escalate-noalerts-no-transient",
+  "branch": "FLAG_ACTIVE|FLAG_ESCALATE|FLAG_NOALERTS (0x0001|0x0002|0x0004=7) — all other flags set but transient bit unset — isTransient() returns falsy (0), proving transient bit alone controls result",
+  "input": {
+    "flags": 7
+  },
+  "expected": 0
+}

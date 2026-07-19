@@ -17,6 +17,7 @@ include_once INCLUDE_DIR.'class.schedule.php';
 include_once INCLUDE_DIR.'Services/SlaGracePeriodCalculator.php';
 include_once INCLUDE_DIR.'Services/SlaPriorityEscalationResolver.php';
 include_once INCLUDE_DIR.'Services/SlaSendAlertsChecker.php';
+include_once INCLUDE_DIR.'Services/SlaTransientChecker.php';
 
 class SLA extends VerySimpleModel
 implements TemplateVariable {
@@ -95,7 +96,8 @@ implements TemplateVariable {
     }
 
     function isTransient() {
-        return $this->flags & self::FLAG_TRANSIENT;
+        $checker = new SlaTransientChecker();
+        return $checker->check($this->flags, self::FLAG_TRANSIENT);
     }
 
     function sendAlerts() {

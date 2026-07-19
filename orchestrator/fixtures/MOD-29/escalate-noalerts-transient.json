@@ -1,0 +1,8 @@
+{
+  "name": "escalate-noalerts-transient",
+  "branch": "FLAG_ESCALATE|FLAG_NOALERTS|FLAG_TRANSIENT (0x0002|0x0004|0x0008=14) — transient bit set among multiple other bits — isTransient() returns truthy (8)",
+  "input": {
+    "flags": 14
+  },
+  "expected": 8
+}
