@@ -1,0 +1,8 @@
+{
+  "name": "enabled-plus-noalerts",
+  "branch": "flags=3 (FLAG_ENABLED|FLAG_NOALERTS both set) — proves the AND against FLAG_ENABLED still isolates just that bit even when other bits are also set; result is 1 (enabled)",
+  "input": {
+    "flags": 3
+  },
+  "expected": 1
+}

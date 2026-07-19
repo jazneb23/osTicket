@@ -1,0 +1,8 @@
+{
+  "name": "noalerts-only-disabled",
+  "branch": "flags=2 (only FLAG_NOALERTS set, FLAG_ENABLED bit is 0) — proves isEnabled() isolates its own bit and is not conflated with the unrelated noalerts bit; result is 0 (disabled)",
+  "input": {
+    "flags": 2
+  },
+  "expected": 0
+}

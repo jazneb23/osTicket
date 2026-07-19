@@ -1,0 +1,8 @@
+{
+  "name": "higher-bits-enabled",
+  "branch": "flags=5 (FLAG_ENABLED set plus an unrelated/未来 higher bit, 0x0004) — exercises that isEnabled() masks correctly and ignores bits above FLAG_NOALERTS; result is 1 (enabled)",
+  "input": {
+    "flags": 5
+  },
+  "expected": 1
+}

@@ -1,0 +1,8 @@
+{
+  "name": "flag-enabled-only",
+  "branch": "flags=1 (FLAG_ENABLED set, no other bits) — isEnabled() returns 1, the pure enabled case; isActive() delegates and also returns 1",
+  "input": {
+    "flags": 1
+  },
+  "expected": 1
+}

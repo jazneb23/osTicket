@@ -1,0 +1,8 @@
+{
+  "name": "no-flags-disabled",
+  "branch": "flags=0 (no bits set) — isEnabled() bitwise AND against FLAG_ENABLED yields 0, the disabled/default case; isActive() delegates and also returns 0",
+  "input": {
+    "flags": 0
+  },
+  "expected": 0
+}

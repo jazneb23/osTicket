@@ -1,0 +1,8 @@
+{
+  "name": "higher-bits-disabled",
+  "branch": "flags=4 (only a higher unrelated bit set, FLAG_ENABLED bit is 0) — confirms isEnabled() returns 0 even when other unrelated bits are set, i.e. the mask is exact and not a truthy check on the whole integer",
+  "input": {
+    "flags": 4
+  },
+  "expected": 0
+}
