@@ -1,0 +1,14 @@
+{
+  "name": "clearoverdue-save-false-inmemory",
+  "branch": "clearOverdue(save=false) mutates the in-memory instance and returns true without persisting",
+  "input": {
+    "action": "clearOverdue",
+    "ticket_id": 24,
+    "status_state": "open",
+    "isoverdue": 1,
+    "duedate": "2020-01-01 00:00:00",
+    "est_duedate": null,
+    "save": false
+  },
+  "expected": "{\"return\":true,\"isoverdue\":0,\"duedate\":null,\"est_duedate\":null}"
+}

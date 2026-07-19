@@ -25,3 +25,6 @@ node_modules/
 
 # Pipeline runtime cache (seam manifests per ticket)
 orchestrator/.state/
+
+# Verifier-generated parity reports (regenerated on every run, never a golden fixture)
+orchestrator/fixtures/*/parity.json

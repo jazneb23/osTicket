@@ -1,0 +1,13 @@
+{
+  "name": "markoverdue-closed-ticket-guard",
+  "branch": "markOverdue() returns false without side effects when the ticket is not open",
+  "input": {
+    "action": "markOverdue",
+    "ticket_id": 19,
+    "status_state": "closed",
+    "isoverdue": 0,
+    "duedate": null,
+    "est_duedate": null
+  },
+  "expected": "{\"return\":false,\"isoverdue\":0,\"duedate\":null,\"est_duedate\":null}"
+}

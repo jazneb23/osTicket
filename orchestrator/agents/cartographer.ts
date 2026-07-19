@@ -6,6 +6,7 @@ import {
   requireExtractionTarget,
   requireFacadeFile,
   requireHarnessScript,
+  seedPinnedManifest,
 } from "../lib/manifest";
 import { logAgentLine } from "../lib/terminal";
 import type { SeamManifest } from "../lib/types";
@@ -17,6 +18,12 @@ export async function cartographer(
 ): Promise<SeamManifest> {
   const statePath = manifestPath(ticketId);
   const forceRefresh = process.argv.includes("--force-cartographer");
+  // Self-heal pinned tickets (e.g. MOD-27's demo regression) before the cache
+  // check, so a wiped orchestrator/.state/ never falls through to a fresh,
+  // non-deterministic cartographer agent run for them.
+  if (!forceRefresh) {
+    seedPinnedManifest(ticketId);
+  }
   if (!forceRefresh && fs.existsSync(statePath)) {
     logAgentLine("cartographer", `Using cached manifest for ${ticketId}.`);
     return applyHarnessDefaults(JSON.parse(fs.readFileSync(statePath, "utf-8")));
