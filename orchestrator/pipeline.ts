@@ -1,6 +1,7 @@
 import "dotenv/config";
+import { resetAttempts } from "./lib/attempts";
 import {
-  STATUS_IN_PROGRESS,
+  STATUS_BLOCKED,
   STATUS_IN_REVIEW,
   addIssueComment,
   buildInReviewComment,
@@ -66,6 +67,7 @@ export async function runPipeline(
 
   writeStageBanner("verifier", ticketId);
   const report = await verifier(ticketId);
+  resetAttempts(ticketId);
   console.log(
     `Parity: ${report.passed}/${report.totalCases} passed, ${report.failed} failed`
   );
@@ -73,9 +75,7 @@ export async function runPipeline(
   if (!report.gatePassed) {
     console.error("=".repeat(72));
     console.error(`PARITY GATE FAILED for ${ticketId} — pipeline halted, no PR opened`);
-    console.error(
-      `Ticket remains in "${STATUS_IN_PROGRESS}" (no Blocked state in this workspace)`
-    );
+    console.error(`Ticket moving to "${STATUS_BLOCKED}"`);
     console.error(`${report.failed} mismatch(es) of ${report.totalCases} cases:`);
     for (const m of report.mismatches) {
       console.error(`  ${m.name}: expected ${m.expected}, got ${m.actual}`);
@@ -86,6 +86,12 @@ export async function runPipeline(
       console.error(`Posted parity-failure comment on ${ticketId}`);
     } catch (err) {
       console.error(`Failed to comment parity failure on Linear: ${err}`);
+    }
+    try {
+      await updateTicketStatus(ticketId, STATUS_BLOCKED);
+      console.error(`${ticketId} moved to ${STATUS_BLOCKED}`);
+    } catch (err) {
+      console.error(`Failed to move ${ticketId} to ${STATUS_BLOCKED}: ${err}`);
     }
     return;
   }

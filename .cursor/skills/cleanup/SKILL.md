@@ -291,9 +291,9 @@ Keep the reply short:
 | Marker | When posted |
 |--------|-------------|
 | `## Pipeline complete` | Success → In Review |
-| `## Pipeline failed` | Stage throw → back to Ready |
-| `## Parity gate failed` | Verifier mismatch → stays In Progress |
-| `## Publish / PR step failed` | Post-parity git/gh failure |
+| `## Pipeline failed` | Stage throw → back to Ready (or Blocked after retry cap) |
+| `## Parity gate failed` | Verifier mismatch → Blocked |
+| `## Publish / PR step failed` | Post-parity git/gh failure → Blocked |
 
 ## Relationship to `/rollback`
 

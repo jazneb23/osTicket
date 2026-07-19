@@ -36,10 +36,16 @@ After verifier:
 **Fail**:
 
 - Halt pipeline
-- Leave ticket **In Progress**
+- Move ticket to **Blocked**
 - **No** PR, **no** Slack success notify, **no** In Review
 - Print mismatches (`expected` vs `actual`)
 - Linear comment via `buildParityFailedComment`
+
+**Stage throw** (before verifier):
+
+- Retry via **Ready** up to `PIPELINE_MAX_STAGE_RETRIES` (default 3, env-configurable)
+- After cap, move to **Blocked** via `handlePipelineFailure`
+- Attempt counter resets when verifier runs successfully (parity pass or fail)
 
 Never skip, weaken, or bypass the verifier. Never invent expecteds or edit
 fixtures just to pass.
@@ -111,7 +117,7 @@ npx tsx orchestrator/test-stage3.ts
 `orchestrator/listener.ts` is the **production demo entry**. It polls Linear for
 Ready tickets (one at a time via `claimNextReadyTicket` + `pipelineBusy`):
 
-1. Claim next Ready ticket (skip if another is In Progress)
+1. Claim next Ready ticket (skip if another is In Progress; Blocked tickets do not block the queue)
 2. Mark In Progress
 3. `runPipeline(ticketId, ticket.description)`
 

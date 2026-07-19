@@ -11,7 +11,8 @@ alwaysApply: false
 Only trigger Linear status transitions and Slack **success** notifications **after** the parity gate has genuinely passed (`report.gatePassed === true`).
 
 - No PR open → no Slack "PR opened" notify → no Linear **In Review** move on a failed gate.
-- On failure, leave the ticket in progress, halt, and post `buildParityFailedComment` — do not invent a success path.
+- On parity-gate or post-parity/PR failure, move the ticket to **Blocked**, halt, and post the appropriate failure comment — do not invent a success path.
+- Stage-throw failures retry via **Ready** up to `PIPELINE_MAX_STAGE_RETRIES` (default 3); after that, move to **Blocked**.
 
 ## Keep existing formats
 

@@ -16,6 +16,7 @@ Flow:
 3. Move **one** `MOD-*` ticket to **Ready** in Linear
 4. Listener claims → **In Progress** → `pipeline.ts`
 5. On parity pass: publish → cloud pr-agent → PR → Slack → **In Review**
+6. On parity/PR failure or repeated stage crash: **Blocked** → human fixes → move back to **Ready**
 
 **Disable Cursor Automation** for this repo — cloud Docker-in-Docker (`start.sh`)
 is not used for the demo and has been unreliable.
