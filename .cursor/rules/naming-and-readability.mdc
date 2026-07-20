@@ -1,0 +1,47 @@
+---
+description: Naming and readability conventions — descriptive names, focused functions, comments explain why not what
+globs: **/*.ts, **/*.tsx, **/*.php, **/*.js
+alwaysApply: false
+---
+
+# Naming and readability
+
+## Descriptive names over abbreviations
+
+Optimize for the next reader, not fewer keystrokes. Avoid single-letter names
+outside tight loop counters, and avoid ambiguous abbreviations.
+
+```typescript
+// BAD
+const d = calcDiff(a, b);
+
+// GOOD
+const businessHoursRemaining = calculateBusinessHoursRemaining(start, deadline);
+```
+
+## Functions do one thing
+
+If a function name needs "and" to describe it, split it. A function that
+validates *and* saves *and* notifies should be three functions composed by a
+caller, so each piece is independently testable and readable.
+
+## Comments explain why, not what
+
+Do not narrate code in comments — the code already says what it does. Only
+comment on non-obvious intent, trade-offs, or constraints the code can't
+express on its own.
+
+```typescript
+// BAD
+// increment the counter
+counter++;
+
+// GOOD
+// osTicket's legacy API returns 1-indexed page numbers; keep parity with it here.
+page++;
+```
+
+## Delete dead code instead of commenting it out
+
+Commented-out code rots and confuses future readers about whether it's safe
+to remove. Delete it — version control already remembers it.

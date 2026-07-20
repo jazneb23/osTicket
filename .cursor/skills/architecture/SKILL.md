@@ -49,8 +49,8 @@ Confirm stage count and names from code. Do not invent stages.
 Reuse, do not fork:
 
 - [../onboarding/architecture.md](../onboarding/architecture.md)
-- [../onboarding/pipeline.md](../onboarding/pipeline.md)
-- [../onboarding/constraints.md](../onboarding/constraints.md)
+- [../onboarding/demo-overlay.md](../onboarding/demo-overlay.md)
+- [../onboarding/pitfalls.md](../onboarding/pitfalls.md)
 
 ### 3. Narrative (default shape)
 
