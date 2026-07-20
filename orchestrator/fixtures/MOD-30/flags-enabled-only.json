@@ -1,0 +1,8 @@
+{
+  "name": "flags-enabled-only",
+  "branch": "flags=1 (FLAG_ENABLED bit set, no other bits) -> isEnabled() returns raw int 1, the baseline enabled path",
+  "input": {
+    "flags": 1
+  },
+  "expected": 1
+}

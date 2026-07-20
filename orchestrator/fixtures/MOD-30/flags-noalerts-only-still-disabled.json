@@ -1,0 +1,8 @@
+{
+  "name": "flags-noalerts-only-still-disabled",
+  "branch": "flags=2 (FLAG_NOALERTS set, FLAG_ENABLED bit clear) -> AND against FLAG_ENABLED (0x0001) isolates only the enabled bit, so isEnabled() returns 0 even though another flag bit is set",
+  "input": {
+    "flags": 2
+  },
+  "expected": 0
+}

@@ -1,0 +1,8 @@
+{
+  "name": "flags-disabled-with-multiple-adjacent-bits",
+  "branch": "flags=6 (FLAG_NOALERTS | an unrelated higher bit 0x0004, FLAG_ENABLED bit clear) -> isEnabled() returns 0 even when several other flag bits are simultaneously set, proving unrelated bits never leak into the result",
+  "input": {
+    "flags": 6
+  },
+  "expected": 0
+}

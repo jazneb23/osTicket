@@ -1,0 +1,8 @@
+{
+  "name": "flags-enabled-plus-noalerts",
+  "branch": "flags=3 (FLAG_ENABLED | FLAG_NOALERTS both set) -> bitwise AND still isolates only the enabled bit, returning raw int 1 despite the extra NOALERTS bit being set alongside it",
+  "input": {
+    "flags": 3
+  },
+  "expected": 1
+}

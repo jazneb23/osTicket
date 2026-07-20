@@ -1,0 +1,8 @@
+{
+  "name": "flags-zero-disabled",
+  "branch": "flags=0 (no bits set, FLAG_ENABLED clear) -> isEnabled() returns raw int 0, the baseline disabled path; isActive()/!isEnabled() negated-checkbox callers depend on this exact 0",
+  "input": {
+    "flags": 0
+  },
+  "expected": 0
+}

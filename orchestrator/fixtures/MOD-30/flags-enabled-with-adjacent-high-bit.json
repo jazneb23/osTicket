@@ -1,0 +1,8 @@
+{
+  "name": "flags-enabled-with-adjacent-high-bit",
+  "branch": "flags=5 (FLAG_ENABLED set plus an unrelated higher bit 0x0004) -> confirms the mask returns exactly 1, not the full multi-bit flags value, when the enabled bit is set amid other unrelated bits",
+  "input": {
+    "flags": 5
+  },
+  "expected": 1
+}
