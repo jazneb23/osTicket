@@ -1,0 +1,8 @@
+{
+  "name": "archived-only",
+  "branch": "FLAG_ARCHIVED set but FLAG_ACTIVE clear -> isActive() must still return false, proving archived bit does not leak into the active check",
+  "input": {
+    "flags": 8
+  },
+  "expected": false
+}

@@ -1,0 +1,8 @@
+{
+  "name": "no-flags-disabled",
+  "branch": "No bits set (disabled dept, flags=0) -> isActive() returns false",
+  "input": {
+    "flags": 0
+  },
+  "expected": false
+}

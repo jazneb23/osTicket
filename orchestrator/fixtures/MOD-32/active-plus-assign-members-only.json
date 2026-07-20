@@ -1,0 +1,8 @@
+{
+  "name": "active-plus-assign-members-only",
+  "branch": "FLAG_ACTIVE combined with unrelated FLAG_ASSIGN_MEMBERS_ONLY bit -> isActive() returns true, proving unrelated bit doesn't affect result",
+  "input": {
+    "flags": 5
+  },
+  "expected": true
+}

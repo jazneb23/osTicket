@@ -1,0 +1,8 @@
+{
+  "name": "active-plus-assign-primary-only",
+  "branch": "FLAG_ACTIVE combined with unrelated FLAG_ASSIGN_PRIMARY_ONLY bit -> isActive() returns true, proving another unrelated bit doesn't affect result",
+  "input": {
+    "flags": 20
+  },
+  "expected": true
+}

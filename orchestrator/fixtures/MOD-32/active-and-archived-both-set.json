@@ -1,0 +1,8 @@
+{
+  "name": "active-and-archived-both-set",
+  "branch": "Both FLAG_ACTIVE and FLAG_ARCHIVED set simultaneously -> isActive() returns true since only the ACTIVE bit governs it, unlike getStatus()'s tri-state precedence which is out of scope",
+  "input": {
+    "flags": 12
+  },
+  "expected": true
+}
