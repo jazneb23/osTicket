@@ -3,9 +3,10 @@ name: cleanup
 description: >-
   MOD-tickets-only demo reset: move MOD-* Linear issues to Backlog, delete
   pipeline comments on those tickets, close/delete strangler/MOD-* PRs and
-  branches, and remove MOD extraction artifacts. Does not touch non-MOD Linear
-  issues or unrelated branches/PRs. Use when the user asks to cleanup MOD
-  tickets, reset the demo queue, clear pipeline runs, or invokes /cleanup.
+  branches, and remove untracked MOD extraction artifacts. Preserves committed
+  MOD-25 golden and MOD-27 Blocked-flow pin on develop. Does not touch non-MOD
+  Linear issues or unrelated branches/PRs. Use when the user asks to cleanup
+  MOD tickets, reset the demo queue, clear pipeline runs, or invokes /cleanup.
 ---
 
 # Cleanup — MOD tickets only
@@ -25,7 +26,7 @@ This is broader than `/rollback` (which only resets git locally).
 | Pipeline comments on those MOD issues | Comments on non-MOD issues |
 | PRs with head `strangler/MOD-*` | Other PRs or branches |
 | Branches matching `strangler/MOD-*` | `develop`, `main`, feature branches, `demo/*`, etc. |
-| `orchestrator/.state/MOD-*`, `orchestrator/fixtures/MOD-*` (except preserved MOD-25), MOD-created services/harnesses | Unrelated repo files or non-MOD fixtures |
+| `orchestrator/.state/MOD-*`, untracked `orchestrator/fixtures/MOD-*`, untracked services/harnesses | Committed baselines on `develop` (MOD-25, MOD-27 pin); unrelated repo files |
 
 If the user says "cleanup everything in Linear," clarify: **`/cleanup` is MOD
 tickets only** unless they explicitly expand scope.
@@ -37,8 +38,17 @@ tickets only** unless they explicitly expand scope.
 - **Confirm intent once** before any destructive step (Linear status, comment
   deletion, PR close, branch delete, `git reset --hard`, file removal).
 - **Never skip the parity gate** by editing golden `expected` values.
-- **Preserve the MOD-25 baseline on `develop`**: committed
-  `orchestrator/fixtures/MOD-25/` and `legacy/harness/sla_capture.php` stay.
+- **Preserve committed baselines on `develop`** (never delete or edit these):
+  - **MOD-25** golden path: `orchestrator/fixtures/MOD-25/`,
+    `legacy/harness/sla_capture.php`
+  - **MOD-27** Blocked-flow pin: `orchestrator/fixtures/MOD-27/`,
+    `legacy/harness/overdue_capture.php`,
+    `include/Services/TicketOverdueService.php`, and the seeded
+    `include/class.ticket.php` facade (intentional parity bug for demo)
+- **Never delete tracked files** that exist on `origin/develop`. After
+  `git reset --hard`, step 7 may only remove **untracked** runtime junk.
+  If a removal would show up as `deleted:` in `git status`, do not do it —
+  restore instead.
 - **Never delete or overwrite `.env`**.
 - **Never force-push `main` / `develop`**.
 - Move tickets to **Backlog** — do not Cancel unless the user explicitly asks.
@@ -80,9 +90,9 @@ If the user has not clearly asked for a full MOD cleanup, ask once:
 
 > This will reset **MOD tickets only** (`MOD-*`): move them to Backlog, delete
 > pipeline comments on those issues, close open `strangler/MOD-*` PRs, delete
-> those branches, and remove local MOD harness/service/fixture artifacts
-> (keeping MOD-25 golden fixtures on develop). Non-MOD Linear issues and PRs
-> are untouched. Proceed?
+> those branches, and remove **untracked** MOD harness/service/fixture artifacts
+> (keeping the committed MOD-25 golden path and MOD-27 Blocked-flow pin on
+> develop). Non-MOD Linear issues and PRs are untouched. Proceed?
 
 Do not run destructive commands until they confirm (or their message was
 already an explicit cleanup / fresh-start request).
@@ -206,70 +216,104 @@ strangler branch. Untracked artifacts are handled in step 7.
 
 ### 7. Remove local extraction artifacts
 
-Remove runtime manifests:
+Step 6 already restored every **tracked** file on `develop`, including the
+MOD-25 and MOD-27 baselines. This step only clears **untracked** pipeline
+output. Do **not** `rm -rf include/Services/`, wipe `MOD-27` fixtures, or
+delete `overdue_capture.php` / `TicketOverdueService.php`.
+
+Preserved on `develop` (leave alone — never edit `expected` values):
+
+| Path | Why |
+|------|-----|
+| `orchestrator/fixtures/MOD-25/` | Golden parity baseline |
+| `legacy/harness/sla_capture.php` | MOD-25 harness |
+| `orchestrator/fixtures/MOD-27/` | Blocked-flow pin (intentional 5/6 fail) |
+| `legacy/harness/overdue_capture.php` | MOD-27 harness |
+| `include/Services/TicketOverdueService.php` | Seeded buggy service for Blocked demo |
+| `include/class.ticket.php` | Seeded facade for that pin |
+
+Remove runtime state (gitignored manifests / attempt counters):
 
 ```bash
 rm -f orchestrator/.state/MOD-*-manifest.json
+rm -f orchestrator/.state/MOD-*-attempts.json
 ```
 
-Remove fixture dirs **except MOD-25 golden** (and never edit MOD-25 JSON):
+Remove **untracked** fixture dirs only (skip committed MOD-25 / MOD-27):
 
 ```bash
 for d in orchestrator/fixtures/MOD-*/; do
+  [ -d "$d" ] || continue
   id=$(basename "$d")
-  [ "$id" = "MOD-25" ] && continue
+  case "$id" in MOD-25|MOD-27) continue ;; esac
+  # Skip if this tree has any files tracked on develop
+  if [ -n "$(git ls-files "$d")" ]; then
+    echo "skip tracked fixture dir: $id"
+    continue
+  fi
   rm -rf "$d"
 done
 ```
 
-Remove generated parity reports anywhere:
+Remove verifier-generated parity reports (gitignored; safe to delete):
 
 ```bash
 find orchestrator/fixtures -name parity.json -delete
 ```
 
-Remove ticket-created services (none are committed on develop except future
-baseline work — today all of `include/Services/` is demo extraction output):
+Remove **untracked** services only — keep `TicketOverdueService.php`:
 
 ```bash
-rm -rf include/Services/
 mkdir -p include/Services
+find include/Services -maxdepth 1 -type f -name '*.php' | while read -r f; do
+  if git ls-files --error-unmatch "$f" >/dev/null 2>&1; then
+    continue
+  fi
+  rm -f "$f"
+done
 ```
 
-Keep the directory if the repo expects it; an empty dir is fine.
-
-Remove harness scripts **except the MOD-25 baseline**:
+Remove **untracked** harness scripts only — keep `sla_capture.php` and
+`overdue_capture.php`:
 
 ```bash
-find legacy/harness -maxdepth 1 -name '*.php' ! -name 'sla_capture.php' -delete
+find legacy/harness -maxdepth 1 -name '*.php' | while read -r f; do
+  base=$(basename "$f")
+  case "$base" in sla_capture.php|overdue_capture.php) continue ;; esac
+  if git ls-files --error-unmatch "$f" >/dev/null 2>&1; then
+    continue
+  fi
+  rm -f "$f"
+done
 ```
 
-Search for stray ticket artifacts and remove if found:
+Scoped clean for leftover untracked junk (does not touch tracked files):
 
 ```bash
-# Failed cartographer paths, assign captures, etc.
-find legacy/harness -name '*_capture.php' ! -name 'sla_capture.php' -delete
-```
-
-If `git status` still shows untracked MOD junk under agreed paths, scoped clean:
-
-```bash
-git clean -fd -- orchestrator/.state include/Services legacy/harness
+git clean -fd -- orchestrator/.state
+# Only clean untracked files under Services/harness/fixtures — never -x
+git clean -fd -- include/Services legacy/harness orchestrator/fixtures
 ```
 
 Do **not** run repo-root `git clean -fd` without path scope.
+
+After this step, `git status` must be **clean**. If anything shows as
+`deleted:`, you removed a tracked baseline — run `git restore -- <path>`
+immediately and fix the skill commands before continuing.
 
 ### 8. Verify + report
 
 Run in parallel:
 
 ```bash
-git status
+git status   # must be clean — no deleted: tracked baselines
 git branch -a | grep strangler/MOD || echo "(no strangler/MOD branches)"
-ls orchestrator/fixtures/
-ls legacy/harness/
-ls include/Services/ 2>/dev/null || true
+ls orchestrator/fixtures/   # expect MOD-25 and MOD-27
+ls legacy/harness/          # expect sla_capture.php and overdue_capture.php
+ls include/Services/ 2>/dev/null || true   # expect TicketOverdueService.php
 ls orchestrator/.state/ 2>/dev/null || true
+test -f include/Services/TicketOverdueService.php
+test -d orchestrator/fixtures/MOD-27
 ```
 
 Optionally re-list Linear issues to confirm all MOD tickets are Backlog.
@@ -283,7 +327,7 @@ Keep the reply short:
 3. PRs closed (numbers + URLs)
 4. Branches deleted (local + remote)
 5. Local artifacts removed (paths)
-6. What was **preserved** (MOD-25 fixtures, `sla_capture.php`, `develop`)
+6. What was **preserved** (MOD-25 golden, MOD-27 Blocked pin, `develop`)
 7. Next step: move desired tickets to **Ready** and restart listener
 
 ## Pipeline comment markers (reference)
@@ -312,6 +356,11 @@ quick local discard without touching Linear or GitHub.
 - Canceling tickets instead of Backlog without user request
 - Deleting all Linear comments (including human notes)
 - Removing MOD-25 golden fixtures or editing their `expected` values
+- Removing the MOD-27 Blocked-flow pin (`fixtures/MOD-27/`,
+  `overdue_capture.php`, `TicketOverdueService.php`, or the seeded
+  `class.ticket.php` facade) or "fixing" its intentional parity bug
+- `rm -rf include/Services/` (wipes the committed MOD-27 service)
+- Deleting any path that then appears as `deleted:` in `git status`
 - Force-pushing or deleting non-`strangler/MOD-*` branches
 - Whole-repo `git clean -fd` without confirmation
 - Running cleanup while the listener is still claiming Ready tickets
