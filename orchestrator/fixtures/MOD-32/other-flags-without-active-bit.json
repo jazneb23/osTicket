@@ -1,0 +1,8 @@
+{
+  "name": "other-flags-without-active-bit",
+  "branch": "Multiple unrelated bits set (FLAG_ASSIGN_MEMBERS_ONLY|FLAG_DISABLE_AUTO_CLAIM=0x0001|0x0002=3) but FLAG_ACTIVE bit absent -> returns false despite non-zero flags",
+  "input": {
+    "flags": 3
+  },
+  "expected": false
+}

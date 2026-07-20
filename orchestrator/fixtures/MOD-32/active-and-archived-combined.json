@@ -1,0 +1,8 @@
+{
+  "name": "active-and-archived-combined",
+  "branch": "Both FLAG_ACTIVE and FLAG_ARCHIVED set (0x0004|0x0008=12) -> isActive() tests only its own bit independent of archived, returns true",
+  "input": {
+    "flags": 12
+  },
+  "expected": true
+}
