@@ -1,0 +1,8 @@
+{
+  "name": "noalerts-bit-only-quirk-truthy",
+  "branch": "Quirk reproduced with a different unrelated bit: only FLAG_NOALERTS (4) set — no ESCALATE bit — still returns true, showing the bug is bit-agnostic, not specific to FLAG_ACTIVE.",
+  "input": {
+    "flags": 4
+  },
+  "expected": true
+}

@@ -1,0 +1,8 @@
+{
+  "name": "zero-flags-false",
+  "branch": "Edge case: flags === 0, so `$this->flags` is falsy and the expression short-circuits to false regardless of FLAG_ESCALATE.",
+  "input": {
+    "flags": 0
+  },
+  "expected": false
+}

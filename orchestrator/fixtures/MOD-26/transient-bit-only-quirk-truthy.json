@@ -1,0 +1,8 @@
+{
+  "name": "transient-bit-only-quirk-truthy",
+  "branch": "Quirk reproduced with FLAG_TRANSIENT (8) set alone — no ESCALATE bit — confirms any single nonzero bit among ACTIVE/NOALERTS/TRANSIENT triggers the same truthy result.",
+  "input": {
+    "flags": 8
+  },
+  "expected": true
+}

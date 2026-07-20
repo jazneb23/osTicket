@@ -1,0 +1,8 @@
+{
+  "name": "active-bit-only-quirk-truthy",
+  "branch": "Defining quirk: only FLAG_ACTIVE (1) set (ESCALATE bit unset), yet `$this->flags && self::FLAG_ESCALATE` still returns true because it only checks whether flags is nonzero, not whether the escalate bit specifically is set.",
+  "input": {
+    "flags": 1
+  },
+  "expected": true
+}

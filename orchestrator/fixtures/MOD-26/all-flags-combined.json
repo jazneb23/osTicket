@@ -1,0 +1,8 @@
+{
+  "name": "all-flags-combined",
+  "branch": "Combined bitmask path: all four flags set (1|2|4|8=15), including FLAG_ESCALATE among others — still returns true, exercising the multi-bit case rather than a single isolated bit.",
+  "input": {
+    "flags": 15
+  },
+  "expected": true
+}

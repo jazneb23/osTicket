@@ -1,0 +1,8 @@
+{
+  "name": "escalate-bit-only",
+  "branch": "Normal path: only FLAG_ESCALATE (2) set, so both operands are truthy and the method returns true — the intended-looking 'escalation enabled' case.",
+  "input": {
+    "flags": 2
+  },
+  "expected": true
+}
