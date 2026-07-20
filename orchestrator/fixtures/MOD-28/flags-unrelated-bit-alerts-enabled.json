@@ -1,0 +1,8 @@
+{
+  "name": "flags-unrelated-bit-alerts-enabled",
+  "branch": "flags=1, an unrelated bit set but NOALERTS bit clear -> sendAlerts() returns true, proving only bit 0x0004 matters",
+  "input": {
+    "flags": 1
+  },
+  "expected": true
+}

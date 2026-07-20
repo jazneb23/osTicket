@@ -1,0 +1,8 @@
+{
+  "name": "flags-noalerts-plus-unrelated-bit-disabled",
+  "branch": "flags=5 (1|4), NOALERTS combined with an unrelated bit -> sendAlerts() returns false, proving bitwise-AND isolation rather than strict equality to 4",
+  "input": {
+    "flags": 5
+  },
+  "expected": false
+}

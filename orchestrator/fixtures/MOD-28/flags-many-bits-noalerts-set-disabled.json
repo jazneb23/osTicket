@@ -1,0 +1,8 @@
+{
+  "name": "flags-many-bits-noalerts-set-disabled",
+  "branch": "flags=2147483647 (all lower bits set including NOALERTS) -> sendAlerts() returns false even with a large/edge bitmask, confirming isolation of bit 0x0004 among many set bits",
+  "input": {
+    "flags": 2147483647
+  },
+  "expected": false
+}

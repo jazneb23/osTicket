@@ -1,0 +1,8 @@
+{
+  "name": "flags-noalerts-only-alerts-disabled",
+  "branch": "flags=4 (FLAG_NOALERTS exactly), bit set -> sendAlerts() returns false (alerts suppressed)",
+  "input": {
+    "flags": 4
+  },
+  "expected": false
+}
