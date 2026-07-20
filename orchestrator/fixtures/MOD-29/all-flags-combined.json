@@ -1,0 +1,8 @@
+{
+  "name": "all-flags-combined",
+  "branch": "flags=15 (FLAG_ACTIVE | FLAG_ESCALATE | FLAG_NOALERTS | FLAG_TRANSIENT) — all known bits set together, truthy combined int (15 & 8 = 8) return, exercises full boundary case",
+  "input": {
+    "flags": 15
+  },
+  "expected": 8
+}

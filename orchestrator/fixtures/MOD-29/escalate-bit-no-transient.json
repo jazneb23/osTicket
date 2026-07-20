@@ -1,0 +1,8 @@
+{
+  "name": "escalate-bit-no-transient",
+  "branch": "flags=2 (FLAG_ESCALATE only) — unrelated bit set, FLAG_TRANSIENT still unset, falsy (0) return",
+  "input": {
+    "flags": 4
+  },
+  "expected": 0
+}

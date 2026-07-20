@@ -1,0 +1,8 @@
+{
+  "name": "active-bit-no-transient",
+  "branch": "flags=1 (FLAG_ACTIVE only) — unrelated bit set, FLAG_TRANSIENT still unset, falsy (0) return",
+  "input": {
+    "flags": 1
+  },
+  "expected": 0
+}

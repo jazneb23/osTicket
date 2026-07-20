@@ -1,0 +1,8 @@
+{
+  "name": "transient-plus-active",
+  "branch": "flags=9 (FLAG_ACTIVE | FLAG_TRANSIENT) — transient bit set alongside another bit, truthy combined int (9 & 8 = 8) return, confirms raw-int (non-strict-bool) semantics",
+  "input": {
+    "flags": 9
+  },
+  "expected": 8
+}
