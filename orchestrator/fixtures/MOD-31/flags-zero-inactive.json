@@ -1,0 +1,8 @@
+{
+  "name": "flags-zero-inactive",
+  "branch": "No flags set at all -- zero/no flags must return false",
+  "input": {
+    "flags": 0
+  },
+  "expected": false
+}

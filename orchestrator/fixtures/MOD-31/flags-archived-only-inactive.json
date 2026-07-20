@@ -1,0 +1,8 @@
+{
+  "name": "flags-archived-only-inactive",
+  "branch": "Archived-only guard: FLAG_ARCHIVED (0x0004) set, FLAG_ACTIVE clear -- must still return false",
+  "input": {
+    "flags": 4
+  },
+  "expected": false
+}

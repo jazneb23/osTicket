@@ -1,0 +1,8 @@
+{
+  "name": "flags-custom-numbers-only-inactive",
+  "branch": "Inactive fallback: only an unrelated bit (FLAG_CUSTOM_NUMBERS 0x0001) set, FLAG_ACTIVE clear -- returns false",
+  "input": {
+    "flags": 1
+  },
+  "expected": false
+}

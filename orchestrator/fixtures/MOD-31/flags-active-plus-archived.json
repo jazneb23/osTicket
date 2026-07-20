@@ -1,0 +1,8 @@
+{
+  "name": "flags-active-plus-archived",
+  "branch": "Active bit set alongside FLAG_ARCHIVED (both 0x0002 and 0x0004 set) -- only FLAG_ACTIVE bit is tested, returns true",
+  "input": {
+    "flags": 6
+  },
+  "expected": true
+}
