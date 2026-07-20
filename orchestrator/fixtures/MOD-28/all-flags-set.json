@@ -1,0 +1,8 @@
+{
+  "name": "all-flags-set",
+  "branch": "flags=0x000F (all four flags set) -> NOALERTS bit set among others -> alerts disabled (false)",
+  "input": {
+    "flags": 15
+  },
+  "expected": false
+}

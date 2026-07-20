@@ -1,0 +1,8 @@
+{
+  "name": "active-and-noalerts-combined",
+  "branch": "flags=0x0005 (FLAG_ACTIVE|FLAG_NOALERTS) -> NOALERTS bit set despite other bits -> alerts disabled (false)",
+  "input": {
+    "flags": 5
+  },
+  "expected": false
+}

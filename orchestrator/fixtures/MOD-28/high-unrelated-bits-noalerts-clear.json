@@ -1,0 +1,8 @@
+{
+  "name": "high-unrelated-bits-noalerts-clear",
+  "branch": "flags with unrelated high-order bits set (e.g. 0x0100) and NOALERTS clear -> strict === 0 comparison still yields alerts enabled (true), guarding against loose-truthiness regressions",
+  "input": {
+    "flags": 256
+  },
+  "expected": true
+}

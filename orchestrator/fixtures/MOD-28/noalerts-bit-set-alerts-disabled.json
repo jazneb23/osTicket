@@ -1,0 +1,8 @@
+{
+  "name": "noalerts-bit-set-alerts-disabled",
+  "branch": "flags=0x0004 (FLAG_NOALERTS only) -> bit set -> alerts disabled (false)",
+  "input": {
+    "flags": 4
+  },
+  "expected": false
+}

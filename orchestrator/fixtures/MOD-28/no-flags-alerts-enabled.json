@@ -1,0 +1,8 @@
+{
+  "name": "no-flags-alerts-enabled",
+  "branch": "flags=0, NOALERTS bit fully clear -> alerts enabled (true)",
+  "input": {
+    "flags": 0
+  },
+  "expected": true
+}

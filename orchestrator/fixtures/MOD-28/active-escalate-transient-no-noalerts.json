@@ -1,0 +1,8 @@
+{
+  "name": "active-escalate-transient-no-noalerts",
+  "branch": "flags=0x000B (FLAG_ACTIVE|FLAG_ESCALATE|FLAG_TRANSIENT) -> NOALERTS bit clear even with all other bits set -> alerts enabled (true)",
+  "input": {
+    "flags": 11
+  },
+  "expected": true
+}
