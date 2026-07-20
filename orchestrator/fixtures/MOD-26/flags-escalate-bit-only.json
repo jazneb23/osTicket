@@ -1,0 +1,8 @@
+{
+  "name": "flags-escalate-bit-only",
+  "branch": "FLAG_ESCALATE (2) set in isolation: flags is nonzero and happens to equal the ESCALATE bit exactly, exercising the case where the buggy truthiness check and a correct bitwise isolation would coincidentally produce the same true result.",
+  "input": {
+    "flags": 2
+  },
+  "expected": true
+}

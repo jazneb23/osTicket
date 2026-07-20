@@ -1,0 +1,8 @@
+{
+  "name": "flags-noalerts-only-escalate-bit-unset-bug",
+  "branch": "FLAG_NOALERTS (4) only, ESCALATE bit NOT set: another sibling-flag-only combination (referenced via sendAlerts()'s bitwise check) that demonstrates the same bug -- nonzero flags yields true despite ESCALATE being unset.",
+  "input": {
+    "flags": 4
+  },
+  "expected": true
+}

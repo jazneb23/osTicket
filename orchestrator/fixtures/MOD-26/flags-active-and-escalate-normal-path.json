@@ -1,0 +1,8 @@
+{
+  "name": "flags-active-and-escalate-normal-path",
+  "branch": "FLAG_ACTIVE|FLAG_ESCALATE (3) set: flags is nonzero and the ESCALATE bit is genuinely present -- the intended/normal true path where truthiness and bit-isolation happen to agree.",
+  "input": {
+    "flags": 3
+  },
+  "expected": true
+}

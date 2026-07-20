@@ -1,0 +1,8 @@
+{
+  "name": "flags-transient-only-escalate-bit-unset-bug",
+  "branch": "FLAG_TRANSIENT (8) only, ESCALATE bit NOT set: mirrors isTransient()'s sibling flag in isolation, further confirming the bug returns true for any nonzero flags value regardless of which bit(s) are actually set.",
+  "input": {
+    "flags": 8
+  },
+  "expected": true
+}

@@ -1,0 +1,8 @@
+{
+  "name": "flags-zero-falsy-edge-case",
+  "branch": "Only input where $this->flags is 0, so ($this->flags && self::FLAG_ESCALATE) short-circuits on the left operand and returns false -- the single falsy path.",
+  "input": {
+    "flags": 0
+  },
+  "expected": false
+}

@@ -1,0 +1,8 @@
+{
+  "name": "flags-active-only-escalate-bit-unset-bug",
+  "branch": "FLAG_ACTIVE (1) only, ESCALATE bit NOT set: documents the logical-AND bug -- flags is nonzero so the expression collapses to a whole-bitmask truthiness check and still returns true, even though the ESCALATE bit itself is absent.",
+  "input": {
+    "flags": 1
+  },
+  "expected": true
+}
