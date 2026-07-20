@@ -1,0 +1,51 @@
+---
+description: Error handling and logging standards — fail loudly, preserve context, never swallow exceptions
+globs: **/*.ts, **/*.php
+alwaysApply: false
+---
+
+# Error handling
+
+## Never swallow errors silently
+
+An empty or log-only `catch` hides real failures from callers and turns bugs
+into silent data corruption.
+
+```typescript
+// BAD
+try {
+  await saveTicket(ticket);
+} catch (e) {}
+
+// GOOD
+try {
+  await saveTicket(ticket);
+} catch (e) {
+  throw new Error(`Failed to save ticket ${ticket.id}: ${e instanceof Error ? e.message : e}`);
+}
+```
+
+## Preserve context when you rethrow
+
+A caught error should gain information as it propagates, not lose it. Include
+the operation, the relevant id/input, and the original error — do not replace
+it with a generic message.
+
+```php
+// BAD
+catch (Exception $e) {
+    throw new Exception('Something went wrong');
+}
+
+// GOOD
+catch (Exception $e) {
+    throw new Exception("Failed to resolve schedule for ticket #{$ticket->getId()}: " . $e->getMessage(), 0, $e);
+}
+```
+
+## Distinguish expected failures from bugs
+
+Expected failures (validation errors, not-found, permission denied) should
+return/throw typed, specific results the caller can branch on. Unexpected
+failures (nulls where a contract guarantees a value, assertion violations)
+should fail fast and loud — do not paper over them with a fallback default.
