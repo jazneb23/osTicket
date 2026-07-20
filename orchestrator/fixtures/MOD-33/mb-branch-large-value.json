@@ -1,0 +1,8 @@
+{
+  "name": "mb-branch-large-value",
+  "branch": "bytes >= 921600 mb branch, result rounded to 1 decimal via bytes/1048576",
+  "input": {
+    "bytes": 5242880
+  },
+  "expected": "5 mb"
+}

@@ -1,0 +1,8 @@
+{
+  "name": "bytes-branch-small-value",
+  "branch": "bytes < 1024: returns raw unrounded $bytes concatenated with ' bytes'",
+  "input": {
+    "bytes": 500
+  },
+  "expected": "500 bytes"
+}

@@ -1,0 +1,8 @@
+{
+  "name": "bytes-kb-boundary-1024",
+  "branch": "exact boundary at 1024: must resolve to the kb branch (strict '<1024'), not the bytes branch",
+  "input": {
+    "bytes": 1024
+  },
+  "expected": "1 kb"
+}

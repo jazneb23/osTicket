@@ -16,6 +16,7 @@
 
 include_once INCLUDE_DIR.'class.charset.php';
 require_once INCLUDE_DIR.'class.variable.php';
+include_once INCLUDE_DIR.'Services/FileSizeFormatter.php';
 
 class Format {
 
@@ -24,12 +25,8 @@ class Format {
 
         if(!is_numeric($bytes))
             return $bytes;
-        if($bytes<1024)
-            return $bytes.' bytes';
-        if($bytes < (900<<10))
-            return round(($bytes/1024),1).' kb';
 
-        return round(($bytes/1048576),1).' mb';
+        return FileSizeFormatter::file_size($bytes);
     }
 
     static function filesize2bytes($size) {

@@ -1,0 +1,8 @@
+{
+  "name": "kb-branch-numeric-string",
+  "branch": "1024 <= bytes < 921600 kb branch, exercised with a numeric-string input, result rounded to 1 decimal via bytes/1024",
+  "input": {
+    "bytes": "5000"
+  },
+  "expected": "4.9 kb"
+}

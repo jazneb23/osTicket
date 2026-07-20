@@ -1,0 +1,8 @@
+{
+  "name": "non-numeric-passthrough",
+  "branch": "is_numeric($bytes) guard fails; returns the original non-numeric value unchanged with no coercion",
+  "input": {
+    "bytes": "abc"
+  },
+  "expected": "abc"
+}

@@ -1,0 +1,8 @@
+{
+  "name": "kb-mb-boundary-921600",
+  "branch": "exact boundary at 900<<10 (921600): must resolve to the mb branch (strict '<921600' for kb), not the kb branch",
+  "input": {
+    "bytes": 921600
+  },
+  "expected": "0.9 mb"
+}
