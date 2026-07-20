@@ -90,6 +90,11 @@ version, stage order, or add newly discovered live-tree details.
 
 #### What this is
 
+**Why the orchestrator exists:** it's a fleet of agents that enhances this
+legacy codebase using the strangler-fig pattern — incrementally extracting
+and modernizing legacy logic behind a parity-gated facade, so the app is
+upgraded piece by piece instead of through a risky full rewrite.
+
 - **osTicket 1.18-git** — client portal, staff CP, API; procedural PHP; custom
   Django-style ORM; plain templates; no app-wide Composer
 - **Strangler overlay** — agents cartograph a seam, capture fixtures, extract a
