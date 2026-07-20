@@ -1,0 +1,8 @@
+{
+  "name": "transient-plus-active",
+  "branch": "flags=9 (0x0009 = ACTIVE|TRANSIENT), FLAG_TRANSIENT bit set alongside FLAG_ACTIVE -> truthy 8",
+  "input": {
+    "flags": 9
+  },
+  "expected": 8
+}

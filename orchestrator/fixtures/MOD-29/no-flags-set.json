@@ -1,0 +1,8 @@
+{
+  "name": "no-flags-set",
+  "branch": "flags=0, FLAG_TRANSIENT bit clear (and all other bits clear) -> falsy 0",
+  "input": {
+    "flags": 0
+  },
+  "expected": 0
+}

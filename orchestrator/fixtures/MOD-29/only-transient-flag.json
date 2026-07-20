@@ -1,0 +1,8 @@
+{
+  "name": "only-transient-flag",
+  "branch": "flags=8 (0x0008), only FLAG_TRANSIENT bit set -> truthy 8",
+  "input": {
+    "flags": 8
+  },
+  "expected": 8
+}

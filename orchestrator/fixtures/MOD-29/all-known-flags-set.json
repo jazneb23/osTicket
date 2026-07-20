@@ -1,0 +1,8 @@
+{
+  "name": "all-known-flags-set",
+  "branch": "flags=15 (0x000F = ACTIVE|ESCALATE|NOALERTS|TRANSIENT), all four documented flags set together -> truthy 8",
+  "input": {
+    "flags": 15
+  },
+  "expected": 8
+}

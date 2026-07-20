@@ -1,0 +1,8 @@
+{
+  "name": "transient-with-unmapped-high-bits",
+  "branch": "flags=0x0018 (24 = TRANSIENT|unmapped bit 0x0010), verifies bitwise AND isolates only the 0x0008 bit and ignores unrelated set bits -> truthy 8",
+  "input": {
+    "flags": 24
+  },
+  "expected": 8
+}

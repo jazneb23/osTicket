@@ -1,0 +1,8 @@
+{
+  "name": "other-flags-without-transient",
+  "branch": "flags=7 (0x0007 = ACTIVE|ESCALATE|NOALERTS), FLAG_TRANSIENT bit clear despite other bits set -> falsy 0",
+  "input": {
+    "flags": 7
+  },
+  "expected": 0
+}
