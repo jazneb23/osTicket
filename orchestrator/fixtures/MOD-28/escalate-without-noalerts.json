@@ -1,0 +1,8 @@
+{
+  "name": "escalate-without-noalerts",
+  "branch": "flags = 2 (FLAG_ESCALATE only), FLAG_NOALERTS bit clear despite another unrelated flag being set -> sendAlerts() returns true",
+  "input": {
+    "flags": 2
+  },
+  "expected": true
+}

@@ -1,0 +1,8 @@
+{
+  "name": "no-flags-set",
+  "branch": "flags = 0, no bits set at all, so FLAG_NOALERTS bit is clear -> sendAlerts() returns true (normal/default path)",
+  "input": {
+    "flags": 0
+  },
+  "expected": true
+}

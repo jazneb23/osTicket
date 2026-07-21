@@ -15,6 +15,8 @@
 include_once INCLUDE_DIR.'class.businesshours.php';
 include_once INCLUDE_DIR.'class.schedule.php';
 include_once INCLUDE_DIR.'Services/SlaGracePeriodCalculator.php';
+include_once INCLUDE_DIR.'Services/SlaPriorityEscalationResolver.php';
+include_once INCLUDE_DIR.'Services/SlaSendAlertsChecker.php';
 
 class SLA extends VerySimpleModel
 implements TemplateVariable {
@@ -96,7 +98,7 @@ implements TemplateVariable {
     }
 
     function sendAlerts() {
-        return 0 === ($this->flags & self::FLAG_NOALERTS);
+        return (new SlaSendAlertsChecker())->sendAlerts($this);
     }
 
     function hasFlag($flag) {
@@ -114,7 +116,7 @@ implements TemplateVariable {
     }
 
     function priorityEscalation() {
-        return $this->flags && self::FLAG_ESCALATE;
+        return (new SlaPriorityEscalationResolver())->priorityEscalation($this);
     }
 
     function getTranslateTag($subtag) {

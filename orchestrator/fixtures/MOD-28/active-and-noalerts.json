@@ -1,0 +1,8 @@
+{
+  "name": "active-and-noalerts",
+  "branch": "flags = 5 (FLAG_ACTIVE|FLAG_NOALERTS), FLAG_NOALERTS bit still set among other bits -> sendAlerts() returns false even though other flags are on",
+  "input": {
+    "flags": 5
+  },
+  "expected": false
+}

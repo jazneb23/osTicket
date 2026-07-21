@@ -1,0 +1,8 @@
+{
+  "name": "all-flags-set",
+  "branch": "flags = 15 (FLAG_ACTIVE|FLAG_ESCALATE|FLAG_NOALERTS|FLAG_TRANSIENT, all four bits on), FLAG_NOALERTS bit set among a fully-populated bitmask -> sendAlerts() returns false",
+  "input": {
+    "flags": 15
+  },
+  "expected": false
+}

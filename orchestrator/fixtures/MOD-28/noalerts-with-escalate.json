@@ -1,0 +1,8 @@
+{
+  "name": "noalerts-with-escalate",
+  "branch": "flags = 6 (FLAG_NOALERTS|FLAG_ESCALATE), FLAG_NOALERTS bit set alongside FLAG_ESCALATE -> sendAlerts() returns false, verifying the mask isolates only the NOALERTS bit",
+  "input": {
+    "flags": 6
+  },
+  "expected": false
+}

@@ -1,0 +1,8 @@
+{
+  "name": "noalerts-only",
+  "branch": "flags = 4 (FLAG_NOALERTS only), the bitwise AND yields 4 (non-zero), so strict-equality to 0 fails -> sendAlerts() returns false",
+  "input": {
+    "flags": 4
+  },
+  "expected": false
+}
