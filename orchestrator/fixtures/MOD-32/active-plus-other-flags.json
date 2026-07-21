@@ -1,0 +1,8 @@
+{
+  "name": "active-plus-other-flags",
+  "branch": "FLAG_ACTIVE set together with unrelated bits FLAG_ASSIGN_MEMBERS_ONLY, FLAG_DISABLE_AUTO_CLAIM, FLAG_ASSIGN_PRIMARY_ONLY (4|1|2|16=23) — those other flags must have zero effect, isActive() returns true",
+  "input": {
+    "flags": 23
+  },
+  "expected": true
+}

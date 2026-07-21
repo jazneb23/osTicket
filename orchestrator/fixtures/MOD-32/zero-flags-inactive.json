@@ -1,0 +1,8 @@
+{
+  "name": "zero-flags-inactive",
+  "branch": "No flags set at all (flags=0); bitwise AND against FLAG_ACTIVE yields 0 — isActive() returns false, matching PHP's null/0-as-falsy coercion default with no special-case fallback",
+  "input": {
+    "flags": 0
+  },
+  "expected": false
+}

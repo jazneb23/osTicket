@@ -1,0 +1,8 @@
+{
+  "name": "active-plus-archived",
+  "branch": "FLAG_ACTIVE and FLAG_ARCHIVED both set simultaneously (4|8=12) — only the FLAG_ACTIVE bit determines the result, so isActive() returns true despite FLAG_ARCHIVED also being set",
+  "input": {
+    "flags": 12
+  },
+  "expected": true
+}

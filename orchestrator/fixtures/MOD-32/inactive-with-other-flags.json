@@ -1,0 +1,8 @@
+{
+  "name": "inactive-with-other-flags",
+  "branch": "FLAG_ACTIVE unset while other unrelated bits FLAG_ASSIGN_MEMBERS_ONLY, FLAG_DISABLE_AUTO_CLAIM, FLAG_DISABLE_REOPEN_AUTO_ASSIGN are set (1|2|32=35) — other flags cannot substitute for FLAG_ACTIVE, isActive() returns false",
+  "input": {
+    "flags": 35
+  },
+  "expected": false
+}

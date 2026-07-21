@@ -1,0 +1,8 @@
+{
+  "name": "archived-only-inactive",
+  "branch": "FLAG_ARCHIVED (0x0008) set but FLAG_ACTIVE unset — archived-only case must still read as inactive here, since archived/active/disabled tri-state is out-of-scope for isActive()",
+  "input": {
+    "flags": 8
+  },
+  "expected": false
+}
