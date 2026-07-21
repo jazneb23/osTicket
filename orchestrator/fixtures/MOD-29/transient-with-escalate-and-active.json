@@ -1,0 +1,8 @@
+{
+  "name": "transient-with-escalate-and-active",
+  "branch": "flags = 12 (FLAG_ESCALATE|FLAG_TRANSIENT) -> isTransient() returns truthy (8) combined with an unrelated escalate bit",
+  "input": {
+    "flags": 12
+  },
+  "expected": 8
+}

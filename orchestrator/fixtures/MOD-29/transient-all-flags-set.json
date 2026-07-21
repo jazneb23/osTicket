@@ -1,0 +1,8 @@
+{
+  "name": "transient-all-flags-set",
+  "branch": "flags = 15 (FLAG_ACTIVE|FLAG_ESCALATE|FLAG_NOALERTS|FLAG_TRANSIENT, all four bits on) -> isTransient() returns truthy (8) within a fully-populated bitmask",
+  "input": {
+    "flags": 15
+  },
+  "expected": 8
+}

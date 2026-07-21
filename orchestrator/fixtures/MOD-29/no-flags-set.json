@@ -1,0 +1,8 @@
+{
+  "name": "no-flags-set",
+  "branch": "flags = 0, no bits set at all -> isTransient() returns falsy (0), the pure default/no-flags path",
+  "input": {
+    "flags": 0
+  },
+  "expected": 0
+}

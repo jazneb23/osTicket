@@ -1,0 +1,8 @@
+{
+  "name": "transient-with-active",
+  "branch": "flags = 9 (FLAG_ACTIVE|FLAG_TRANSIENT) -> isTransient() returns truthy (8) even though FLAG_ACTIVE bit is also set, confirming other bits don't suppress the transient check",
+  "input": {
+    "flags": 9
+  },
+  "expected": 8
+}
