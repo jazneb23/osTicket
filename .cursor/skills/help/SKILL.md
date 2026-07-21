@@ -57,6 +57,7 @@ Routing hints (confirm against discovered descriptions):
 |-------------|--------|
 | Full new-engineer briefing, canvas tour, refresher | `/onboarding` |
 | Live demo walkthrough of pipeline / parity / manifests | `/architecture` |
+| Start Docker + orchestrator listener | `/listener` |
 | Clean baseline, git reset, discard local demo mess | `/rollback` |
 | Reset MOD-* tickets only (Linear, PRs, branches, artifacts) | `/cleanup` |
 | Just the skill list | Stay on `/help` (catalog only) |
