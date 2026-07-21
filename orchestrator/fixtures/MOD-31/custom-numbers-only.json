@@ -1,0 +1,8 @@
+{
+  "name": "custom-numbers-only",
+  "branch": "only FLAG_CUSTOM_NUMBERS (0x0001) set, FLAG_ACTIVE clear — confirms unrelated low bit does not get misread as active",
+  "input": {
+    "flags": 1
+  },
+  "expected": false
+}

@@ -1,0 +1,8 @@
+{
+  "name": "inactive-no-flags",
+  "branch": "no flags set (0) — isActive() returns false, disabled/unset topic",
+  "input": {
+    "flags": 0
+  },
+  "expected": false
+}

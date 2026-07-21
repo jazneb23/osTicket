@@ -1,0 +1,8 @@
+{
+  "name": "archived-only",
+  "branch": "archived-only case: FLAG_ARCHIVED (0x0004) set, FLAG_ACTIVE clear — must return false since archived is non-overlapping with active",
+  "input": {
+    "flags": 4
+  },
+  "expected": false
+}

@@ -1,0 +1,8 @@
+{
+  "name": "active-plus-custom-numbers",
+  "branch": "active-plus-other-flags case: FLAG_ACTIVE and FLAG_CUSTOM_NUMBERS both set (0x0003) — FLAG_CUSTOM_NUMBERS must not affect result, so still true",
+  "input": {
+    "flags": 3
+  },
+  "expected": true
+}

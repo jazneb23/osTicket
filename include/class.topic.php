@@ -16,6 +16,7 @@
 require_once INCLUDE_DIR . 'class.sequence.php';
 require_once INCLUDE_DIR . 'class.filter.php';
 require_once INCLUDE_DIR . 'class.search.php';
+include_once INCLUDE_DIR.'Services/TopicActiveChecker.php';
 
 class Topic extends VerySimpleModel
 implements TemplateVariable, Searchable {
@@ -192,7 +193,7 @@ implements TemplateVariable, Searchable {
     }
 
     function isActive() {
-      return !!($this->flags & self::FLAG_ACTIVE);
+      return (new TopicActiveChecker())->isActive($this->flags);
     }
 
     function getStatus() {

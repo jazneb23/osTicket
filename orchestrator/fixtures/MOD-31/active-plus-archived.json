@@ -1,0 +1,8 @@
+{
+  "name": "active-plus-archived",
+  "branch": "active-plus-other-flags case: FLAG_ACTIVE and FLAG_ARCHIVED both set (0x0006) — FLAG_ARCHIVED must not affect result, so still true",
+  "input": {
+    "flags": 6
+  },
+  "expected": true
+}
