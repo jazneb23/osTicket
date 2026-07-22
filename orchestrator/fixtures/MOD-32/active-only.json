@@ -1,0 +1,8 @@
+{
+  "name": "active-only",
+  "branch": "FLAG_ACTIVE bit set exclusively (flags=0x0004) -> isActive() returns true via the truthy bitwise-AND coerced by !!",
+  "input": {
+    "flags": 4
+  },
+  "expected": true
+}

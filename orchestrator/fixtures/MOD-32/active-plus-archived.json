@@ -1,0 +1,8 @@
+{
+  "name": "active-plus-archived",
+  "branch": "FLAG_ACTIVE combined with FLAG_ARCHIVED (flags=0x0004|0x0008=12) -> both bits set simultaneously still yields true since only FLAG_ACTIVE governs the outcome",
+  "input": {
+    "flags": 12
+  },
+  "expected": true
+}

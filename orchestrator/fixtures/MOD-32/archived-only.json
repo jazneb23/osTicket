@@ -1,0 +1,8 @@
+{
+  "name": "archived-only",
+  "branch": "Only FLAG_ARCHIVED set (flags=0x0008), FLAG_ACTIVE bit absent -> must return false even though another status-relevant flag is present",
+  "input": {
+    "flags": 8
+  },
+  "expected": false
+}

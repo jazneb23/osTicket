@@ -1,0 +1,8 @@
+{
+  "name": "all-other-flags-no-active",
+  "branch": "All non-FLAG_ACTIVE flags set together (flags=0x0001|0x0002|0x0008|0x0010|0x0020=59) with FLAG_ACTIVE absent -> must return false regardless of how many other bits are set",
+  "input": {
+    "flags": 59
+  },
+  "expected": false
+}

@@ -1,0 +1,8 @@
+{
+  "name": "active-plus-assign-members-only",
+  "branch": "FLAG_ACTIVE combined with an unrelated flag (flags=0x0004|0x0001=5) -> proves FLAG_ACTIVE is checked in isolation and extraneous bits don't suppress a true result",
+  "input": {
+    "flags": 5
+  },
+  "expected": true
+}

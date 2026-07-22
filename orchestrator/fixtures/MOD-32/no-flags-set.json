@@ -1,0 +1,8 @@
+{
+  "name": "no-flags-set",
+  "branch": "flags=0 (no bits set) -> bitwise-AND yields 0, !!0 coerces to false; inactive-by-default edge case",
+  "input": {
+    "flags": 0
+  },
+  "expected": false
+}
