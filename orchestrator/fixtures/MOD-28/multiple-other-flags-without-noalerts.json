@@ -1,0 +1,8 @@
+{
+  "name": "multiple-other-flags-without-noalerts",
+  "branch": "flags = FLAG_ACTIVE | FLAG_ESCALATE | FLAG_TRANSIENT (0x0001 | 0x0002 | 0x0008 = 11): several unrelated bits set but FLAG_NOALERTS bit absent -> sendAlerts() returns true, confirming unrelated flags never falsely trip the NOALERTS check",
+  "input": {
+    "flags": 11
+  },
+  "expected": true
+}

@@ -1,0 +1,8 @@
+{
+  "name": "all-known-flags-set",
+  "branch": "flags = FLAG_ACTIVE | FLAG_ESCALATE | FLAG_NOALERTS | FLAG_TRANSIENT (0x0001 | 0x0002 | 0x0004 | 0x0008 = 15): every known flag bit set including NOALERTS -> sendAlerts() returns false, the fully-saturated bitmask edge case",
+  "input": {
+    "flags": 15
+  },
+  "expected": false
+}

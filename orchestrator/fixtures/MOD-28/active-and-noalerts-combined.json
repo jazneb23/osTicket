@@ -1,0 +1,8 @@
+{
+  "name": "active-and-noalerts-combined",
+  "branch": "flags = FLAG_ACTIVE | FLAG_NOALERTS (0x0001 | 0x0004 = 5): NOALERTS bit set alongside another flag -> sendAlerts() returns false, verifying the bitwise AND correctly isolates the NOALERTS bit rather than being affected by other set bits",
+  "input": {
+    "flags": 5
+  },
+  "expected": false
+}

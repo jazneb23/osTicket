@@ -1,0 +1,8 @@
+{
+  "name": "active-without-noalerts",
+  "branch": "flags = FLAG_ACTIVE (0x0001) only, FLAG_NOALERTS bit not set -> sendAlerts() returns true (alerts enabled)",
+  "input": {
+    "flags": 1
+  },
+  "expected": true
+}
