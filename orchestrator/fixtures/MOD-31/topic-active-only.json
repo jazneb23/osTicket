@@ -1,0 +1,8 @@
+{
+  "name": "topic-active-only",
+  "branch": "Normal path: FLAG_ACTIVE bit set alone — isActive() returns true via the bitwise AND",
+  "input": {
+    "flags": 2
+  },
+  "expected": true
+}

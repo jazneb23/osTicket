@@ -1,0 +1,8 @@
+{
+  "name": "topic-archived-only",
+  "branch": "Archived-but-not-active edge case: FLAG_ARCHIVED set, FLAG_ACTIVE unset — must return false despite being a distinct non-zero state from plain disabled",
+  "input": {
+    "flags": 4
+  },
+  "expected": false
+}

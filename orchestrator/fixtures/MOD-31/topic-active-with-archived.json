@@ -1,0 +1,8 @@
+{
+  "name": "topic-active-with-archived",
+  "branch": "Active combined with FLAG_ARCHIVED (0x0002|0x0004=6) — confirms FLAG_ARCHIVED never suppresses a true result when ACTIVE bit is also set",
+  "input": {
+    "flags": 6
+  },
+  "expected": true
+}

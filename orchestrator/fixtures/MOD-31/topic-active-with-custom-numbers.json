@@ -1,0 +1,8 @@
+{
+  "name": "topic-active-with-custom-numbers",
+  "branch": "Active combined with FLAG_CUSTOM_NUMBERS (0x0001|0x0002=3) — verifies bitwise AND semantics, not equality, still yields true",
+  "input": {
+    "flags": 3
+  },
+  "expected": true
+}

@@ -1,0 +1,8 @@
+{
+  "name": "topic-plain-disabled",
+  "branch": "Baseline disabled state: no flags set (flags=0) — isActive() returns false",
+  "input": {
+    "flags": 0
+  },
+  "expected": false
+}

@@ -1,0 +1,8 @@
+{
+  "name": "topic-all-flags-set",
+  "branch": "All three known bits set (0x0001|0x0002|0x0004=7) — edge case confirming only the ACTIVE bit governs the result regardless of other bits present",
+  "input": {
+    "flags": 7
+  },
+  "expected": true
+}
