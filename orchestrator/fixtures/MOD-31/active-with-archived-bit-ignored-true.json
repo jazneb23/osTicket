@@ -1,0 +1,10 @@
+{
+  "name": "active-with-archived-bit-ignored-true",
+  "branch": "FLAG_ACTIVE and FLAG_ARCHIVED both set: proves FLAG_ARCHIVED has zero effect on the result when combined with FLAG_ACTIVE, still returns true",
+  "input": {
+    "active": true,
+    "archived": true,
+    "customNumbers": false
+  },
+  "expected": true
+}

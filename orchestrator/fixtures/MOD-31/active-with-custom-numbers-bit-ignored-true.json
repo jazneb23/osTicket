@@ -1,0 +1,10 @@
+{
+  "name": "active-with-custom-numbers-bit-ignored-true",
+  "branch": "FLAG_ACTIVE and FLAG_CUSTOM_NUMBERS both set: proves FLAG_CUSTOM_NUMBERS has zero effect on the result, still returns true",
+  "input": {
+    "active": true,
+    "archived": false,
+    "customNumbers": true
+  },
+  "expected": true
+}

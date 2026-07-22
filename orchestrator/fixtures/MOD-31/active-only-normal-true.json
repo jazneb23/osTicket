@@ -1,0 +1,10 @@
+{
+  "name": "active-only-normal-true",
+  "branch": "Only FLAG_ACTIVE set, no other bits: normal path, bitwise check on isolated active bit returns true",
+  "input": {
+    "active": true,
+    "archived": false,
+    "customNumbers": false
+  },
+  "expected": true
+}

@@ -1,0 +1,10 @@
+{
+  "name": "archived-only-active-clear-false",
+  "branch": "FLAG_ARCHIVED set but FLAG_ACTIVE clear: explicit constraint case - archived-only topic must still return false, not conflated with getStatus()'s Archived branch",
+  "input": {
+    "active": false,
+    "archived": true,
+    "customNumbers": false
+  },
+  "expected": false
+}

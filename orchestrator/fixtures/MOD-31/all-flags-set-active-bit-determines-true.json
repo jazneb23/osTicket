@@ -1,0 +1,10 @@
+{
+  "name": "all-flags-set-active-bit-determines-true",
+  "branch": "All three flags set (FLAG_ACTIVE|FLAG_ARCHIVED|FLAG_CUSTOM_NUMBERS): combined edge case confirming only the FLAG_ACTIVE bit determines the result regardless of other bits present",
+  "input": {
+    "active": true,
+    "archived": true,
+    "customNumbers": true
+  },
+  "expected": true
+}

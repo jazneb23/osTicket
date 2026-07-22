@@ -1,0 +1,10 @@
+{
+  "name": "no-flags-all-clear-false",
+  "branch": "All flags clear (flags=0): baseline/fallback path, FLAG_ACTIVE bit absent returns false",
+  "input": {
+    "active": false,
+    "archived": false,
+    "customNumbers": false
+  },
+  "expected": false
+}
