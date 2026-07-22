@@ -1,0 +1,8 @@
+{
+  "name": "transient-flag-unset",
+  "branch": "FLAG_TRANSIENT (0x0008) not set in flags -> isTransient() returns 0 (falsy)",
+  "input": {
+    "flags": 0
+  },
+  "expected": 0
+}

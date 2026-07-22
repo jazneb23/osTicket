@@ -1,0 +1,8 @@
+{
+  "name": "transient-with-unknown-high-bits",
+  "branch": "FLAG_TRANSIENT set alongside undefined/higher-order bits outside the four known flags -> isTransient() still correctly isolates only 0x0008 via bitwise AND, ignoring unrelated bits",
+  "input": {
+    "flags": 264
+  },
+  "expected": 8
+}

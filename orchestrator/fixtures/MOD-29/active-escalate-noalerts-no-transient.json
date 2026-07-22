@@ -1,0 +1,8 @@
+{
+  "name": "active-escalate-noalerts-no-transient",
+  "branch": "All other flags set (ACTIVE|ESCALATE|NOALERTS = 0x0007) but FLAG_TRANSIENT bit unset -> isTransient() returns 0 (falsy) despite other bits being on",
+  "input": {
+    "flags": 7
+  },
+  "expected": 0
+}

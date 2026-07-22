@@ -1,0 +1,8 @@
+{
+  "name": "transient-flag-isolated",
+  "branch": "FLAG_TRANSIENT (0x0008) set alone -> isTransient() returns 0x0008 (truthy)",
+  "input": {
+    "flags": 8
+  },
+  "expected": 8
+}

@@ -1,0 +1,8 @@
+{
+  "name": "all-flags-set",
+  "branch": "Every known flag set including transient (ACTIVE|ESCALATE|NOALERTS|TRANSIENT = 0x000F) -> isTransient() returns 0x0008 (truthy), verifying AND-mask extraction from a fully-set bitmask",
+  "input": {
+    "flags": 15
+  },
+  "expected": 8
+}

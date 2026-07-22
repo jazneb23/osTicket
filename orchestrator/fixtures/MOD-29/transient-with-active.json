@@ -1,0 +1,8 @@
+{
+  "name": "transient-with-active",
+  "branch": "FLAG_TRANSIENT combined with FLAG_ACTIVE (0x0001) -> bitwise AND still isolates 0x0008 (truthy), unaffected by unrelated active bit",
+  "input": {
+    "flags": 9
+  },
+  "expected": 8
+}
