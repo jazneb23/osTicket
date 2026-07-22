@@ -1,0 +1,8 @@
+{
+  "name": "escalate-and-transient-without-noalerts",
+  "branch": "flags = 0x000B (FLAG_ACTIVE | FLAG_ESCALATE | FLAG_TRANSIENT, FLAG_NOALERTS clear): multiple other bits set, target bit clear -> true",
+  "input": {
+    "flags": 11
+  },
+  "expected": true
+}

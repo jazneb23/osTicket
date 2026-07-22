@@ -1,0 +1,8 @@
+{
+  "name": "no-flags-alerts-enabled",
+  "branch": "flags = 0 (no bits set): FLAG_NOALERTS clear -> true (alerts enabled) baseline/normal path",
+  "input": {
+    "flags": 0
+  },
+  "expected": true
+}

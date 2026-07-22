@@ -1,0 +1,8 @@
+{
+  "name": "all-flags-upper-bound",
+  "branch": "flags = 0x000F (all four flags set, including FLAG_NOALERTS): upper-bound combined-bits case -> false",
+  "input": {
+    "flags": 15
+  },
+  "expected": false
+}

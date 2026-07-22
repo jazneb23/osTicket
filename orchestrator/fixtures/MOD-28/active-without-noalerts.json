@@ -1,0 +1,8 @@
+{
+  "name": "active-without-noalerts",
+  "branch": "flags = 0x0001 (FLAG_ACTIVE set, FLAG_NOALERTS clear): unrelated bit set, target bit clear -> true",
+  "input": {
+    "flags": 1
+  },
+  "expected": true
+}
