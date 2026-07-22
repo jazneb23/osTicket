@@ -1,0 +1,9 @@
+{
+  "name": "no-alerts-only",
+  "branch": "Only FLAG_NOALERTS (0x0002) set, FLAG_ENABLED clear — verifies FLAG_NOALERTS has zero effect on the FLAG_ENABLED bit check; isEnabled() returns 0",
+  "input": {
+    "enabled": false,
+    "noalerts": true
+  },
+  "expected": 0
+}

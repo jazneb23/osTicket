@@ -14,6 +14,8 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
+include_once INCLUDE_DIR.'Services/TeamEnabledChecker.php';
+
 class Team extends VerySimpleModel
 implements TemplateVariable {
 
@@ -130,7 +132,7 @@ implements TemplateVariable {
     }
 
     function isEnabled() {
-        return $this->flags & self::FLAG_ENABLED;
+        return (new TeamEnabledChecker())->isEnabled($this);
     }
 
     function isActive() {

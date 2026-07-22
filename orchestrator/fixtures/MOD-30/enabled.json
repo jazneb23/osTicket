@@ -1,0 +1,9 @@
+{
+  "name": "enabled",
+  "branch": "FLAG_ENABLED bit set, FLAG_NOALERTS clear — flags & 0x0001 evaluates truthy, isEnabled() returns 1",
+  "input": {
+    "enabled": true,
+    "noalerts": false
+  },
+  "expected": 1
+}

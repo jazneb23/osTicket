@@ -1,0 +1,9 @@
+{
+  "name": "enabled-plus-no-alerts",
+  "branch": "Both FLAG_ENABLED and FLAG_NOALERTS set — verifies the unrelated FLAG_NOALERTS bit does not suppress the FLAG_ENABLED check; isEnabled() returns 1",
+  "input": {
+    "enabled": true,
+    "noalerts": true
+  },
+  "expected": 1
+}

@@ -1,0 +1,9 @@
+{
+  "name": "disabled",
+  "branch": "Neither flag set (flags = 0) — flags & 0x0001 evaluates to 0, isEnabled() returns 0",
+  "input": {
+    "enabled": false,
+    "noalerts": false
+  },
+  "expected": 0
+}
