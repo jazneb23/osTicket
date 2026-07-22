@@ -1,0 +1,8 @@
+{
+  "name": "active-bit-only-bug-preserving",
+  "branch": "flags=FLAG_ACTIVE (1) with the ESCALATE bit OFF — && operator bug: returns true because flags is nonzero, even though bit 0x0002 is not set",
+  "input": {
+    "flags": 1
+  },
+  "expected": true
+}

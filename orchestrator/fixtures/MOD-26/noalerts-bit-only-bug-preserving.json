@@ -1,0 +1,8 @@
+{
+  "name": "noalerts-bit-only-bug-preserving",
+  "branch": "flags=FLAG_NOALERTS (4) with the ESCALATE bit OFF — second bug-preserving branch showing a different non-escalate bit still yields true",
+  "input": {
+    "flags": 4
+  },
+  "expected": true
+}

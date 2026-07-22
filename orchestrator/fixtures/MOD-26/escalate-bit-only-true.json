@@ -1,0 +1,8 @@
+{
+  "name": "escalate-bit-only-true",
+  "branch": "flags=FLAG_ESCALATE (2) alone — the 'intended' truthy case where the escalate bit actually is the nonzero bit",
+  "input": {
+    "flags": 2
+  },
+  "expected": true
+}

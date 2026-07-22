@@ -1,0 +1,8 @@
+{
+  "name": "flags-zero-falsy-edge-case",
+  "branch": "flags=0 (unset/default SLA) — the only case where && short-circuits to false; pinned edge case in constraints",
+  "input": {
+    "flags": 0
+  },
+  "expected": false
+}

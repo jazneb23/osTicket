@@ -1,0 +1,8 @@
+{
+  "name": "transient-bit-only-bug-preserving",
+  "branch": "flags=FLAG_TRANSIENT (8) with the ESCALATE bit OFF — third bug-preserving branch confirming any nonzero flags value (not just ESCALATE) returns true",
+  "input": {
+    "flags": 8
+  },
+  "expected": true
+}
