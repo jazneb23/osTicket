@@ -1,0 +1,8 @@
+{
+  "name": "unrelated-flags-only-bug",
+  "branch": "flags=12 (FLAG_NOALERTS|FLAG_TRANSIENT, neither FLAG_ACTIVE nor FLAG_ESCALATE set): starkest demonstration that the `&&` bug degenerates to 'any flag nonzero' -> true despite escalate bit being entirely absent",
+  "input": {
+    "flags": 12
+  },
+  "expected": true
+}

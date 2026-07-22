@@ -1,0 +1,8 @@
+{
+  "name": "escalate-bit-alone",
+  "branch": "flags=2 (FLAG_ESCALATE set in isolation, no other bits): non-zero -> true, coincidentally matches what a correct bitwise check would also return",
+  "input": {
+    "flags": 2
+  },
+  "expected": true
+}

@@ -1,0 +1,8 @@
+{
+  "name": "zero-flags-returns-false",
+  "branch": "flags=0 (falsy $this->flags): only case where `&&` short-circuits to false — no bits set at all",
+  "input": {
+    "flags": 0
+  },
+  "expected": false
+}

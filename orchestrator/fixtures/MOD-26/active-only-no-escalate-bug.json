@@ -1,0 +1,8 @@
+{
+  "name": "active-only-no-escalate-bug",
+  "branch": "flags=1 (FLAG_ACTIVE set, FLAG_ESCALATE bit NOT set): `&&` bug returns true even though the escalate bit is off",
+  "input": {
+    "flags": 1
+  },
+  "expected": true
+}
