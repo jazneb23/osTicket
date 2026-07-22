@@ -1,0 +1,8 @@
+{
+  "name": "all-flags-combined",
+  "branch": "flags=15 (FLAG_ACTIVE|FLAG_ESCALATE|FLAG_NOALERTS|FLAG_TRANSIENT): every bit set, bitwise-AND isolates only FLAG_TRANSIENT and returns truthy (8), unaffected by other set bits",
+  "input": {
+    "flags": 15
+  },
+  "expected": 8
+}

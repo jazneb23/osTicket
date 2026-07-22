@@ -1,0 +1,8 @@
+{
+  "name": "active-without-transient",
+  "branch": "flags=1 (FLAG_ACTIVE only): a different bit is set but FLAG_TRANSIENT bit is not, bitwise-AND yields falsy (0) despite non-zero flags value",
+  "input": {
+    "flags": 1
+  },
+  "expected": 0
+}

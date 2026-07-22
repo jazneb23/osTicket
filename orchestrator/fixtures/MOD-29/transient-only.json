@@ -1,0 +1,8 @@
+{
+  "name": "transient-only",
+  "branch": "flags=8 (FLAG_TRANSIENT alone): direct isolated match, expression evaluates to truthy int (8)",
+  "input": {
+    "flags": 8
+  },
+  "expected": 8
+}
