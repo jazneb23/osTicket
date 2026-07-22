@@ -1,0 +1,13 @@
+{
+  "name": "active-plus-assignment-flags",
+  "branch": "Active-plus-other-flags — FLAG_ACTIVE combined with FLAG_ASSIGN_MEMBERS_ONLY and FLAG_ASSIGN_PRIMARY_ONLY: other bits must have zero effect, isActive() still returns true",
+  "input": {
+    "active": true,
+    "archived": false,
+    "assignMembersOnly": true,
+    "disableAutoClaim": false,
+    "assignPrimaryOnly": true,
+    "disableReopenAutoAssign": false
+  },
+  "expected": true
+}

@@ -1,0 +1,13 @@
+{
+  "name": "active-plus-auto-claim-flags",
+  "branch": "Active-plus-other-flags — FLAG_ACTIVE combined with FLAG_DISABLE_AUTO_CLAIM and FLAG_DISABLE_REOPEN_AUTO_ASSIGN: unrelated auto-assignment bits must have zero effect, isActive() still returns true",
+  "input": {
+    "active": true,
+    "archived": false,
+    "assignMembersOnly": false,
+    "disableAutoClaim": true,
+    "assignPrimaryOnly": false,
+    "disableReopenAutoAssign": true
+  },
+  "expected": true
+}

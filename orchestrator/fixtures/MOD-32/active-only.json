@@ -1,0 +1,13 @@
+{
+  "name": "active-only",
+  "branch": "Normal path — only FLAG_ACTIVE set, no other bits: isActive() returns true",
+  "input": {
+    "active": true,
+    "archived": false,
+    "assignMembersOnly": false,
+    "disableAutoClaim": false,
+    "assignPrimaryOnly": false,
+    "disableReopenAutoAssign": false
+  },
+  "expected": true
+}

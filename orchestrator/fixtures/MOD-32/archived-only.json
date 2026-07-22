@@ -1,0 +1,13 @@
+{
+  "name": "archived-only",
+  "branch": "Archived-only edge case — FLAG_ARCHIVED set, FLAG_ACTIVE clear: isActive() and archived are independent bits, must return false (not derived from archived state)",
+  "input": {
+    "active": false,
+    "archived": true,
+    "assignMembersOnly": false,
+    "disableAutoClaim": false,
+    "assignPrimaryOnly": false,
+    "disableReopenAutoAssign": false
+  },
+  "expected": false
+}

@@ -15,6 +15,7 @@
 **********************************************************************/
 require_once INCLUDE_DIR . 'class.search.php';
 require_once INCLUDE_DIR.'class.role.php';
+include_once INCLUDE_DIR.'Services/DepartmentActiveChecker.php';
 
 class Dept extends VerySimpleModel
 implements TemplateVariable, Searchable {
@@ -177,7 +178,7 @@ implements TemplateVariable, Searchable {
     }
 
     function isActive() {
-        return !!($this->flags & self::FLAG_ACTIVE);
+        return (new DepartmentActiveChecker())->isActive($this);
     }
 
     function getEmailId() {

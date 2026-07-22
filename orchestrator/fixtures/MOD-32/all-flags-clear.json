@@ -1,0 +1,13 @@
+{
+  "name": "all-flags-clear",
+  "branch": "Inactive path — no flags set at all: isActive() returns false",
+  "input": {
+    "active": false,
+    "archived": false,
+    "assignMembersOnly": false,
+    "disableAutoClaim": false,
+    "assignPrimaryOnly": false,
+    "disableReopenAutoAssign": false
+  },
+  "expected": false
+}

@@ -1,0 +1,13 @@
+{
+  "name": "all-other-flags-set-active-clear",
+  "branch": "All non-FLAG_ACTIVE bits set (including archived) while FLAG_ACTIVE itself is clear: confirms no combination of other bits can make isActive() falsely return true — must return false",
+  "input": {
+    "active": false,
+    "archived": true,
+    "assignMembersOnly": true,
+    "disableAutoClaim": true,
+    "assignPrimaryOnly": true,
+    "disableReopenAutoAssign": true
+  },
+  "expected": false
+}
