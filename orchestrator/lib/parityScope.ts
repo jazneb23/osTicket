@@ -34,7 +34,7 @@ function listCommittedManifestFiles(): string[] {
   }
   return fs
     .readdirSync(MANIFESTS_DIR)
-    .filter((name) => name.endsWith("-manifest.json"))
+    .filter((name) => /^MOD-\d+-manifest\.json$/.test(name))
     .map((name) => path.join(MANIFESTS_DIR, name));
 }
 
@@ -123,7 +123,50 @@ export function discoverTicketIds(): string[] {
     .sort();
 }
 
+function assertSafeTicketId(ticketId: string): void {
+  if (!/^MOD-\d+$/.test(ticketId)) {
+    throw new Error(`Invalid ticket id for manifest path: ${ticketId}`);
+  }
+}
+
+/** PR-branch copy of the seam manifest — not gitignored; CI reads this. */
+export function committedManifestPath(ticketId: string): string {
+  assertSafeTicketId(ticketId);
+  return `${MANIFESTS_DIR}/${ticketId}-manifest.json`;
+}
+
+/**
+ * Copy the runtime (.state) or already-committed manifest onto
+ * orchestrator/manifests/ so gitPublish can stage it on the strangler branch.
+ * Returns the destination path, or null if no source exists.
+ */
+export function copyManifestForPublish(ticketId: string): string | null {
+  const source = resolveManifestPath(ticketId);
+  if (!source) {
+    return null;
+  }
+  const dest = committedManifestPath(ticketId);
+  if (path.resolve(source) === path.resolve(dest)) {
+    return dest;
+  }
+  fs.mkdirSync(MANIFESTS_DIR, { recursive: true });
+  fs.copyFileSync(source, dest);
+  return dest;
+}
+
+/** Copy for publish or throw — a missing manifest would make CI skip parity. */
+export function requireCopiedManifestForPublish(ticketId: string): string {
+  const dest = copyManifestForPublish(ticketId);
+  if (!dest) {
+    throw new Error(
+      `Cannot publish ${ticketId}: no seam manifest in orchestrator/.state or orchestrator/manifests`
+    );
+  }
+  return dest;
+}
+
 export function resolveManifestPath(ticketId: string): string | null {
+  assertSafeTicketId(ticketId);
   const statePath = path.join(STATE_DIR, `${ticketId}-manifest.json`);
   if (fs.existsSync(statePath)) {
     return statePath;
@@ -197,7 +240,7 @@ export function evaluateCiParity(): ParityScopeDecision {
     return {
       action: "skip",
       reason:
-        "no cartographer manifest in checkout (runtime-only in demo; parity enforced in pipeline before PR)",
+        "no cartographer manifest in checkout (runtime .state or orchestrator/manifests)",
       verifiableTicketIds: [],
     };
   }

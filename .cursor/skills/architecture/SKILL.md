@@ -39,8 +39,9 @@ In parallel when possible:
 - `orchestrator/pipeline.ts` — stage order and gate behavior
 - `orchestrator/agents/` — which stages exist
 - `orchestrator/lib/types.ts` — `SeamManifest`, `ParityReport`
-- `orchestrator/manifests/`, `orchestrator/fixtures/`, `include/Services/`,
-  `legacy/harness/` — active seams
+- `orchestrator/fixtures/`, `include/Services/`, `legacy/harness/` — active
+  seams on `develop`. `orchestrator/manifests/` exists only on
+  `strangler/MOD-*` PR branches (CI copy); it is not on `develop`
 
 Confirm stage count and names from code. Do not invent stages.
 

@@ -1,4 +1,5 @@
 import { execFileSync } from "child_process";
+import { committedManifestPath, requireCopiedManifestForPublish } from "./parityScope";
 import type { SeamManifest, ParityReport } from "./types";
 
 export type PublishPaths = {
@@ -123,6 +124,7 @@ export function publishPathsForTicket(
 ): string[] {
   const paths = new Set<string>([
     `orchestrator/fixtures/${ticketId}`,
+    committedManifestPath(ticketId),
     ...extraPaths.filter(Boolean),
   ]);
   if (harnessScript) {
@@ -133,16 +135,34 @@ export function publishPathsForTicket(
 
 /**
  * Commit and push strangler artifacts on the per-ticket branch.
- * No-ops when the working tree has nothing to publish for the staged paths.
+ * Copies the runtime seam manifest to orchestrator/manifests/ first so CI
+ * can run parity on the PR. No-ops when the working tree has nothing to
+ * publish for the staged paths.
  */
 export function publishArtifactsForPr(options: PublishPaths): {
   published: boolean;
   sha?: string;
 } {
   const { ticketId, branch, paths = [], harnessScript } = options;
+  const manifestPath = requireCopiedManifestForPublish(ticketId);
   const toAdd = publishPathsForTicket(ticketId, paths, harnessScript);
 
+  execFileSync("git", ["add", "--", manifestPath], { stdio: "pipe" });
+  const indexedManifest = execFileSync(
+    "git",
+    ["ls-files", "--", manifestPath],
+    { encoding: "utf-8" }
+  ).trim();
+  if (!indexedManifest) {
+    throw new Error(
+      `Cannot publish ${ticketId}: failed to stage ${manifestPath} for CI parity`
+    );
+  }
+
   for (const p of toAdd) {
+    if (p === manifestPath) {
+      continue;
+    }
     try {
       execFileSync("git", ["add", "--", p], { stdio: "pipe" });
     } catch {

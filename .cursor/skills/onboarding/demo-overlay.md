@@ -127,14 +127,12 @@ Docker. Disable Cursor Automation.
 | Path | Role |
 |------|------|
 | `orchestrator/lib/manifest.ts` `PINNED_MANIFESTS` | Baked-in manifest for demo-stable tickets (e.g. MOD-27) — survives `/cleanup` and fresh clones |
-| `orchestrator/.state/MOD-*-manifest.json` | Runtime cache (gitignored); cartographer/CI may (re)write this |
+| `orchestrator/.state/MOD-*-manifest.json` | Runtime cache (gitignored); cartographer writes this; `/cleanup` deletes it so the next run recartographs |
+| `orchestrator/manifests/MOD-*-manifest.json` | Copy of the seam manifest **on the `strangler/MOD-*` PR branch only**, so GitHub Actions can run parity. Never merge to `develop`. `/cleanup` removes it by deleting the branch |
 | `orchestrator/fixtures/MOD-*/` | One JSON file per case |
 | `orchestrator/fixtures/parity.json` | Aggregate parity artifact if present (generated; don't commit) |
 
-There is **no** committed `orchestrator/manifests/` directory in the current
-tree — don't assume one exists; check `.state/` and `lib/manifest.ts` instead.
-
-`ci-parity-check.ts` discovers ticket ids from fixture directories.
+`ci-parity-check.ts` discovers ticket ids from fixture directories and looks for a cartographer JSON in `.state/` or `orchestrator/manifests/`.
 
 ## Libraries to reuse (do not reinvent)
 

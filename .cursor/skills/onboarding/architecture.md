@@ -68,7 +68,8 @@ orchestrator/
 ├── agents/              # Thin stage wrappers (cartographer → … → prAgent)
 ├── lib/                 # sdk, manifest, harness, gitPublish, linear, slack, terminal
 ├── fixtures/            # MOD-*/**.json golden cases + parity.json
-└── .state/              # Runtime cache (gitignored) — pinned manifests, e.g. MOD-27
+├── manifests/           # PR-branch copy of seam JSON for CI (not on develop)
+└── .state/              # Runtime cache (gitignored) — cartographer writes here
 ```
 
 Local demo: Docker Desktop + `scripts/local-demo-start.sh` for parity;
