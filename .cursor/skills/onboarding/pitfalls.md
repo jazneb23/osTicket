@@ -64,7 +64,7 @@ Do **not** edit:
 ## Orchestrator (demo) conventions
 
 - Keep stage agents thin — prompts + I/O; reuse `lib/sdk`, `lib/manifest`, etc.
-- Persist runtime state under `orchestrator/.state/` only (gitignored).
+- Persist runtime state under `orchestrator/.state/` only (gitignored). Publish copies that JSON to `orchestrator/manifests/` on the strangler PR branch for CI — never to `develop`.
 - Do not hardcode ticket-specific paths in new code except where
   `lib/manifest.ts` already deliberately special-cases a ticket (e.g. MOD-25's
   harness path, MOD-27's `PINNED_MANIFESTS` regression demo). New tickets are
@@ -92,7 +92,7 @@ Do **not** edit:
 | Using root `fixtures/` | Empty/misleading; use `orchestrator/fixtures/` |
 | Treating all of `include/` as fair game | Most is host app; prefer `Services/` + manifest paths for demo work |
 | Assuming a PHPUnit suite exists | It doesn't; `setup/test/` is static checks only |
-| Assuming `orchestrator/manifests/` exists | It doesn't in the current tree — check `.state/` and `lib/manifest.ts` `PINNED_MANIFESTS` instead |
+| Assuming `orchestrator/manifests/` lives on `develop` | It is copied onto the `strangler/MOD-*` PR branch at publish time so CI can run; `/cleanup` deletes that branch. Local cache is still gitignored `.state/` |
 | Assuming MOD-26 exists | Ticket ids get reset/replayed for the demo; always check `orchestrator/fixtures/` for what's actually active |
 | Guessing fixture expecteds | Must come from baseline capture against legacy behavior |
 | "Fixing" parity by changing fixtures | Forbidden — fix extraction/strangler or harness instead |

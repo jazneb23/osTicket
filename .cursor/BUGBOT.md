@@ -40,7 +40,7 @@ When reviewing `orchestrator/**/*.ts`:
 
 - **Flag** stage agents that duplicate logic instead of using existing helpers (`withLocalAgent` / `withCloudAgent`, `streamRunWithProgress`, manifest helpers from `orchestrator/lib/manifest.ts`).
 - **Reject** new hardcoded MOD-25 paths unless the code already deliberately special-cases MOD-25; new tickets should be manifest-driven.
-- **Reject** parallel state locations outside `orchestrator/.state/`.
+- **Reject** parallel runtime caches outside `orchestrator/.state/`. The allowed extra copy is `orchestrator/manifests/MOD-*-manifest.json` on `strangler/MOD-*` PR branches only (CI checkout). Flag that path if it lands on `develop`.
 
 ## Linear / Slack / pipeline
 

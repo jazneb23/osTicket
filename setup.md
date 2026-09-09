@@ -18,7 +18,8 @@ hand per `.cursor/skills/cleanup/SKILL.md`) before switching machines:
 - **Closes open `strangler/MOD-*` PRs** and deletes both the remote and local
   `strangler/MOD-*` branches
 - Removes the untracked extraction artifacts — `orchestrator/.state/MOD-*`,
-  untracked `orchestrator/fixtures/MOD-*`, untracked files under
+  untracked `orchestrator/fixtures/MOD-*`, untracked
+  `orchestrator/manifests/MOD-*`, untracked files under
   `include/Services/` and `legacy/harness/`
 - Resets git to `develop`, **preserving** the two committed baselines
   (MOD-25 golden path, MOD-27 Blocked-flow pin) — it never touches those

@@ -4,7 +4,7 @@
   "description": "osTicket ======== <a href=\"https://osticket.com\"><img height=\"80px\" width=\"80px\" src=\"images/favicon.png\" align=\"left\" hspace=\"10\" vspace=\"6\"></a>",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "tsx --test orchestrator/lib/*.test.ts"
   },
   "repository": {
     "type": "git",

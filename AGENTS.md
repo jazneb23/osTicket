@@ -48,10 +48,12 @@ Non-obvious gotchas (durable):
   "Support Ticket System Offline" and staff login has no accounts. This is expected;
   `:8080` is an optional host-app UI, not the product flow. Do **not** "fix" it by
   running the installer unless a ticket asks for it.
-- **Parity gate skips on the base branch.** `orchestrator/ci-parity-check.ts` only
-  verifies when a `MOD-*` seam manifest exists in `orchestrator/.state/` (gitignored,
-  produced at runtime by the cartographer stage). To exercise the gate manually against
-  the committed MOD-25 fixtures, create `orchestrator/.state/MOD-25-manifest.json`
+- **Parity CI needs a seam manifest in checkout.** `orchestrator/ci-parity-check.ts`
+  verifies when a `MOD-*` seam manifest exists in gitignored `orchestrator/.state/`
+  (local cartographer cache) **or** `orchestrator/manifests/` (copy publish stages onto
+  the `strangler/MOD-*` PR branch so GitHub Actions can run). Manifests never land on
+  `develop` — `/cleanup` deletes the branch. To exercise the gate locally against the
+  committed MOD-25 fixtures, create `orchestrator/.state/MOD-25-manifest.json`
   (fields per `orchestrator/lib/types.ts` `SeamManifest`; MOD-25 pins its harness via
   `applyHarnessDefaults`) then run `npx tsx orchestrator/capture-and-verify.ts MOD-25`.
 - **Direct harness smoke test** (proves web+db+PHP bootstrap):

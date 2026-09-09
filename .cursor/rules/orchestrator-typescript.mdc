@@ -16,7 +16,9 @@ Stage agents under `orchestrator/agents/` should stay thin wrappers around promp
 
 ## State and caching
 
-Persist pipeline state under `orchestrator/.state/` (e.g. seam manifests keyed by ticket id). Do not invent a parallel state location.
+Persist pipeline runtime state under `orchestrator/.state/` (e.g. seam manifests keyed by ticket id). Do not invent a parallel runtime cache.
+
+The one allowed extra copy is `orchestrator/manifests/MOD-*-manifest.json`, staged at publish onto the `strangler/MOD-*` PR branch so CI can find the cartographer JSON. Never merge that path to `develop`.
 
 ## MOD-25 special cases
 

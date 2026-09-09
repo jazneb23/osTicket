@@ -59,4 +59,4 @@ jobs:
 
       - name: Parity skipped
         if: steps.parity.outputs.run != 'run'
-        run: echo "Parity check skipped — no seam changes and/or no runtime manifest in checkout."
+        run: echo "Parity check skipped — no seam changes and/or no cartographer manifest in checkout (runtime .state or orchestrator/manifests)."

@@ -3,7 +3,8 @@ name: cleanup
 description: >-
   MOD-tickets-only demo reset: move MOD-* Linear issues to Backlog, delete
   pipeline comments on those tickets, close/delete strangler/MOD-* PRs and
-  branches, and remove untracked MOD extraction artifacts. Preserves committed
+  branches (including any `orchestrator/manifests/MOD-*` committed only on those
+  PR branches), and remove untracked MOD extraction artifacts. Preserves committed
   MOD-25 golden and MOD-27 Blocked-flow pin on develop. Does not touch non-MOD
   Linear issues or unrelated branches/PRs. Use when the user asks to cleanup
   MOD tickets, reset the demo queue, clear pipeline runs, or invokes /cleanup.
@@ -26,7 +27,7 @@ This is broader than `/rollback` (which only resets git locally).
 | Pipeline comments on those MOD issues | Comments on non-MOD issues |
 | PRs with head `strangler/MOD-*` | Other PRs or branches |
 | Branches matching `strangler/MOD-*` | `develop`, `main`, feature branches, `demo/*`, etc. |
-| `orchestrator/.state/MOD-*`, untracked `orchestrator/fixtures/MOD-*`, untracked services/harnesses | Committed baselines on `develop` (MOD-25, MOD-27 pin); unrelated repo files |
+| `orchestrator/.state/MOD-*`, untracked `orchestrator/fixtures/MOD-*`, untracked `orchestrator/manifests/MOD-*`, untracked services/harnesses | Committed baselines on `develop` (MOD-25, MOD-27 pin); unrelated repo files |
 
 If the user says "cleanup everything in Linear," clarify: **`/cleanup` is MOD
 tickets only** unless they explicitly expand scope.
@@ -90,9 +91,11 @@ If the user has not clearly asked for a full MOD cleanup, ask once:
 
 > This will reset **MOD tickets only** (`MOD-*`): move them to Backlog, delete
 > pipeline comments on those issues, close open `strangler/MOD-*` PRs, delete
-> those branches, and remove **untracked** MOD harness/service/fixture artifacts
-> (keeping the committed MOD-25 golden path and MOD-27 Blocked-flow pin on
-> develop). Non-MOD Linear issues and PRs are untouched. Proceed?
+> those branches (including PR-only `orchestrator/manifests/MOD-*` copies), and
+> remove **untracked** MOD harness/service/fixture/manifest artifacts and
+> gitignored `.state/` caches (keeping the committed MOD-25 golden path and
+> MOD-27 Blocked-flow pin on develop). Non-MOD Linear issues and PRs are
+> untouched. Proceed?
 
 Do not run destructive commands until they confirm (or their message was
 already an explicit cleanup / fresh-start request).
@@ -232,12 +235,35 @@ Preserved on `develop` (leave alone — never edit `expected` values):
 | `include/Services/TicketOverdueService.php` | Seeded buggy service for Blocked demo |
 | `include/class.ticket.php` | Seeded facade for that pin |
 
-Remove runtime state (gitignored manifests / attempt counters):
+Remove runtime state (gitignored manifests / attempt counters). **Must wipe**
+or the next run reuses the cached cartographer JSON and skips the cloud agent:
 
 ```bash
 rm -f orchestrator/.state/MOD-*-manifest.json
 rm -f orchestrator/.state/MOD-*-attempts.json
 ```
+
+Remove **untracked** `orchestrator/manifests/MOD-*-manifest.json` copies (these
+exist on the working tree if publish ran but you have not checked out
+`develop` yet, or if publish copied then failed before commit). Skip any file
+tracked on `develop` — there should be none:
+
+```bash
+if [ -d orchestrator/manifests ]; then
+  find orchestrator/manifests -maxdepth 1 -type f -name 'MOD-*-manifest.json' | while read -r f; do
+    if git ls-files --error-unmatch "$f" >/dev/null 2>&1; then
+      echo "skip tracked manifest (should not be on develop): $f"
+      continue
+    fi
+    rm -f "$f"
+  done
+fi
+```
+
+Committed copies live only on `strangler/MOD-*` PR branches. Step 5 (delete
+those branches) and step 6 (`git reset --hard origin/develop`) already drop
+them. **Never merge** those PRs, or `/cleanup` cannot delete the tracked
+manifest on `develop`.
 
 Remove **untracked** fixture dirs only (skip committed MOD-25 / MOD-27):
 
@@ -291,8 +317,8 @@ Scoped clean for leftover untracked junk (does not touch tracked files):
 
 ```bash
 git clean -fd -- orchestrator/.state
-# Only clean untracked files under Services/harness/fixtures — never -x
-git clean -fd -- include/Services legacy/harness orchestrator/fixtures
+# Only clean untracked files under Services/harness/fixtures/manifests — never -x
+git clean -fd -- include/Services legacy/harness orchestrator/fixtures orchestrator/manifests
 ```
 
 Do **not** run repo-root `git clean -fd` without path scope.
@@ -312,8 +338,10 @@ ls orchestrator/fixtures/   # expect MOD-25 and MOD-27
 ls legacy/harness/          # expect sla_capture.php and overdue_capture.php
 ls include/Services/ 2>/dev/null || true   # expect TicketOverdueService.php
 ls orchestrator/.state/ 2>/dev/null || true
+ls orchestrator/manifests 2>/dev/null || echo "(no PR manifests on develop)"
 test -f include/Services/TicketOverdueService.php
 test -d orchestrator/fixtures/MOD-27
+test ! -f orchestrator/.state/MOD-25-manifest.json
 ```
 
 Optionally re-list Linear issues to confirm all MOD tickets are Backlog.
@@ -327,7 +355,8 @@ Keep the reply short:
 3. PRs closed (numbers + URLs)
 4. Branches deleted (local + remote)
 5. Local artifacts removed (paths)
-6. What was **preserved** (MOD-25 golden, MOD-27 Blocked pin, `develop`)
+6. What was **preserved** (MOD-25 golden, MOD-27 Blocked pin, `develop` — no
+   `orchestrator/manifests/` on develop)
 7. Next step: move desired tickets to **Ready** and restart listener
 
 ## Pipeline comment markers (reference)
@@ -359,6 +388,10 @@ quick local discard without touching Linear or GitHub.
 - Removing the MOD-27 Blocked-flow pin (`fixtures/MOD-27/`,
   `overdue_capture.php`, `TicketOverdueService.php`, or the seeded
   `class.ticket.php` facade) or "fixing" its intentional parity bug
+- Merging `strangler/MOD-*` PRs (would land `orchestrator/manifests/` and
+  extracted services on `develop`, which `/cleanup` must not delete)
+- Leaving `orchestrator/.state/MOD-*-manifest.json` in place (next run skips
+  cartographer and you will not see a new cloud agent)
 - `rm -rf include/Services/` (wipes the committed MOD-27 service)
 - Deleting any path that then appears as `deleted:` in `git status`
 - Force-pushing or deleting non-`strangler/MOD-*` branches
