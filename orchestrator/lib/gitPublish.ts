@@ -1,5 +1,5 @@
 import { execFileSync } from "child_process";
-import { committedManifestPath, copyManifestForPublish } from "./parityScope";
+import { committedManifestPath, requireCopiedManifestForPublish } from "./parityScope";
 import type { SeamManifest, ParityReport } from "./types";
 
 export type PublishPaths = {
@@ -144,10 +144,25 @@ export function publishArtifactsForPr(options: PublishPaths): {
   sha?: string;
 } {
   const { ticketId, branch, paths = [], harnessScript } = options;
-  copyManifestForPublish(ticketId);
+  const manifestPath = requireCopiedManifestForPublish(ticketId);
   const toAdd = publishPathsForTicket(ticketId, paths, harnessScript);
 
+  execFileSync("git", ["add", "--", manifestPath], { stdio: "pipe" });
+  const indexedManifest = execFileSync(
+    "git",
+    ["ls-files", "--", manifestPath],
+    { encoding: "utf-8" }
+  ).trim();
+  if (!indexedManifest) {
+    throw new Error(
+      `Cannot publish ${ticketId}: failed to stage ${manifestPath} for CI parity`
+    );
+  }
+
   for (const p of toAdd) {
+    if (p === manifestPath) {
+      continue;
+    }
     try {
       execFileSync("git", ["add", "--", p], { stdio: "pipe" });
     } catch {

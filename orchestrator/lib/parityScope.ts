@@ -154,6 +154,17 @@ export function copyManifestForPublish(ticketId: string): string | null {
   return dest;
 }
 
+/** Copy for publish or throw — a missing manifest would make CI skip parity. */
+export function requireCopiedManifestForPublish(ticketId: string): string {
+  const dest = copyManifestForPublish(ticketId);
+  if (!dest) {
+    throw new Error(
+      `Cannot publish ${ticketId}: no seam manifest in orchestrator/.state or orchestrator/manifests`
+    );
+  }
+  return dest;
+}
+
 export function resolveManifestPath(ticketId: string): string | null {
   assertSafeTicketId(ticketId);
   const statePath = path.join(STATE_DIR, `${ticketId}-manifest.json`);

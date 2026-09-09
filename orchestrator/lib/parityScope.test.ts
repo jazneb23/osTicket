@@ -10,7 +10,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { chdir } from "node:process";
 import { after, before, describe, it } from "node:test";
-import { committedManifestPath, copyManifestForPublish } from "./parityScope";
+import {
+  committedManifestPath,
+  copyManifestForPublish,
+  requireCopiedManifestForPublish,
+} from "./parityScope";
 
 describe("copyManifestForPublish", () => {
   const originalCwd = process.cwd();
@@ -44,6 +48,17 @@ describe("copyManifestForPublish", () => {
     assert.throws(
       () => committedManifestPath("../etc/passwd"),
       /Invalid ticket id/
+    );
+  });
+
+  it("returns null when no runtime or committed manifest exists", () => {
+    assert.equal(copyManifestForPublish("MOD-99"), null);
+  });
+
+  it("throws when publish requires a copy and none exists", () => {
+    assert.throws(
+      () => requireCopiedManifestForPublish("MOD-99"),
+      /no seam manifest/
     );
   });
 });

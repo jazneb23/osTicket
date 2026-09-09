@@ -58,7 +58,7 @@ async function main(): Promise<void> {
     const manifestPath = ensureManifestInState(ticketId);
     if (!manifestPath) {
       console.log(
-        `Skipping ${ticketId}: no manifest in checkout (runtime cartographer output; pipeline parity is authoritative).`
+        `Skipping ${ticketId}: no manifest in checkout (runtime .state or orchestrator/manifests).`
       );
       continue;
     }
