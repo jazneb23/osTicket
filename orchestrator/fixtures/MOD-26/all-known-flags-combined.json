@@ -1,0 +1,8 @@
+{
+  "name": "all-known-flags-combined",
+  "branch": "All four named flags combined (FLAG_ACTIVE|FLAG_ESCALATE|FLAG_NOALERTS|FLAG_TRANSIENT = 0x000F = 15), confirming the any-bit-set boolean coercion holds even when FLAG_ESCALATE is genuinely enabled alongside others — expect true",
+  "input": {
+    "flags": 15
+  },
+  "expected": true
+}

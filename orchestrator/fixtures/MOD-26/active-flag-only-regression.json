@@ -1,0 +1,8 @@
+{
+  "name": "active-flag-only-regression",
+  "branch": "Logical-AND bug regression: only FLAG_ACTIVE (0x0001) is set and FLAG_ESCALATE is unset, so bitwise semantics would say false but the shipping `&&` bug coerces to boolean of a nonzero flags value — expect true",
+  "input": {
+    "flags": 1
+  },
+  "expected": true
+}

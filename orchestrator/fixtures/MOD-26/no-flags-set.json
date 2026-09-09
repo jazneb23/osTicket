@@ -1,0 +1,8 @@
+{
+  "name": "no-flags-set",
+  "branch": "Required edge case: flags=0, so `0 && self::FLAG_ESCALATE` short-circuits to false regardless of operator choice — expect false",
+  "input": {
+    "flags": 0
+  },
+  "expected": false
+}

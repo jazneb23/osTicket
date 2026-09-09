@@ -15,6 +15,7 @@
 include_once INCLUDE_DIR.'class.businesshours.php';
 include_once INCLUDE_DIR.'class.schedule.php';
 include_once INCLUDE_DIR.'Services/GracePeriodCalculator.php';
+include_once INCLUDE_DIR.'Services/PriorityEscalationResolver.php';
 
 class SLA extends VerySimpleModel
 implements TemplateVariable {
@@ -114,7 +115,7 @@ implements TemplateVariable {
     }
 
     function priorityEscalation() {
-        return $this->flags && self::FLAG_ESCALATE;
+        return (new PriorityEscalationResolver())->priorityEscalation($this);
     }
 
     function getTranslateTag($subtag) {

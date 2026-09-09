@@ -1,0 +1,8 @@
+{
+  "name": "out-of-range-unknown-bit",
+  "branch": "Boundary case beyond the four named constants: a high, undefined bit (flags=16, i.e. 0x0010) with none of the known flags set, confirming the boolean-cast-of-nonzero behavior generalizes to any nonzero integer, not just documented flag values — expect true",
+  "input": {
+    "flags": 16
+  },
+  "expected": true
+}

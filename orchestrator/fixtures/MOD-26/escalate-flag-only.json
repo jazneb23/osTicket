@@ -1,0 +1,8 @@
+{
+  "name": "escalate-flag-only",
+  "branch": "Normal path: FLAG_ESCALATE (0x0002) is the only bit set, so both the intended bitwise check and the buggy logical-AND agree — expect true",
+  "input": {
+    "flags": 2
+  },
+  "expected": true
+}

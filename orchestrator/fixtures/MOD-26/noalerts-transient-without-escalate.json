@@ -1,0 +1,8 @@
+{
+  "name": "noalerts-transient-without-escalate",
+  "branch": "Further regression coverage: FLAG_NOALERTS|FLAG_TRANSIENT (0x000C = 12) set with neither FLAG_ACTIVE nor FLAG_ESCALATE, proving the bug returns true for ANY nonzero bit combination, not just FLAG_ACTIVE — expect true",
+  "input": {
+    "flags": 12
+  },
+  "expected": true
+}
