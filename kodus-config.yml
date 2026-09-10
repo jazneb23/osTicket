@@ -1,0 +1,60 @@
+# Kodus (Kody) PR review — strangler-fig demo.
+# Source of truth after the one-time dashboard opt-in:
+# Settings → Code Review → this repo → enable
+# "kodus-config.yml overrides web preferences".
+# Until that toggle is on, this file is ignored.
+version: 2.0
+
+# general
+automatedReviewActive: true
+showStatusFeedback: true
+kodusConfigFileOverridesWebPreferences: true
+reviewCadence:
+    type: 'automatic' # automatic | auto_pause | manual
+    timeWindow: 15 # minutes
+    pushesToTrigger: 3
+# Hard pins: Kody comments only. A human is the only GitHub approver.
+pullRequestApprovalActive: false
+isRequestChangesActive: false
+runOnDraft: true
+ignorePaths:
+    - 'yarn.lock'
+    - 'package-lock.json'
+    - 'package.json'
+    - '.env'
+    - '**/*.json'
+    - 'include/mpdf/**'
+    - 'include/laminas-mail/**'
+    - 'include/pear/**'
+    - 'include/fpdf/**'
+    - 'include/*/vendor/**'
+ignoredTitleKeywords: []
+baseBranches: []
+enableCommittableSuggestions: true
+byokModel: '' # empty = inherit the model from your BYOK settings
+
+# review categories
+reviewOptions:
+    bug: true
+    performance: true
+    security: true
+    business_logic: true
+
+# suggestion control
+suggestionControl:
+    applyFiltersToKodyRules: false
+    severityLevelFilter: 'medium' # low | medium | high | critical
+
+# PR summary
+summary:
+    generatePRSummary: true
+    behaviourForNewCommits: 'none'
+    behaviourForExistingDescription: 'replace'
+    customInstructions: ''
+
+# kody rules
+ideRulesSyncEnabled: false
+kodyRulesGeneratorEnabled: false
+kodyLearningExcludedReviewers: []
+kodyKnowledgeApproval:
+    enabled: false
