@@ -32,6 +32,9 @@ SLA fields (`graceHours`, `start`, `scheduleId`) still supported for MOD-25.
 | 5 | verifier | `agents/verifier.ts` | Local (harness) | Compare harness output to fixture expecteds → `ParityReport` |
 | 6 | prAgent | `agents/prAgent.ts` | Local `gh` | Open PR **only if** `gatePassed`; label AppSec gate exhibit |
 
+Kodus is **not** a numbered pipeline stage. After `prAgent` opens the PR,
+GitHub review gates run in parallel — see **Post-PR GitHub gates** below.
+
 `fromStage` in `runPipeline(ticketId, criteria, fromStage)` skips earlier work
 (e.g. `--from-stage 3` reuses harness/fixtures/baseline). Pinned regression
 tickets (see below) force `fromStage = 5` regardless of the flag.
@@ -74,6 +77,26 @@ After verifier:
 Never skip, weaken, or bypass the verifier. Never invent expecteds or edit
 fixtures just to pass.
 
+## Post-PR GitHub gates
+
+These run **after** the PR exists. None of them open the PR, and none of
+them are allowed to stamp GitHub **Approve** for this demo.
+
+| Gate | When | What it proves | Auto-approve? |
+|------|------|----------------|---------------|
+| Parity GitHub Action | PR opened / synchronize | Golden fixture parity in CI | No |
+| Aikido GitHub App | PR opened (when configured) | AppSec check on the PR | No |
+| **Kodus / Kody** | PR opened | AI code review vs `.kody/rules/` (strangler constraints) | **No** — `kodus-config.yml` pins `pullRequestApprovalActive: false` and `isRequestChangesActive: false` |
+| Human | After comments | Merge decision | Human is the only approver |
+
+Kodus comments on `strangler/MOD-*` PRs. It does **not** replace Sentinel
+(AppSec) or the verifier (behavioral parity). Demo PRs still must not merge
+into `develop`; the exhibit is Kody comments plus no bot approval.
+
+Repo files: `kodus-config.yml` (source of truth **after** the dashboard
+opt-in that lets the file override web preferences) and `.kody/rules/*.md`.
+Operator setup is in `.github/LOCAL_DEMO_SETUP.md`.
+
 ## What each stage must / must not do
 
 - **Cartographer** — trace real call sites by reading files; emit one JSON
@@ -95,6 +118,8 @@ fixtures just to pass.
   authority for `gatePassed`.
 - **PR agent** — runs only after gate pass; scoped to facade + extraction
   target from manifest.
+- **Kodus (post-PR)** — GitHub App reviews the opened PR. Must not approve
+  or request-changes. Do not add it as a `pipeline.ts` stage.
 
 ## Active seams (verify in tree — ticket ids get reset/replayed)
 

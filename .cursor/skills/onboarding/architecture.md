@@ -23,6 +23,7 @@ lives in a small, clearly separated set of surfaces on top of it.
 | `orchestrator/fixtures/` | Golden baselines per ticket (`MOD-*`) | **Demo** |
 | `.cursor/rules/`, `.cursor/skills/` | Process gates and agent skills | **Demo tooling** (applies to whole repo where relevant) |
 | `.github/workflows/` | Parity CI | **Demo** |
+| `kodus-config.yml`, `.kody/rules/` | Kodus (Kody) PR review config + strangler rules; auto-approve off | **Demo** |
 | `docker/`, `docker-compose.yml`, `scripts/` | Local Docker for parity + PHP/MySQL | **Demo tooling**, runs the **host app** |
 | `include/*/vendor/` (mpdf, laminas-mail), `include/pear/`, `include/fpdf/` | Vendored third-party PHP | **Host app — do not touch** |
 | Root `fixtures/` | Empty/misleading legacy dir | Prefer `orchestrator/fixtures/` |
@@ -86,6 +87,11 @@ Local demo: Docker Desktop + `scripts/local-demo-start.sh` for parity;
 6. **Verify** harness output still matches fixture `expected` values.
 7. Only then open a PR and notify humans.
 
+After the PR opens, GitHub review gates run in parallel (Parity CI, Aikido
+GitHub App when configured, **Kodus / Kody**). Kodus is **not** an
+orchestrator stage. It comments on the PR; auto-approve is off — a human is
+the only approver. Demo PRs still must not merge into `develop`.
+
 Anti-recursion: the service must never call back into the facade entry point
 it replaced.
 
@@ -98,4 +104,5 @@ it replaced.
 | Slack | Demo: notify only after parity pass + PR |
 | GitHub Actions | Golden fixture parity on PRs (demo; best-effort if Actions minutes are exhausted) |
 | Aikido | Inline Sentinel scan (MCP) plus GitHub App PR checks when configured — AppSec does not depend on Actions minutes |
+| Kodus (Kody) | OSS AI code review on opened PRs (GitHub App). Comments only — `pullRequestApprovalActive: false`. Does not replace Sentinel or the verifier. Config: `kodus-config.yml`; rules: `.kody/rules/` |
 | Docker Compose | MySQL + PHP Apache — runs the **host app** for both manual browsing and the demo's parity harness |

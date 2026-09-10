@@ -32,8 +32,29 @@ not double-start pipelines.
 1. Move **one** `MOD-*` ticket to **Ready** in Linear.
 2. Listener claims it → **In Progress** → runs `pipeline.ts`.
 3. On parity pass → publish to `strangler/MOD-*` → local `gh` opens PR → Slack → **In Review**.
-4. **Demo only:** close the PR and delete the strangler branch after the demo — never merge MOD-* into `develop`.
-5. Move the next ticket to Ready when ready.
+4. On the PR: Parity CI, Aikido (when configured), and **Kodus (Kody)** run. Kody comments; it must **not** Approve. A human is the only reviewer who would approve.
+5. **Demo only:** close the PR and delete the strangler branch after the demo — never merge MOD-* into `develop`.
+6. Move the next ticket to Ready when ready.
+
+## Kodus GitHub App (post-PR code review)
+
+Kodus is the OSS AI reviewer on opened PRs. It is **not** a pipeline stage
+and must never auto-approve. Config lives in repo (`kodus-config.yml`,
+`.kody/rules/`); the GitHub App and dashboard toggles cannot be done from git.
+
+One-time operator setup:
+
+1. Create a free Community account at [kodus.io](https://kodus.io) (hosted by Kodus; BYOK LLM key).
+2. Install the Kodus GitHub App on this demo repository.
+3. Add a BYOK LLM key in the Kodus dashboard.
+4. In Settings → Code Review → this repository → General:
+   - Enable **kodus-config.yml overrides web preferences**. Until this is on, `kodus-config.yml` is ignored (the YAML flag does not bootstrap itself).
+   - Confirm **Auto-approve PRs** is **off** (defense in depth with `pullRequestApprovalActive: false` in the file).
+   - Leave **Request changes** off (`isRequestChangesActive: false`).
+5. Enable **auto-sync rules from repo** so `.kody/rules/*.md` import. Files also include `@kody-sync` for a manual import without waiting for a closed PR.
+
+After a strangler PR opens, Kody should post comments. It must not stamp
+**Approve**. If it does, stop the demo and check the dashboard + YAML pins.
 
 ## Required `.env` keys (local machine)
 

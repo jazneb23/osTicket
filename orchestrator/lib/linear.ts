@@ -310,6 +310,8 @@ export function buildInReviewComment(
     "### Pull request",
     "",
     prLine,
+    "",
+    "Kodus (Kody) reviews this PR automatically. Auto-approve is off — a human is the only approver.",
   ].join("\n");
 }
 
