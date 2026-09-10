@@ -85,7 +85,7 @@ them are allowed to stamp GitHub **Approve** for this demo.
 | Gate | When | What it proves | Auto-approve? |
 |------|------|----------------|---------------|
 | Parity GitHub Action | PR opened / synchronize | Golden fixture parity in CI | No |
-| Aikido GitHub App | PR opened (when configured) | AppSec check on the PR | No |
+| **Aikido PR Checks** | PR opened | AppSec check on the PR (GitHub App, **not** Actions). Current plan: dependency scan + Deep Review. SAST/secrets stay on Sentinel unless those scans are unlocked | No — check can fail; demo PRs still are not merged |
 | **Kodus / Kody** | PR opened | AI code review vs `.kody/rules/` (strangler constraints) | **No** — `kodus-config.yml` pins `pullRequestApprovalActive: false` and `isRequestChangesActive: false` |
 | Human | After comments | Merge decision | Human is the only approver |
 
