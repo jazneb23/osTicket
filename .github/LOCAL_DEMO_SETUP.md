@@ -32,7 +32,7 @@ not double-start pipelines.
 1. Move **one** `MOD-*` ticket to **Ready** in Linear.
 2. Listener claims it → **In Progress** → runs `pipeline.ts`.
 3. On parity pass → publish to `strangler/MOD-*` → local `gh` opens PR → Slack → **In Review**.
-4. On the PR: Parity CI, Aikido (when configured), and **Kodus (Kody)** run. Kody comments; it must **not** Approve. A human is the only reviewer who would approve.
+4. On the PR Checks tab you should see **Golden fixture parity**, **Aikido** (PR Checks GitHub App — not Actions), and **Kody Code Review**. Kody comments; it must **not** Approve. A human is the only reviewer who would approve.
 5. **Demo only:** close the PR and delete the strangler branch after the demo — never merge MOD-* into `develop`.
 6. Move the next ticket to Ready when ready.
 
@@ -55,6 +55,40 @@ One-time operator setup:
 
 After a strangler PR opens, Kody should post comments. It must not stamp
 **Approve**. If it does, stop the demo and check the dashboard + YAML pins.
+
+## Aikido PR Checks GitHub App (post-PR AppSec gate)
+
+Aikido sits in **two** places. Do not add an Aikido GitHub Action — that
+burns Actions minutes. Use the dashboard PR Checks app instead.
+
+| Surface | Where | Role |
+|---------|--------|------|
+| Sentinel | Orchestrator stage 4b (Aikido MCP) | Shift-left: secrets halt the pipeline (no PR). SAST is reported on Linear; pipeline continues. |
+| Aikido PR Checks | GitHub Checks tab on the opened PR | Same AppSec story a real team sees at merge time. **Does not use Actions minutes.** |
+
+Cursor MCP login is **not** this. MCP is what Sentinel uses locally. The
+PR check is a separate GitHub App installed from the Aikido dashboard.
+
+One-time operator setup:
+
+1. Open the Aikido dashboard → **Integrations** → **CI gating** / **PR Quality Gating** → **GitHub**. Direct links: [app.aikido.dev/repositories/prs](https://app.aikido.dev/repositories/prs) and [help.aikido.dev — GitHub PR Gating](https://help.aikido.dev/pr-and-release-gating/github-ci-pr-gating-via-aikido-dashboard).
+2. Install the **Aikido PR Checks** GitHub App. Pick the GitHub account that owns `jazneb23/osTicket`. Grant access to **osTicket** only.
+3. Back in Aikido, open **Repositories → Pull/Merge Requests** (or **Manage PR/MR Checks**).
+4. Select **osTicket** → **Setup PR Scans**.
+5. Enable **Dependency scan** (free on Community). Enable **Deep Review**
+   (1 credit per PR). Set **Add comments on GitHub PRs** to post findings —
+   **No comments** hides Aikido from the conversation tab.
+6. SAST, Secrets, and IaC show **Upgrade** on Community — leave them. Sentinel
+   still covers secrets (halt, no PR) and SAST (Linear + `appsec:gate-*`).
+   Failure threshold: **Critical only** unless those scans are unlocked.
+   Do **not** choose **Always Pass**.
+7. Save. Do **not** add `AikidoSec/github-actions-workflow` (or any Aikido job)
+   under `.github/workflows/`.
+
+After the next `strangler/MOD-*` PR opens, Checks should show an Aikido
+row next to Parity and Kody. MOD-31 still exhibits SAST via Sentinel
+(`appsec:gate-fail`); the Aikido PR check will not fail on SAST until that
+scan is unlocked. MOD-30 still never opens a PR (Sentinel secret halt).
 
 ## Required `.env` keys (local machine)
 

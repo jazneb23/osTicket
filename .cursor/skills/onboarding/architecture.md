@@ -87,10 +87,12 @@ Local demo: Docker Desktop + `scripts/local-demo-start.sh` for parity;
 6. **Verify** harness output still matches fixture `expected` values.
 7. Only then open a PR and notify humans.
 
-After the PR opens, GitHub review gates run in parallel (Parity CI, Aikido
-GitHub App when configured, **Kodus / Kody**). Kodus is **not** an
-orchestrator stage. It comments on the PR; auto-approve is off — a human is
-the only approver. Demo PRs still must not merge into `develop`.
+After the PR opens, GitHub review gates run in parallel (Parity CI, **Aikido
+PR Checks GitHub App**, **Kodus / Kody**). Aikido PR Checks is the merge-time
+AppSec gate and does **not** use Actions minutes — do not add an Aikido
+workflow. Kodus is **not** an orchestrator stage. It comments on the PR;
+auto-approve is off — a human is the only approver. Demo PRs still must not
+merge into `develop`.
 
 Anti-recursion: the service must never call back into the facade entry point
 it replaced.
@@ -103,6 +105,6 @@ it replaced.
 | Linear | Demo ticket Ready → In Progress → In Review; failures → Blocked |
 | Slack | Demo: notify only after parity pass + PR |
 | GitHub Actions | Golden fixture parity on PRs (demo; best-effort if Actions minutes are exhausted) |
-| Aikido | Inline Sentinel scan (MCP) plus GitHub App PR checks when configured — AppSec does not depend on Actions minutes |
+| Aikido | Two surfaces: Sentinel MCP in the pipeline (secrets halt; SAST reported), plus **Aikido PR Checks GitHub App** on opened PRs. AppSec does not depend on Actions minutes — do not add an Aikido workflow |
 | Kodus (Kody) | OSS AI code review on opened PRs (GitHub App). Comments only — `pullRequestApprovalActive: false`. Does not replace Sentinel or the verifier. Config: `kodus-config.yml`; rules: `.kody/rules/` |
 | Docker Compose | MySQL + PHP Apache — runs the **host app** for both manual browsing and the demo's parity harness |
