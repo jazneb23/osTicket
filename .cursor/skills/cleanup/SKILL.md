@@ -25,7 +25,7 @@ This is broader than `/rollback` (which only resets git locally).
 |----------|--------------|
 | Linear issues matching `^MOD-\d+$` in SLA Modernization | Other teams, projects, or identifiers (e.g. `LIN-*`, non-MOD work) |
 | Pipeline comments on those MOD issues | Comments on non-MOD issues |
-| PRs with head `strangler/MOD-*` | Other PRs or branches |
+| PRs with head `strangler/MOD-*` (closes `## AppSec gate` comments with the PR) | Other PRs or branches; repo labels `appsec:gate-fail` / `appsec:gate-pass` (reuse, do not delete) |
 | Branches matching `strangler/MOD-*` | `develop`, `main`, feature branches, `demo/*`, etc. |
 | `orchestrator/.state/MOD-*`, untracked `orchestrator/fixtures/MOD-*`, untracked `orchestrator/manifests/MOD-*`, untracked services/harnesses | Committed baselines on `develop` (MOD-25, MOD-27 pin); unrelated repo files |
 
@@ -138,6 +138,8 @@ Delete a comment when **all** of the following hold:
   - `## Pipeline failed`
   - `## Parity gate failed`
   - `## Publish / PR step failed`
+  - `## Sentinel gate failed`
+  - `## Sentinel AppSec`
 
 ```text
 delete_comment { "id": "<comment-uuid>" }
@@ -179,6 +181,10 @@ done
 Also close **already-merged** open PRs if any remain from search — the goal is
 no open MOD strangler PRs.
 
+Closing the PR drops its `## AppSec gate` comment. Do **not** delete the
+repo labels `appsec:gate-fail` / `appsec:gate-pass` — the next demo run
+reuses them.
+
 Do **not** delete local strangler branches here — if the operator is still on
 one, `git branch -D` refuses to delete the checked-out branch. Local cleanup
 happens in step 6 after `git checkout develop`.
@@ -216,6 +222,15 @@ git reset --hard origin/develop
 
 This drops tracked facade patches and staged extraction files on the former
 strangler branch. Untracked artifacts are handled in step 7.
+
+**Uncommitted orchestrator AppSec work:** `reset --hard origin/develop` reverts
+tracked files such as `orchestrator/pipeline.ts` and `orchestrator/lib/linear.ts`.
+If Sentinel is not on `origin/develop` yet, commit (or stash) that wiring
+before this step or the next demo run has no AppSec hook. Untracked
+`orchestrator/lib/sentinel.ts` / `appsecSeed.ts` / `appsecGate.ts` /
+`aikidoMcpScan.ts` survive `reset --hard` and the scoped `git clean` in step 7
+(those paths are not cleaned) — do not mistake them for a complete install if
+`pipeline.ts` was reverted.
 
 ### 7. Remove local extraction artifacts
 
@@ -357,7 +372,11 @@ Keep the reply short:
 5. Local artifacts removed (paths)
 6. What was **preserved** (MOD-25 golden, MOD-27 Blocked pin, `develop` — no
    `orchestrator/manifests/` on develop)
-7. Next step: move desired tickets to **Ready** and restart listener
+7. Next step: move desired tickets to **Ready** and restart listener.
+   Typical demo: Ready the whole MOD batch. Oldest Ready is claimed first
+   (MOD-25, then 26, 27, …). Expected: MOD-25/26/28/29/32 open PRs;
+   MOD-27 parity-Blocks; MOD-30 Sentinel-Blocks on the seeded secret;
+   MOD-31 opens a PR with `appsec:gate-fail`.
 
 ## Pipeline comment markers (reference)
 
@@ -366,6 +385,9 @@ Keep the reply short:
 | `## Pipeline complete` | Success → In Review |
 | `## Pipeline failed` | Stage throw → back to Ready (or Blocked after retry cap) |
 | `## Parity gate failed` | Verifier mismatch → Blocked |
+| `## Sentinel gate failed` | Inline Aikido secret halt → Blocked (no retry) |
+| `## Sentinel AppSec` | Inline SAST reported; pipeline continued |
+| `## AppSec gate` | GitHub PR comment (gate exhibit). Goes away when the PR is closed in step 5. |
 | `## Publish / PR step failed` | Post-parity git/gh failure → Blocked |
 
 ## Relationship to `/rollback`
@@ -397,3 +419,9 @@ quick local discard without touching Linear or GitHub.
 - Force-pushing or deleting non-`strangler/MOD-*` branches
 - Whole-repo `git clean -fd` without confirmation
 - Running cleanup while the listener is still claiming Ready tickets
+- Deleting GitHub labels `appsec:gate-fail` / `appsec:gate-pass` (they are the
+  merge-gate exhibit and are reused)
+- Treating leftover `DEMO-ONLY AppSec seed` PHP as a bug — it lives in
+  untracked extracted services; step 7 already removes those files
+- `git reset --hard origin/develop` while Sentinel wiring exists only as
+  uncommitted changes to `pipeline.ts` / `linear.ts` (commit first)

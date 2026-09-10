@@ -28,14 +28,26 @@ SLA fields (`graceHours`, `start`, `scheduleId`) still supported for MOD-25.
 | 2c | baselineCapture | `agents/baselineCapture.ts` | Local (harness) | Run harness; fill real `expected` values |
 | 3 | extractor | `agents/extractor.ts` | Local | Create thin service at `extractionTarget` |
 | 4 | strangler | `agents/strangler.ts` | Local | Smallest facade patch at `facadeFile` |
+| 4b | sentinel | `lib/sentinel.ts` (pipeline hook) | Local | Aikido MCP scan of facade + extracted service. Secrets → Blocked (no retry). SAST → Linear comment, continue. Seeds MOD-30 secret / MOD-31 HIGH SAST. Skipped for MOD-27. |
 | 5 | verifier | `agents/verifier.ts` | Local (harness) | Compare harness output to fixture expecteds → `ParityReport` |
-| 6 | prAgent | `agents/prAgent.ts` | Cloud | Open PR **only if** `gatePassed` |
+| 6 | prAgent | `agents/prAgent.ts` | Local `gh` | Open PR **only if** `gatePassed`; label AppSec gate exhibit |
 
 `fromStage` in `runPipeline(ticketId, criteria, fromStage)` skips earlier work
 (e.g. `--from-stage 3` reuses harness/fixtures/baseline). Pinned regression
 tickets (see below) force `fromStage = 5` regardless of the flag.
 
 ## Gate behavior (sacred)
+
+After Strangler, Sentinel runs (except pinned regression tickets):
+
+**Secret** (`report.blocked === true`):
+
+- Halt; Linear **Blocked**; **no** verifier, **no** PR, **no** Ready retry
+- Comment via `buildSentinelFailedComment`
+
+**SAST only**:
+
+- Linear visibility comment; continue to verifier
 
 After verifier:
 
@@ -77,6 +89,8 @@ fixtures just to pass.
   forward delegation only — never call the facade entry point.
 - **Strangler** — preserve method signature and facade-level side effects /
   orchestration; smallest possible patch; only files named in the manifest.
+- **Sentinel** — pipeline-owned Aikido scan, not an optional agent MCP call.
+  Halt only on secrets. Do not "fix" `DEMO-ONLY AppSec seed` blocks on MOD-30/31.
 - **Verifier** — runs harness per fixture; builds `ParityReport`; sole
   authority for `gatePassed`.
 - **PR agent** — runs only after gate pass; scoped to facade + extraction
@@ -88,6 +102,8 @@ fixtures just to pass.
 |--------|--------|---------|---------|-------|
 | MOD-25 | `include/class.sla.php` (`addGracePeriod`) | `SlaGracePeriodCalculator.php` | `legacy/harness/sla_capture.php` | Proven seam; harness path pinned in `manifest.ts` |
 | MOD-27 | `include/class.ticket.php` (`isOverdue`/`markOverdue`/`clearOverdue`/`checkOverdue`) | `TicketOverdueService.php` | `legacy/harness/overdue_capture.php` | **Deliberately pinned parity-regression demo** — see below |
+
+AppSec demo plants (applied after Strangler by `seedAppsecDemoFinding`; not on MOD-25/27/28): **MOD-30** secret (Sentinel Blocks, no PR), **MOD-31** HIGH SAST (PR + `appsec:gate-fail`). In a full Ready batch, oldest-first means MOD-25 runs first; MOD-28 is a normal passing E2E ticket.
 
 MOD-27's manifest is baked into `orchestrator/lib/manifest.ts`
 (`PINNED_MANIFESTS`), not just cached under gitignored `orchestrator/.state/`

@@ -1,3 +1,4 @@
+import type { AikidoFinding, SentinelReport } from "./sentinel";
 import type { ParityReport, SeamManifest } from "./types";
 import { incrementAttempts, maxStageRetries } from "./attempts";
 import { paritySummary, passedFixtureNames } from "./slack";
@@ -298,6 +299,7 @@ export function buildInReviewComment(
     "- **Fixture generation** — Parity inputs proposed from manifest branches",
     `- **Extraction** — \`${manifest.extractionTarget ?? "(see PR)"}\` created`,
     `- **Strangler** — \`${manifest.facadeFile ?? "(see PR)"}\` patched to delegate`,
+    "- **Sentinel** — Inline Aikido scan (secrets halt; SAST reported)",
     `- **Verification** — ${paritySummary(report)}`,
     "- **Pull request** — Opened for review",
     "",
@@ -364,6 +366,93 @@ export function buildPostParityFailedComment(
     "",
     "(Manifest must still exist under `orchestrator/.state/`.)",
   ].join("\n");
+}
+
+function formatSentinelFindings(findings: AikidoFinding[]): string {
+  if (findings.length === 0) {
+    return "_No findings._";
+  }
+  return findings
+    .map((finding) => {
+      const where = [finding.file, finding.line != null ? `:${finding.line}` : ""]
+        .join("")
+        .trim();
+      const loc = where ? ` \`${where}\`` : "";
+      return `- **${finding.severity}** ${finding.title}${loc}`;
+    })
+    .join("\n");
+}
+
+/** Comment body when Sentinel halts on a secret — Blocked, no Ready retry. */
+export function buildSentinelFailedComment(
+  ticketId: string,
+  report: SentinelReport
+): string {
+  return [
+    "## Sentinel gate failed",
+    "",
+    `Inline Aikido scan halted **${ticketId}** before the verifier. No pull request opened.`,
+    "",
+    "A leaked secret is stop-the-line. Ticket moved to **Blocked** (no automatic retry).",
+    "",
+    "### Secrets",
+    "",
+    formatSentinelFindings(report.secrets),
+    report.scanError
+      ? `\n_Aikido MCP error (seed fallback applied):_ \`${report.scanError}\`\n`
+      : "",
+  ]
+    .filter((section) => section !== "")
+    .join("\n");
+}
+
+/** Visibility comment when Sentinel finds SAST but continues to verifier. */
+export function buildSentinelSastComment(
+  ticketId: string,
+  report: SentinelReport
+): string {
+  return [
+    "## Sentinel AppSec",
+    "",
+    `Inline Aikido scan on **${ticketId}** found SAST findings. Sentinel does not halt on SAST — the pipeline continues so parity can still produce a pull request.`,
+    "",
+    "The Aikido PR check / `appsec:gate-fail` label is the merge-gate exhibit.",
+    "",
+    "### SAST",
+    "",
+    formatSentinelFindings(report.sast),
+    report.scanError
+      ? `\n_Aikido MCP error (seed fallback applied):_ \`${report.scanError}\`\n`
+      : "",
+  ]
+    .filter((section) => section !== "")
+    .join("\n");
+}
+
+/** Sentinel secret halt: comment and Blocked. Never re-queue to Ready. */
+export async function handleSentinelFailure(
+  ticketId: string,
+  report: SentinelReport
+): Promise<void> {
+  console.error("=".repeat(72));
+  console.error(`SENTINEL GATE FAILED for ${ticketId} — pipeline halted, no PR opened`);
+  console.error(`Ticket moving to "${STATUS_BLOCKED}" (no retry)`);
+  for (const finding of report.secrets) {
+    console.error(`  secret: ${finding.title}`);
+  }
+  console.error("=".repeat(72));
+  try {
+    await addIssueComment(ticketId, buildSentinelFailedComment(ticketId, report));
+    console.error(`Posted Sentinel-failure comment on ${ticketId}`);
+  } catch (err) {
+    console.error(`Failed to comment Sentinel failure on Linear: ${err}`);
+  }
+  try {
+    await updateTicketStatus(ticketId, STATUS_BLOCKED);
+    console.error(`${ticketId} moved to ${STATUS_BLOCKED}`);
+  } catch (err) {
+    console.error(`Failed to move ${ticketId} to ${STATUS_BLOCKED}: ${err}`);
+  }
 }
 
 /** Publish/PR failure after parity: comment and move to Blocked (no full restart). */
