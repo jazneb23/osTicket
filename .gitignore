@@ -28,3 +28,6 @@ orchestrator/.state/
 
 # Verifier-generated parity reports (regenerated on every run, never a golden fixture)
 orchestrator/fixtures/*/parity.json
+
+# Local-only staff login seed for clicking around :8080 during a demo
+legacy/seed/enable-staff-login.php
