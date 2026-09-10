@@ -1,15 +1,21 @@
 import "dotenv/config";
 import { resetAttempts } from "./lib/attempts";
+import { applyAppsecGateExhibit } from "./lib/appsecGate";
+import { seedAppsecDemoFinding } from "./lib/appsecSeed";
+import { scanFilesWithAikidoMcp } from "./lib/aikidoMcpScan";
 import {
   STATUS_BLOCKED,
   STATUS_IN_REVIEW,
   addIssueComment,
   buildInReviewComment,
   buildParityFailedComment,
+  buildSentinelSastComment,
   handlePipelineFailure,
   handlePostParityFailure,
+  handleSentinelFailure,
   updateTicketStatus,
 } from "./lib/linear";
+import { runSentinel, type SentinelReport } from "./lib/sentinel";
 import { notifyPrOpened } from "./lib/slack";
 import { writeStageBanner } from "./lib/sdk";
 import { logPipelineLine } from "./lib/terminal";
@@ -72,6 +78,38 @@ export async function runPipeline(
   if (fromStage <= 4) {
     writeStageBanner("strangler", ticketId);
     await strangler(manifest);
+  }
+
+  let sentinelReport: SentinelReport | undefined;
+  if (fromStage <= 4 && !isPinnedRegressionTicket(ticketId)) {
+    writeStageBanner("sentinel", ticketId);
+    const seedKind = seedAppsecDemoFinding(manifest);
+    if (seedKind) {
+      logPipelineLine(
+        `AppSec demo seed · ${seedKind} in ${manifest.extractionTarget ?? "(extraction target)"}`
+      );
+    }
+    sentinelReport = await runSentinel(manifest, scanFilesWithAikidoMcp);
+    if (sentinelReport.scanError) {
+      logPipelineLine(`Aikido MCP error · ${sentinelReport.scanError}`);
+    }
+    logPipelineLine(
+      `Sentinel · ${sentinelReport.secrets.length} secret(s), ${sentinelReport.sast.length} SAST`
+    );
+    if (sentinelReport.blocked) {
+      await handleSentinelFailure(ticketId, sentinelReport);
+      return;
+    }
+    if (sentinelReport.sast.length > 0) {
+      try {
+        await addIssueComment(
+          ticketId,
+          buildSentinelSastComment(ticketId, sentinelReport)
+        );
+      } catch (err) {
+        console.error(`Failed to comment Sentinel SAST on Linear: ${err}`);
+      }
+    }
   }
 
   writeStageBanner("verifier", ticketId);
@@ -144,6 +182,14 @@ export async function runPipeline(
       throw new Error("PR agent did not return a pull request URL");
     }
     console.log(`PR URL: ${prUrl}`);
+    if (sentinelReport) {
+      try {
+        applyAppsecGateExhibit(prUrl, ticketId, sentinelReport);
+        logPipelineLine(`AppSec gate label · applied on PR`);
+      } catch (err) {
+        console.error(`Failed to label/comment AppSec gate on PR: ${err}`);
+      }
+    }
     await notifyPrOpened(ticketId, report, prUrl);
     await addIssueComment(ticketId, buildInReviewComment(manifest, report, prUrl));
     await updateTicketStatus(ticketId, STATUS_IN_REVIEW);

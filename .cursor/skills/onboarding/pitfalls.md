@@ -97,6 +97,7 @@ Do **not** edit:
 | Guessing fixture expecteds | Must come from baseline capture against legacy behavior |
 | "Fixing" parity by changing fixtures | Forbidden — fix extraction/strangler or harness instead |
 | "Fixing" MOD-27's `checkOverdue()` bug casually | It's an intentional pinned regression for the Blocked-flow demo |
+| Removing `DEMO-ONLY AppSec seed` from MOD-30/31 services | Intentional Sentinel/Aikido demo plants; secret must halt, SAST must reach the PR |
 | Opening PR on failed gate | Forbidden |
 | Calling facade from extracted service | Infinite recursion after strangler patch |
 | Isolated PHP requires of one class (in a harness) | Harness must use full bootstrap |

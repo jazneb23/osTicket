@@ -82,8 +82,9 @@ Local demo: Docker Desktop + `scripts/local-demo-start.sh` for parity;
 2. **Capture** real legacy behavior into fixtures via a harness.
 3. **Extract** core logic into `include/Services/<Name>.php`.
 4. **Strangle** the facade: keep the public method signature; delegate to the service.
-5. **Verify** harness output still matches fixture `expected` values.
-6. Only then open a PR and notify humans.
+5. **Sentinel** — inline Aikido scan of the new files (secrets halt; SAST reported).
+6. **Verify** harness output still matches fixture `expected` values.
+7. Only then open a PR and notify humans.
 
 Anti-recursion: the service must never call back into the facade entry point
 it replaced.
@@ -95,5 +96,6 @@ it replaced.
 | Cursor SDK (`@cursor/sdk`) | Local/cloud agents for cartography, codegen, PR (demo only) |
 | Linear | Demo ticket Ready → In Progress → In Review; failures → Blocked |
 | Slack | Demo: notify only after parity pass + PR |
-| GitHub Actions | Golden fixture parity on PRs (demo) |
+| GitHub Actions | Golden fixture parity on PRs (demo; best-effort if Actions minutes are exhausted) |
+| Aikido | Inline Sentinel scan (MCP) plus GitHub App PR checks when configured — AppSec does not depend on Actions minutes |
 | Docker Compose | MySQL + PHP Apache — runs the **host app** for both manual browsing and the demo's parity harness |
