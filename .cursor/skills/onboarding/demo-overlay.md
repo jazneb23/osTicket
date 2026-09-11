@@ -1,8 +1,8 @@
-# Demo overlay — strangler-fig migration pipeline
+# Migration overlay — strangler-fig pipeline
 
-This is the small, deliberately separated **demo layer** on top of the host
-app. Confirm stage order against `orchestrator/pipeline.ts` before briefing —
-active seams and ticket ids drift as the demo is reset/replayed.
+This is the small, deliberately separated **orchestrator layer** on top of
+the host app. Confirm stage order against `orchestrator/pipeline.ts` before
+briefing — active seams and ticket ids drift as the queue is reset/replayed.
 
 ## Key types (`orchestrator/lib/types.ts`)
 
@@ -57,7 +57,7 @@ After verifier:
 **Pass** (`report.gatePassed === true`):
 
 1. Hands-off by default: publish artifacts (`gitPublish`) then open PR
-   (set `PIPELINE_PAUSE_FOR_REVIEW=1` only for legacy demo pause **logs**)
+   (set `PIPELINE_PAUSE_FOR_REVIEW=1` only for pause **logs**)
 2. `prAgent` opens PR
 3. Slack `notifyPrOpened`
 4. Linear comment + status → **In Review**
@@ -80,18 +80,18 @@ fixtures just to pass.
 ## Post-PR GitHub gates
 
 These run **after** the PR exists. None of them open the PR, and none of
-them are allowed to stamp GitHub **Approve** for this demo.
+them stamp GitHub **Approve**.
 
 | Gate | When | What it proves | Auto-approve? |
 |------|------|----------------|---------------|
-| Parity GitHub Action | PR opened / synchronize | Golden fixture parity in CI | No |
-| **Aikido PR Checks** | PR opened | AppSec check on the PR (GitHub App, **not** Actions). Current plan: dependency scan + Deep Review. SAST/secrets stay on Sentinel unless those scans are unlocked | No — check can fail; demo PRs still are not merged |
+| Parity GitHub Action | PR opened / synchronize | Evaluate scope (`ci-parity-check.ts --evaluate`); if `run`, Docker bootstrap + golden fixture verifier. Needs a seam manifest in `.state/` or `orchestrator/manifests/` | No |
+| **Aikido PR Checks** | PR opened | Merge-time AppSec (GitHub App, **not** Actions). Current plan: dependency scan + Deep Review. SAST/secrets stay on Sentinel unless those scans are unlocked | No |
 | **Kodus / Kody** | PR opened | AI code review vs `.kody/rules/` (strangler constraints) | **No** — `kodus-config.yml` pins `pullRequestApprovalActive: false` and `isRequestChangesActive: false` |
 | Human | After comments | Merge decision | Human is the only approver |
 
 Kodus comments on `strangler/MOD-*` PRs. It does **not** replace Sentinel
-(AppSec) or the verifier (behavioral parity). Demo PRs still must not merge
-into `develop`; the exhibit is Kody comments plus no bot approval.
+(AppSec) or the verifier (behavioral parity). Manifest copies live only on
+the strangler branch — do not merge them to `develop`.
 
 Repo files: `kodus-config.yml` (source of truth **after** the dashboard
 opt-in that lets the file override web preferences) and `.kody/rules/*.md`.
@@ -126,22 +126,22 @@ Operator setup is in `.github/LOCAL_DEMO_SETUP.md`.
 | Ticket | Facade | Service | Harness | Notes |
 |--------|--------|---------|---------|-------|
 | MOD-25 | `include/class.sla.php` (`addGracePeriod`) | `SlaGracePeriodCalculator.php` | `legacy/harness/sla_capture.php` | Proven seam; harness path pinned in `manifest.ts` |
-| MOD-27 | `include/class.ticket.php` (`isOverdue`/`markOverdue`/`clearOverdue`/`checkOverdue`) | `TicketOverdueService.php` | `legacy/harness/overdue_capture.php` | **Deliberately pinned parity-regression demo** — see below |
+| MOD-27 | `include/class.ticket.php` (`isOverdue`/`markOverdue`/`clearOverdue`/`checkOverdue`) | `TicketOverdueService.php` | `legacy/harness/overdue_capture.php` | **Deliberately pinned parity-regression** — see below |
 
-AppSec demo plants (applied after Strangler by `seedAppsecDemoFinding`; not on MOD-25/27/28): **MOD-30** secret (Sentinel Blocks, no PR), **MOD-31** HIGH SAST (PR + `appsec:gate-fail`). In a full Ready batch, oldest-first means MOD-25 runs first; MOD-28 is a normal passing E2E ticket.
+AppSec plants (applied after Strangler by `seedAppsecDemoFinding`; not on MOD-25/27/28): **MOD-30** secret (Sentinel Blocks, no PR), **MOD-31** HIGH SAST (PR + `appsec:gate-fail`). In a full Ready batch, oldest-first means MOD-25 runs first; MOD-28 is a normal passing ticket.
 
 MOD-27's manifest is baked into `orchestrator/lib/manifest.ts`
 (`PINNED_MANIFESTS`), not just cached under gitignored `orchestrator/.state/`
 — its extracted `checkOverdue()` ships with a real, documented bug so the
-parity gate reliably fails and the ticket lands in `Blocked` for demo
-purposes. Don't "fix" that bug via a fresh extractor run without
-understanding this is intentional. New tickets should be **manifest-driven**,
-not hardcoded like this.
+parity gate reliably fails and the ticket lands in `Blocked`. Don't "fix"
+that bug via a fresh extractor run without understanding this is
+intentional. New tickets should be **manifest-driven**, not hardcoded like
+this.
 
 ## Entry points
 
 ```bash
-# Prod: local listener (see .github/LOCAL_DEMO_SETUP.md)
+# Production: local listener (see .github/LOCAL_DEMO_SETUP.md)
 bash scripts/local-demo-start.sh
 npx tsx orchestrator/listener.ts
 
@@ -157,8 +157,8 @@ npx tsx orchestrator/ci-parity-check.ts
 
 ## Listener flow
 
-`orchestrator/listener.ts` is the **production demo entry**. It polls Linear
-for Ready tickets (one at a time via `claimNextReadyTicket` + `pipelineBusy`):
+`orchestrator/listener.ts` is the **production entry**. It polls Linear for
+Ready tickets (one at a time via `claimNextReadyTicket` + `pipelineBusy`):
 claim next Ready ticket (Blocked tickets don't block the queue) → mark In
 Progress → `runPipeline(ticketId, ticket.description)`. Requires local
 Docker. Disable Cursor Automation.
@@ -167,7 +167,7 @@ Docker. Disable Cursor Automation.
 
 | Path | Role |
 |------|------|
-| `orchestrator/lib/manifest.ts` `PINNED_MANIFESTS` | Baked-in manifest for demo-stable tickets (e.g. MOD-27) — survives `/cleanup` and fresh clones |
+| `orchestrator/lib/manifest.ts` `PINNED_MANIFESTS` | Baked-in manifest for pinned tickets (e.g. MOD-27) — survives `/cleanup` and fresh clones |
 | `orchestrator/.state/MOD-*-manifest.json` | Runtime cache (gitignored); cartographer writes this; `/cleanup` deletes it so the next run recartographs |
 | `orchestrator/manifests/MOD-*-manifest.json` | Copy of the seam manifest **on the `strangler/MOD-*` PR branch only**, so GitHub Actions can run parity. Never merge to `develop`. `/cleanup` removes it by deleting the branch |
 | `orchestrator/fixtures/MOD-*/` | One JSON file per case |
@@ -181,6 +181,6 @@ Docker. Disable Cursor Automation.
 - `loadManifest`, `requireFacadeFile`, `requireExtractionTarget`,
   `requireHarnessScript`, `fixtureHarnessInput`, `isPinnedRegressionTicket` — `lib/manifest.ts`
 - `runHarness` — `lib/harness.ts`
-- `publishArtifactsForPr` — `lib/gitPublish.ts` (before nested cloud PR agent)
+- `publishArtifactsForPr` — `lib/gitPublish.ts` (before local `gh` PR agent)
 - Linear/Slack helpers — `lib/linear.ts`, `lib/slack.ts`
 - Keep agents **thin**: prompts + I/O only
