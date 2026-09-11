@@ -1,21 +1,21 @@
 ---
 name: cleanup
 description: >-
-  MOD-tickets-only demo reset: move MOD-* Linear issues to Backlog, delete
+  MOD-tickets-only queue reset: move MOD-* Linear issues to Backlog, delete
   pipeline comments on those tickets, close/delete strangler/MOD-* PRs and
   branches (including any `orchestrator/manifests/MOD-*` committed only on those
   PR branches), and remove untracked MOD extraction artifacts. Preserves committed
   MOD-25 golden and MOD-27 Blocked-flow pin on develop. Does not touch non-MOD
   Linear issues or unrelated branches/PRs. Use when the user asks to cleanup
-  MOD tickets, reset the demo queue, clear pipeline runs, or invokes /cleanup.
+  MOD tickets, reset the migration queue, clear pipeline runs, or invokes /cleanup.
 ---
 
 # Cleanup — MOD tickets only
 
-Reset the **SLA Modernization `MOD-*`** demo after pipeline runs: those Linear
-issues, their pipeline comments, `strangler/MOD-*` PRs/branches, and local MOD
-extraction junk. **Out of scope:** any other Linear project, team, issue
-identifier, branch, or PR.
+Reset the **SLA Modernization `MOD-*`** queue so you can run it again: those
+Linear issues, their pipeline comments, `strangler/MOD-*` PRs/branches, and
+local MOD extraction junk. **Out of scope:** any other Linear project, team,
+issue identifier, branch, or PR.
 
 This is broader than `/rollback` (which only resets git locally).
 
@@ -25,7 +25,7 @@ This is broader than `/rollback` (which only resets git locally).
 |----------|--------------|
 | Linear issues matching `^MOD-\d+$` in SLA Modernization | Other teams, projects, or identifiers (e.g. `LIN-*`, non-MOD work) |
 | Pipeline comments on those MOD issues | Comments on non-MOD issues |
-| PRs with head `strangler/MOD-*` (closes `## AppSec gate` comments with the PR) | Other PRs or branches; repo labels `appsec:gate-fail` / `appsec:gate-pass` (reuse, do not delete) |
+| PRs with head `strangler/MOD-*` (closes `## AppSec gate` comments and Kody review threads with the PR) | Other PRs or branches; repo labels `appsec:gate-fail` / `appsec:gate-pass`; `kodus-config.yml`, `.kody/rules/` (reuse, do not delete) |
 | Branches matching `strangler/MOD-*` | `develop`, `main`, feature branches, `demo/*`, etc. |
 | `orchestrator/.state/MOD-*`, untracked `orchestrator/fixtures/MOD-*`, untracked `orchestrator/manifests/MOD-*`, untracked services/harnesses | Committed baselines on `develop` (MOD-25, MOD-27 pin); unrelated repo files |
 
@@ -45,7 +45,7 @@ tickets only** unless they explicitly expand scope.
   - **MOD-27** Blocked-flow pin: `orchestrator/fixtures/MOD-27/`,
     `legacy/harness/overdue_capture.php`,
     `include/Services/TicketOverdueService.php`, and the seeded
-    `include/class.ticket.php` facade (intentional parity bug for demo)
+    `include/class.ticket.php` facade (intentional parity bug for the Blocked-flow pin)
 - **Never delete tracked files** that exist on `origin/develop`. After
   `git reset --hard`, step 7 may only remove **untracked** runtime junk.
   If a removal would show up as `deleted:` in `git status`, do not do it —
@@ -89,13 +89,13 @@ Cleanup:
 
 If the user has not clearly asked for a full MOD cleanup, ask once:
 
-> This will reset **MOD tickets only** (`MOD-*`): move them to Backlog, delete
-> pipeline comments on those issues, close open `strangler/MOD-*` PRs, delete
-> those branches (including PR-only `orchestrator/manifests/MOD-*` copies), and
-> remove **untracked** MOD harness/service/fixture/manifest artifacts and
-> gitignored `.state/` caches (keeping the committed MOD-25 golden path and
-> MOD-27 Blocked-flow pin on develop). Non-MOD Linear issues and PRs are
-> untouched. Proceed?
+> This will reset **MOD tickets only** (`MOD-*`) so you can run the queue
+> again: move them to Backlog, delete pipeline comments on those issues,
+> close open `strangler/MOD-*` PRs, delete those branches (including PR-only
+> `orchestrator/manifests/MOD-*` copies), and remove **untracked** MOD
+> harness/service/fixture/manifest artifacts and gitignored `.state/` caches
+> (keeping the committed MOD-25 golden path and MOD-27 Blocked-flow pin on
+> develop). Non-MOD Linear issues and PRs are untouched. Proceed?
 
 Do not run destructive commands until they confirm (or their message was
 already an explicit cleanup / fresh-start request).
@@ -166,7 +166,7 @@ gh pr list --repo OWNER/REPO --state open --limit 100 \
 For each match:
 
 ```bash
-gh pr close <number> --repo OWNER/REPO --comment "Demo cleanup — closing E2E discard PR."
+gh pr close <number> --repo OWNER/REPO --comment "Queue reset — closing strangler PR."
 ```
 
 Delete remote strangler branches (all MOD tickets, including MOD-25):
@@ -181,9 +181,10 @@ done
 Also close **already-merged** open PRs if any remain from search — the goal is
 no open MOD strangler PRs.
 
-Closing the PR drops its `## AppSec gate` comment. Do **not** delete the
-repo labels `appsec:gate-fail` / `appsec:gate-pass` — the next demo run
-reuses them.
+Closing the PR drops its `## AppSec gate` comment and Kody review threads.
+Do **not** delete the repo labels `appsec:gate-fail` / `appsec:gate-pass` —
+the next run reuses them. Do **not** delete `kodus-config.yml`,
+`.kody/rules/`, or uninstall the Kodus / Aikido GitHub Apps.
 
 Do **not** delete local strangler branches here — if the operator is still on
 one, `git branch -D` refuses to delete the checked-out branch. Local cleanup
@@ -223,14 +224,10 @@ git reset --hard origin/develop
 This drops tracked facade patches and staged extraction files on the former
 strangler branch. Untracked artifacts are handled in step 7.
 
-**Uncommitted orchestrator AppSec work:** `reset --hard origin/develop` reverts
-tracked files such as `orchestrator/pipeline.ts` and `orchestrator/lib/linear.ts`.
-If Sentinel is not on `origin/develop` yet, commit (or stash) that wiring
-before this step or the next demo run has no AppSec hook. Untracked
-`orchestrator/lib/sentinel.ts` / `appsecSeed.ts` / `appsecGate.ts` /
-`aikidoMcpScan.ts` survive `reset --hard` and the scoped `git clean` in step 7
-(those paths are not cleaned) — do not mistake them for a complete install if
-`pipeline.ts` was reverted.
+Sentinel (`orchestrator/lib/sentinel.ts`, `aikidoMcpScan.ts`, `appsecGate.ts`,
+`appsecSeed.ts`) and Kody (`kodus-config.yml`, `.kody/rules/`) are **tracked
+on `develop`**. `reset --hard origin/develop` restores them; do not treat
+those paths as leftover junk.
 
 ### 7. Remove local extraction artifacts
 
@@ -247,7 +244,7 @@ Preserved on `develop` (leave alone — never edit `expected` values):
 | `legacy/harness/sla_capture.php` | MOD-25 harness |
 | `orchestrator/fixtures/MOD-27/` | Blocked-flow pin (intentional 5/6 fail) |
 | `legacy/harness/overdue_capture.php` | MOD-27 harness |
-| `include/Services/TicketOverdueService.php` | Seeded buggy service for Blocked demo |
+| `include/Services/TicketOverdueService.php` | Seeded buggy service for the Blocked-flow pin |
 | `include/class.ticket.php` | Seeded facade for that pin |
 
 Remove runtime state (gitignored manifests / attempt counters). **Must wipe**
@@ -373,7 +370,7 @@ Keep the reply short:
 6. What was **preserved** (MOD-25 golden, MOD-27 Blocked pin, `develop` — no
    `orchestrator/manifests/` on develop)
 7. Next step: move desired tickets to **Ready** and restart listener.
-   Typical demo: Ready the whole MOD batch. Oldest Ready is claimed first
+   Typical replay: Ready the whole MOD batch. Oldest Ready is claimed first
    (MOD-25, then 26, 27, …). Expected: MOD-25/26/28/29/32 open PRs;
    MOD-27 parity-Blocks; MOD-30 Sentinel-Blocks on the seeded secret;
    MOD-31 opens a PR with `appsec:gate-fail`.
@@ -397,7 +394,7 @@ Keep the reply short:
 | `/rollback` | Local git baseline only; optional scoped `git clean` |
 | `/cleanup` | Linear + GitHub + all MOD tickets + full extraction artifact sweep |
 
-Use `/cleanup` before a fresh batch of pipeline demos. Use `/rollback` for a
+Use `/cleanup` before a fresh batch of pipeline runs. Use `/rollback` for a
 quick local discard without touching Linear or GitHub.
 
 ## Anti-patterns
@@ -419,9 +416,9 @@ quick local discard without touching Linear or GitHub.
 - Force-pushing or deleting non-`strangler/MOD-*` branches
 - Whole-repo `git clean -fd` without confirmation
 - Running cleanup while the listener is still claiming Ready tickets
-- Deleting GitHub labels `appsec:gate-fail` / `appsec:gate-pass` (they are the
-  merge-gate exhibit and are reused)
+- Deleting GitHub labels `appsec:gate-fail` / `appsec:gate-pass` (they are
+  reused on the next run)
+- Deleting `kodus-config.yml`, `.kody/rules/`, or uninstalling the Kodus /
+  Aikido GitHub Apps
 - Treating leftover `DEMO-ONLY AppSec seed` PHP as a bug — it lives in
   untracked extracted services; step 7 already removes those files
-- `git reset --hard origin/develop` while Sentinel wiring exists only as
-  uncommitted changes to `pipeline.ts` / `linear.ts` (commit first)

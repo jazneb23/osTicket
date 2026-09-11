@@ -1,6 +1,6 @@
 # Sacred rules, conventions, and pitfalls
 
-## Sacred: demo parity gate
+## Sacred: parity gate
 
 Applies to work on the strangler-fig migration surfaces
 (`orchestrator/`, `include/Services/`, `legacy/harness/`, facade files named
@@ -15,7 +15,7 @@ Harnesses bootstrap through `main.inc.php`. Never load class files in
 isolation (breaks `INCLUDE_DIR` / DB context). Prefer an existing harness
 when it already covers the seam.
 
-## Sacred: demo scope
+## Sacred: manifest scope
 
 Only touch files the **current ticket's seam manifest** names:
 `extractionTarget`, `facadeFile`, and the harness/fixture paths the stage owns.
@@ -23,7 +23,7 @@ Only touch files the **current ticket's seam manifest** names:
 Do **not** edit:
 
 - `include/*/vendor/`, mpdf/laminas vendor trees (applies to host-app work
-  in general, not just the demo)
+  in general, not just pipeline work)
 - Unrelated osTicket PHP/UI unless the manifest explicitly names it
 
 ## Sacred: strangler quality
@@ -35,7 +35,7 @@ Do **not** edit:
   facade entry point it replaces. Use lifted logic or forward delegation to
   deeper unrelated code only.
 
-## Host-app conventions (ordinary, non-demo PHP work)
+## Host-app conventions (ordinary PHP work)
 
 - 4-space indent (`expandtab sw=4 ts=4 sts=4`), informal historical PHP
   style — not PSR-12 enforced, no `.editorconfig`/PHPCS at repo root.
@@ -44,9 +44,9 @@ Do **not** edit:
 - New user-facing strings should be wrapped for i18n per `setup/doc/i18n.md`.
 - There is no PHPUnit/behavioral test suite for the host app
   (`setup/test/` is static/hygiene checks only) — don't assume `npm test` or
-  a PHP test runner will catch regressions; verify manually or via the demo
+  a PHP test runner will catch regressions; verify manually or via the
   harness pattern if the surface overlaps a seam.
-- The demo's Docker bootstrap intentionally skips the install wizard (no
+- The Docker bootstrap intentionally skips the install wizard (no
   seeded staff/admin/department/help topic) — don't "fix" `:8080` showing
   "offline" by running the installer unless asked.
 - **ORM and legacy string-SQL coexist in the same class** (e.g. `Sla::delete()`
@@ -61,13 +61,13 @@ Do **not** edit:
   rather than accepting them as parameters — expect implicit globals, not
   dependency injection, throughout the host app.
 
-## Orchestrator (demo) conventions
+## Orchestrator conventions
 
 - Keep stage agents thin — prompts + I/O; reuse `lib/sdk`, `lib/manifest`, etc.
 - Persist runtime state under `orchestrator/.state/` only (gitignored). Publish copies that JSON to `orchestrator/manifests/` on the strangler PR branch for CI — never to `develop`.
 - Do not hardcode ticket-specific paths in new code except where
   `lib/manifest.ts` already deliberately special-cases a ticket (e.g. MOD-25's
-  harness path, MOD-27's `PINNED_MANIFESTS` regression demo). New tickets are
+  harness path, MOD-27's `PINNED_MANIFESTS` regression pin). New tickets are
   manifest-driven.
 - Linear/Slack: use existing helpers (`buildInReviewComment`, `notifyPrOpened`,
   `updateTicketStatus`, …). Do not invent parallel payload formats.
@@ -77,7 +77,7 @@ Do **not** edit:
 
 | Rule file | Applies to | Focus |
 |-----------|------------|-------|
-| `repo-context.mdc` | Always | Demo vs host, parity sacred, leave unrelated trees alone |
+| `repo-context.mdc` | Always | Host vs pipeline, parity sacred, leave unrelated trees alone |
 | `orchestrator-typescript.mdc` | `orchestrator/**/*.ts` | Thin agents, `.state/`, no new hardcoding beyond pinned exceptions |
 | `harness-fixtures.mdc` | harness/fixtures/related agents | `main.inc.php`, real expecteds, reuse harnesses |
 | `php-extraction-strangler.mdc` | Services + named facades | Smallest patch, anti-recursion, manifest-scoped files |
@@ -87,22 +87,25 @@ Do **not** edit:
 
 | Pitfall | Reality |
 |---------|---------|
-| Assuming this repo is "just the demo" | Most of the tree is the stock osTicket app; the demo is a thin, clearly-scoped overlay |
-| Reading root `README.md` for demo architecture | It's accurate upstream osTicket context, but says nothing about the pipeline/gate |
+| Assuming this repo is "just the orchestrator" | Most of the tree is the stock osTicket app; the pipeline is a thin, clearly-scoped overlay |
+| Reading root `README.md` for pipeline architecture | It's accurate upstream osTicket context, but says nothing about the SDLC |
 | Using root `fixtures/` | Empty/misleading; use `orchestrator/fixtures/` |
-| Treating all of `include/` as fair game | Most is host app; prefer `Services/` + manifest paths for demo work |
+| Treating all of `include/` as fair game | Most is host app; prefer `Services/` + manifest paths for extraction work |
 | Assuming a PHPUnit suite exists | It doesn't; `setup/test/` is static checks only |
 | Assuming `orchestrator/manifests/` lives on `develop` | It is copied onto the `strangler/MOD-*` PR branch at publish time so CI can run; `/cleanup` deletes that branch. Local cache is still gitignored `.state/` |
-| Assuming MOD-26 exists | Ticket ids get reset/replayed for the demo; always check `orchestrator/fixtures/` for what's actually active |
+| Running CI without a seam manifest in checkout | Parity evaluates then skips unless `.state/` or `orchestrator/manifests/` has the cartographer JSON |
+| Treating Kody comments as merge approval | `pullRequestApprovalActive: false`; a human is the only approver |
+| Confusing Sentinel with Aikido PR Checks | Sentinel is the in-pipeline MCP scan (secrets halt, SAST reported). Aikido PR Checks is the GitHub App on the opened PR (not Actions) |
+| Assuming MOD-26 exists | Ticket ids get reset/replayed; always check `orchestrator/fixtures/` for what's actually active |
 | Guessing fixture expecteds | Must come from baseline capture against legacy behavior |
 | "Fixing" parity by changing fixtures | Forbidden — fix extraction/strangler or harness instead |
-| "Fixing" MOD-27's `checkOverdue()` bug casually | It's an intentional pinned regression for the Blocked-flow demo |
-| Removing `DEMO-ONLY AppSec seed` from MOD-30/31 services | Intentional Sentinel/Aikido demo plants; secret must halt, SAST must reach the PR |
+| "Fixing" MOD-27's `checkOverdue()` bug casually | It's an intentional pinned regression for the Blocked-flow |
+| Removing `DEMO-ONLY AppSec seed` from MOD-30/31 services | Intentional Sentinel/Aikido plants; secret must halt, SAST must reach the PR |
 | Opening PR on failed gate | Forbidden |
 | Calling facade from extracted service | Infinite recursion after strangler patch |
 | Isolated PHP requires of one class (in a harness) | Harness must use full bootstrap |
 | Parallel Linear/Slack message formats | Reuse existing builders |
-| "Fixing" `:8080` offline banner by running the installer | Intentional — demo doesn't seed staff/admin |
+| "Fixing" `:8080` offline banner by running the installer | Intentional — Compose bootstrap doesn't seed staff/admin |
 
 ## Glossary
 
