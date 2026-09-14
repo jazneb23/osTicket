@@ -1,0 +1,8 @@
+{
+  "name": "kb-branch-upper-boundary",
+  "branch": "Kb-to-mb threshold: $bytes = 921599 is the last value strictly less than (900<<10)=921600, still returns kb-formatted string",
+  "input": {
+    "bytes": 921599
+  },
+  "expected": "900 kb"
+}

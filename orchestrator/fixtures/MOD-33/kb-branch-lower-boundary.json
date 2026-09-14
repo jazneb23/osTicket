@@ -1,0 +1,8 @@
+{
+  "name": "kb-branch-lower-boundary",
+  "branch": "Bytes-to-kb threshold: $bytes = 1024 is not < 1024, so falls into kb branch and returns round(bytes/1024,1) . ' kb'",
+  "input": {
+    "bytes": 1024
+  },
+  "expected": "1 kb"
+}

@@ -1,0 +1,8 @@
+{
+  "name": "mb-branch-threshold-and-large",
+  "branch": "Mb branch: $bytes = 921600 is not < (900<<10), so falls through to else branch and returns round(bytes/1048576,1) . ' mb'",
+  "input": {
+    "bytes": 921600
+  },
+  "expected": "0.9 mb"
+}

@@ -1,0 +1,8 @@
+{
+  "name": "non-numeric-passthrough",
+  "branch": "Non-numeric guard: is_numeric($bytes) is false, method returns $bytes unchanged with no unit suffix",
+  "input": {
+    "bytes": "unknown"
+  },
+  "expected": "unknown"
+}

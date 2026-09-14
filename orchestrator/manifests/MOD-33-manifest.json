@@ -1,0 +1,36 @@
+{
+  "ticketId": "MOD-33",
+  "entryPoint": "Format::file_size($bytes) in include/class.format.php (static method, lines 23-33)",
+  "coreLogic": "The entire body of Format::file_size is the core logic: a non-numeric guard (`if(!is_numeric($bytes)) return $bytes;`) followed by three branches — bytes (`$bytes < 1024` -> \"{$bytes} bytes\"), kb (`$bytes < (900<<10)` i.e. 921600 -> `round($bytes/1024,1)` . ' kb'), and mb (else -> `round($bytes/1048576,1)` . ' mb'). No other function is called from within file_size; it is a single self-contained calculation with no delegation chain to follow.",
+  "consumers": [
+    "include/class.thread.php:1298 - Thread::getAttachmentsLinks() wraps result in '<em>(%s)</em>' HTML for a plain-text/HTML attachment link list",
+    "include/class.forms.php:3850 and :3856 - FileUploadField::getConfigurationOptions() (attachment-size-limit dropdown) uses the formatted string directly as the visible label for each <option> value, keyed by raw byte value",
+    "include/staff/settings-system.inc.php:418 and :428 - system settings 'Agent Maximum File Size' <select> renders formatted string as each <option>'s visible text",
+    "include/client/templates/thread-entry.tmpl.php:55 - client thread entry attachment size badge (<small class=\"filesize faded\">)",
+    "include/client/templates/ticket-print.tmpl.php:225 - client ticket print view, attachment size in parentheses next to filename",
+    "include/client/templates/thread-export.tmpl.php:74 - client thread export view, attachment size in a styled <small> span",
+    "include/staff/templates/thread-entries-preview.tmpl.php:42 - staff thread entries preview, attachment size badge",
+    "include/staff/templates/thread-entry.tmpl.php:104 - staff thread entry attachment size badge",
+    "include/staff/templates/task-print.tmpl.php:233 - staff task print view, attachment size next to filename",
+    "include/staff/templates/ticket-print.tmpl.php:285 - staff ticket print view, attachment size next to filename"
+  ],
+  "inputShape": "Single positional argument $bytes: expected to be an int or a numeric string representing a byte count (e.g. attachment File->size, or a computed power-of-two limit like `512 << 10`). Value is passed through PHP's is_numeric() check first, so it may arrive as int, float, or numeric string; non-numeric values (e.g. null coerced to '', or an arbitrary string) are explicitly supported as a passthrough case.",
+  "outputShape": "String. Either the original $bytes value unchanged (non-numeric passthrough, no unit suffix appended) or a formatted string in one of three shapes: '<int> bytes' (no rounding, exact byte count), '<float, 1 decimal> kb' (bytes/1024 rounded to 1 decimal), or '<float, 1 decimal> mb' (bytes/1048576 rounded to 1 decimal). No HTML escaping or localization is applied inside file_size itself.",
+  "sideEffects": [
+    "None. file_size() is a pure static function: no database reads/writes, no reads of $cfg or other globals, no session/cache access, no file I/O, no mutation of its argument, and it calls no other methods or functions internally."
+  ],
+  "constraints": [
+    "Non-numeric input must return $bytes unchanged (exact object/value passthrough, not a stringified or reformatted version) — this must be checked and returned before any arithmetic is attempted",
+    "The bytes-vs-kb threshold is a strict '<' at 1024 (i.e. 1023 -> 'bytes', 1024 -> 'kb'), not '<='",
+    "The kb-vs-mb threshold is a strict '<' at (900<<10) = 921600 bytes, not a round 1024*1024 boundary — this literal value must be preserved exactly, not simplified to 900*1024 or replaced with 1048576",
+    "kb and mb branches must round to exactly 1 decimal place using PHP round($x, 1) semantics (not floor/ceil, not a different precision)",
+    "The bytes branch must not apply round() or any decimal formatting — it concatenates the raw numeric value with ' bytes'",
+    "Unit suffix strings must remain exactly ' bytes', ' kb', ' mb' (lowercase, with leading space) since callers embed the returned string directly into HTML/UI text with no further transformation",
+    "Method must remain a static entry point on Format with the identical signature `file_size($bytes)` so all 10 existing call sites keep working without changes",
+    "No caller-visible behavior change is permitted for any of the boundary cases (0, 1023, 1024, non-numeric, just under/over 921600, large mb values) after delegating to the extracted service"
+  ],
+  "facadeFile": "include/class.format.php",
+  "extractionTarget": "include/Services/FileSizeFormatter.php",
+  "harnessScript": "legacy/harness/file_size_capture.php",
+  "harnessInputShape": "JSON object with a single field 'bytes' (mixed: int, numeric string, or non-numeric string) representing the raw byte count to pass into Format::file_size(). The harness should pass this value through unmodified (preserving its original PHP type where JSON allows) so both numeric and non-numeric-string test cases can be captured, e.g. {\"bytes\": 0}, {\"bytes\": 1023}, {\"bytes\": 1024}, {\"bytes\": \"unknown\"}, {\"bytes\": 921599}, {\"bytes\": 921600}, {\"bytes\": 5242880}."
+}

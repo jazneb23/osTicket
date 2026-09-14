@@ -1,0 +1,8 @@
+{
+  "name": "bytes-branch-upper-bound",
+  "branch": "Bytes branch upper bound: $bytes = 1023 is the last value still strictly less than 1024, still returns ' bytes' unrounded",
+  "input": {
+    "bytes": 1023
+  },
+  "expected": "1023 bytes"
+}

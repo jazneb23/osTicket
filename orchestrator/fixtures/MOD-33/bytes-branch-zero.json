@@ -1,0 +1,8 @@
+{
+  "name": "bytes-branch-zero",
+  "branch": "Bytes branch lower bound: $bytes < 1024, returns raw value concatenated with ' bytes' (no rounding)",
+  "input": {
+    "bytes": 0
+  },
+  "expected": "0 bytes"
+}
