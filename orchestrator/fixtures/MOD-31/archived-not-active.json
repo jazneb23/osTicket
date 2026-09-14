@@ -1,0 +1,8 @@
+{
+  "name": "archived-not-active",
+  "branch": "FLAG_ARCHIVED set but FLAG_ACTIVE unset (flags=4) - proves archived bit alone does not make topic active",
+  "input": {
+    "flags": 4
+  },
+  "expected": false
+}

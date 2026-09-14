@@ -1,0 +1,8 @@
+{
+  "name": "no-flags-set",
+  "branch": "No bits set at all (flags=0) - baseline false/inactive path",
+  "input": {
+    "flags": 0
+  },
+  "expected": false
+}

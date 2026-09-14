@@ -1,0 +1,8 @@
+{
+  "name": "active-plus-custom-numbers",
+  "branch": "FLAG_ACTIVE combined with FLAG_CUSTOM_NUMBERS (flags=3) - proves extra bit alongside active does not suppress true result",
+  "input": {
+    "flags": 3
+  },
+  "expected": true
+}

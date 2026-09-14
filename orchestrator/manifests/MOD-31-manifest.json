@@ -1,0 +1,38 @@
+{
+  "ticketId": "MOD-31",
+  "entryPoint": "Topic::isActive() in include/class.topic.php (instance method, no args, called as $topic->isActive() on a loaded Topic ORM object)",
+  "coreLogic": "Topic::isActive() returns !!($this->flags & self::FLAG_ACTIVE) where FLAG_ACTIVE = 0x0002, a pure bitwise AND against the already-loaded 'flags' property (mapped to the ost_help_topic.flags DB column via VerySimpleModel). Topic::isEnabled() (lines 190-192) is a one-line wrapper that delegates directly to isActive() and returns its result unchanged; no other method in the delegation chain exists below isActive() itself.",
+  "consumers": [
+    "include/staff/filter.inc.php:253 - if($topic && !$topic->isActive()) sets a form warning ('%s must be active') when validating a ticket-filter rule's assigned help topic in the admin UI",
+    "scp/filters.php:150 - if($topic && !$topic->isActive()) sets an identical warning on the filters admin page before save",
+    "include/class.ticket.php:3686 - Ticket::create()/update() validation: if($topic && !$topic->isActive()) adds errors['topicId'] rejecting the submitted topic as invalid",
+    "include/class.ticket.php:4214 - if (...&& $topic->isActive()) gates whether topic-specific dynamic form fields are validated at all for the ticket; when false, topic form validation is skipped entirely",
+    "include/class.filter.php:646 - if (!$topic || !$topic->isActive()) adds errors['err'] rejecting an inactive topic when saving a Filter's topic action configuration",
+    "include/class.filter_action.php:536 (FA_AssignTopic::apply) - if ($topic && $topic->isActive()) only sets $ticket['topicId'] from the filter action when the configured topic is active; otherwise the assignment is silently skipped",
+    "include/class.filter_action.php:561 (FA_AssignTopic::getConfigurationOptions) - if ($topic && !$topic->isActive()) adds the currently-configured topic to the admin dropdown choices list only when it is NOT active (so a stale inactive selection still shows up)",
+    "include/class.config.php:1427 - if (...&& !$T->isActive()) adds errors['default_help_topic'] when validating that the system's default help topic is active",
+    "include/class.email.php:318-322 - a $topic->isActive() check exists but is inside a /* ... */ commented-out dead-code block (marked 'TODO: ???'); NOT a live consumer, excluded from behavior-preservation scope",
+    "include/class.topic.php:190-192 (Topic::isEnabled()) - internal delegator only; no external caller of Topic::isEnabled() was found anywhere in the codebase"
+  ],
+  "inputShape": "No parameters. Called on an already-instantiated/loaded Topic model object whose 'flags' integer property (ORM-mapped from ost_help_topic.flags) reflects the topic's current bit flags: FLAG_CUSTOM_NUMBERS=0x0001, FLAG_ACTIVE=0x0002, FLAG_ARCHIVED=0x0004 (flags may have other unrelated bits set concurrently).",
+  "outputShape": "Returns a native PHP boolean: true if the FLAG_ACTIVE bit (0x0002) is set in $this->flags, false otherwise. Callers use both the direct boolean and its negation (!$topic->isActive()) in conditionals; no mutation of the Topic object occurs.",
+  "sideEffects": [
+    "None. isActive() performs no database reads/writes of its own - it only inspects the 'flags' property already populated on the in-memory Topic object by the ORM's prior fetch/lookup (e.g. Topic::lookup()).",
+    "No global state ($cfg, $ost, session, etc.) is read or written.",
+    "No lazy-loading is triggered by isActive() itself (unlike some other Topic accessors such as getDept() or getForms()).",
+    "No caching, file I/O, or logging occurs.",
+    "No object mutation: $this->flags is only read, never modified, by isActive() or isEnabled()."
+  ],
+  "constraints": [
+    "Must return true if and only if ($flags & FLAG_ACTIVE) is nonzero; the FLAG_ARCHIVED (0x0004) bit and FLAG_CUSTOM_NUMBERS (0x0001) bit, or any other bits present in flags, must NOT affect the result — only the FLAG_ACTIVE bit matters, even when multiple flags are set simultaneously (e.g. active+archived both set, or active+custom-numbers both set).",
+    "Return type must remain a genuine PHP boolean (current code uses double-negation !!) so strict boolean contexts and negations (!$topic->isActive()) in callers keep working identically.",
+    "Topic::isEnabled() must continue to delegate to the (facade-preserved) isActive() behavior and return an identical boolean for the same flags state - but the new extracted service itself must NOT be called from, or call back into, Topic::isActive() or Topic::isEnabled() (per extraction requirement); the facade method keeps its call site, delegating outward to the new service instead of containing the bitwise logic inline.",
+    "The extracted service must not perform any DB query or reload of the Topic - it must operate solely on the flags value already available on the object/value passed to it, preserving the current zero-side-effect behavior.",
+    "Method signature must remain unchanged: Topic::isActive() takes no arguments and is called the same way, $topic->isActive(), by all 8 live consumer call sites.",
+    "The FLAG_ACTIVE constant value (0x0002) must be preserved exactly as the bit tested; do not confuse it with FLAG_ARCHIVED (0x0004) which is a separate, independently-tracked state used by getStatus()/allowsReopen() but is out of scope for this seam."
+  ],
+  "facadeFile": "include/class.topic.php",
+  "extractionTarget": "include/Services/TopicActiveChecker.php",
+  "harnessScript": "legacy/harness/topic_active_capture.php",
+  "harnessInputShape": "JSON object with a single field: 'flags' (integer) - the raw help-topic flags bitmask to test, matching ost_help_topic.flags semantics (FLAG_CUSTOM_NUMBERS=1, FLAG_ACTIVE=2, FLAG_ARCHIVED=4, combinable via bitwise OR). The harness constructs/populates a Topic instance with this flags value (without hitting the DB) and outputs the boolean result of calling isActive() on it, so it can exercise: active only (flags=2), inactive/disabled (flags=0), archived-only (flags=4, FLAG_ACTIVE not set), and active-plus-other-flags (e.g. flags=3 for active+custom-numbers, or flags=6 for active+archived both set) to prove only the FLAG_ACTIVE bit drives the result."
+}

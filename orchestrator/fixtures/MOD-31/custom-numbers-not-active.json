@@ -1,0 +1,8 @@
+{
+  "name": "custom-numbers-not-active",
+  "branch": "FLAG_CUSTOM_NUMBERS set but FLAG_ACTIVE unset (flags=1) - proves unrelated low bit does not make topic active",
+  "input": {
+    "flags": 1
+  },
+  "expected": false
+}

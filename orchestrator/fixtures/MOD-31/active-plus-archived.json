@@ -1,0 +1,8 @@
+{
+  "name": "active-plus-archived",
+  "branch": "FLAG_ACTIVE combined with FLAG_ARCHIVED (flags=6) - proves archived bit does not override/suppress an active topic's true result",
+  "input": {
+    "flags": 6
+  },
+  "expected": true
+}
