@@ -43,6 +43,37 @@ describe("parseAikidoScanResult", () => {
     assert.equal(findings[1].severity, "high");
   });
 
+  it("reads the live Aikido MCP issue_* payload", () => {
+    const findings = parseAikidoScanResult({
+      issues: [
+        {
+          issue_title: "Unsafe eval usage can lead to remote code execution",
+          issue_description:
+            "Using eval on expressions based on user input can execute arbitrary code.",
+          issue_remediation:
+            "Avoid using eval if possible. Alternatively, use an allowlist for commands fed into the eval.",
+          issue_severity: 89,
+          issue_file: "include/Services/TopicActiveChecker.php",
+          issue_start_line: 59,
+          issue_snippet: "        return eval($payload);",
+          issue_rule_id: "AIK_eval-use",
+        },
+      ],
+    });
+
+    assert.equal(findings.length, 1);
+    assert.equal(findings[0].kind, "sast");
+    assert.equal(findings[0].severity, "high");
+    assert.equal(
+      findings[0].title,
+      "Unsafe eval usage can lead to remote code execution"
+    );
+    assert.equal(findings[0].file, "include/Services/TopicActiveChecker.php");
+    assert.equal(findings[0].line, 59);
+    assert.equal(findings[0].rule, "AIK_eval-use");
+    assert.match(findings[0].snippet ?? "", /eval\(\$payload\)/);
+  });
+
   it("unwraps MCP text content that embeds JSON", () => {
     const findings = parseAikidoScanResult({
       content: [
@@ -109,17 +140,72 @@ describe("evaluateSentinel", () => {
   });
 
   it("treats a secret seed as blocking if Aikido missed it", () => {
-    const fallback = evaluateSentinel([], "secret");
+    const fallback = evaluateSentinel(
+      [],
+      "secret",
+      "include/Services/TeamEnabledChecker.php"
+    );
     assert.equal(fallback.blocked, true);
     assert.equal(fallback.secrets.length, 1);
     assert.match(fallback.secrets[0].title, /seed/i);
+    assert.equal(
+      fallback.secrets[0].file,
+      "include/Services/TeamEnabledChecker.php"
+    );
+    assert.match(fallback.secrets[0].snippet ?? "", /BEGIN OPENSSH PRIVATE KEY/);
   });
 
   it("surfaces a SAST seed when Aikido missed it, without blocking", () => {
-    const fallback = evaluateSentinel([], "sast");
+    const fallback = evaluateSentinel(
+      [],
+      "sast",
+      "include/Services/TopicActiveChecker.php"
+    );
     assert.equal(fallback.blocked, false);
     assert.equal(fallback.sast.length, 1);
     assert.equal(fallback.sast[0].severity, "high");
+    assert.equal(
+      fallback.sast[0].file,
+      "include/Services/TopicActiveChecker.php"
+    );
+    assert.match(fallback.sast[0].snippet ?? "", /eval\(\$payload\)/);
+  });
+
+  it("backfills thin Aikido SAST rows from the seed instead of leaving unknown", () => {
+    const reported = evaluateSentinel(
+      [{ kind: "sast", title: "Aikido finding", severity: "unknown" }],
+      "sast",
+      "include/Services/TopicActiveChecker.php"
+    );
+    assert.equal(reported.blocked, false);
+    assert.equal(reported.sast[0].title, "Demo-seeded eval() SAST");
+    assert.equal(reported.sast[0].severity, "high");
+    assert.equal(
+      reported.sast[0].file,
+      "include/Services/TopicActiveChecker.php"
+    );
+    assert.match(reported.sast[0].snippet ?? "", /eval\(\$payload\)/);
+  });
+
+  it("keeps a real Aikido SAST title when the payload is already rich", () => {
+    const reported = evaluateSentinel(
+      [
+        {
+          kind: "sast",
+          title: "Unsafe eval usage can lead to remote code execution",
+          severity: "high",
+          file: "include/Services/TopicActiveChecker.php",
+          line: 59,
+          snippet: "return eval($payload);",
+        },
+      ],
+      "sast",
+      "include/Services/TopicActiveChecker.php"
+    );
+    assert.equal(
+      reported.sast[0].title,
+      "Unsafe eval usage can lead to remote code execution"
+    );
   });
 });
 

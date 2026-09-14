@@ -11,6 +11,10 @@ export type AikidoFinding = {
   severity: string;
   file?: string;
   line?: number;
+  description?: string;
+  rule?: string;
+  snippet?: string;
+  remediation?: string;
 };
 
 export type SentinelReport = {
@@ -67,8 +71,51 @@ function unwrapMcpPayload(raw: unknown): unknown {
   return raw;
 }
 
+function firstString(
+  row: Record<string, unknown>,
+  keys: string[]
+): string | undefined {
+  for (const key of keys) {
+    const value = row[key];
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
+  }
+  return undefined;
+}
+
+function firstNumber(
+  row: Record<string, unknown>,
+  keys: string[]
+): number | undefined {
+  for (const key of keys) {
+    const value = row[key];
+    if (typeof value === "number" && Number.isFinite(value)) {
+      return value;
+    }
+  }
+  return undefined;
+}
+
+function severityFromScore(score: number): string {
+  if (score >= 90) return "critical";
+  if (score >= 70) return "high";
+  if (score >= 40) return "medium";
+  return "low";
+}
+
 function classifyFinding(row: Record<string, unknown>): AikidoFindingKind {
-  const blob = [row.type, row.kind, row.rule, row.scanner, row.category, row.title]
+  const blob = [
+    row.type,
+    row.kind,
+    row.issue_type,
+    row.rule,
+    row.issue_rule_id,
+    row.scanner,
+    row.category,
+    row.title,
+    row.issue_title,
+  ]
     .filter((part) => typeof part === "string")
     .join(" ")
     .toLowerCase();
@@ -84,28 +131,67 @@ function normalizeFinding(value: unknown): AikidoFinding | null {
     return null;
   }
   const title =
-    (typeof row.title === "string" && row.title) ||
-    (typeof row.message === "string" && row.message) ||
-    (typeof row.rule === "string" && row.rule) ||
+    firstString(row, ["title", "issue_title", "message", "rule", "issue_rule_id"]) ||
     "Aikido finding";
-  const severityRaw =
-    (typeof row.severity === "string" && row.severity) ||
-    (typeof row.level === "string" && row.level) ||
-    "unknown";
-  const file =
-    (typeof row.file === "string" && row.file) ||
-    (typeof row.path === "string" && row.path) ||
-    (typeof row.relativeFilePath === "string" && row.relativeFilePath) ||
-    undefined;
-  const lineRaw = row.startLine ?? row.line ?? row.lineNumber;
-  const line = typeof lineRaw === "number" ? lineRaw : undefined;
+  const severityLabel = firstString(row, [
+    "severity",
+    "level",
+    "issue_severity_label",
+  ]);
+  const severityScore = firstNumber(row, [
+    "issue_severity",
+    "severity_score",
+    "severity",
+  ]);
+  const severity = (
+    severityLabel ||
+    (severityScore != null ? severityFromScore(severityScore) : "unknown")
+  ).toLowerCase();
+  const file = firstString(row, [
+    "file",
+    "path",
+    "relativeFilePath",
+    "issue_file",
+  ]);
+  const line = firstNumber(row, [
+    "startLine",
+    "line",
+    "lineNumber",
+    "issue_start_line",
+  ]);
   return {
     kind: classifyFinding(row),
     title,
-    severity: severityRaw.toLowerCase(),
+    severity,
     file,
     line,
+    description: firstString(row, ["description", "issue_description"]),
+    rule: firstString(row, ["rule", "issue_rule_id"]),
+    snippet: firstString(row, ["snippet", "issue_snippet"]),
+    remediation: firstString(row, ["remediation", "issue_remediation"]),
   };
+}
+
+/** Markdown used on Linear and the GitHub AppSec-gate PR comment. */
+export function formatAikidoFindingMarkdown(finding: AikidoFinding): string {
+  const where = [finding.file, finding.line != null ? `:${finding.line}` : ""]
+    .join("")
+    .trim();
+  const loc = where ? ` \`${where}\`` : "";
+  const rule = finding.rule ? ` \`${finding.rule}\`` : "";
+  const lines = [
+    `- **${finding.severity}** ${finding.kind}: ${finding.title}${loc}${rule}`,
+  ];
+  if (finding.description) {
+    lines.push(`  ${finding.description}`);
+  }
+  if (finding.snippet) {
+    lines.push("  ```", `  ${finding.snippet}`, "  ```");
+  }
+  if (finding.remediation) {
+    lines.push(`  _Remediation:_ ${finding.remediation}`);
+  }
+  return lines.join("\n");
 }
 
 function collectFindingRows(payload: unknown): unknown[] {
@@ -139,32 +225,78 @@ export function parseAikidoScanResult(raw: unknown): AikidoFinding[] {
     .filter((finding): finding is AikidoFinding => finding != null);
 }
 
-function seedFinding(kind: AppsecSeedKind): AikidoFinding {
+function seedFinding(kind: AppsecSeedKind, file?: string): AikidoFinding {
   if (kind === "secret") {
     return {
       kind: "secret",
       title: "Demo-seeded OpenSSH private key",
       severity: "critical",
+      file,
+      description:
+        "Hardcoded OpenSSH private-key material planted after Strangler so Sentinel can halt before a pull request is opened.",
+      snippet: "-----BEGIN OPENSSH PRIVATE KEY-----",
+      rule: "leaked_secret",
     };
   }
   return {
     kind: "sast",
     title: "Demo-seeded eval() SAST",
     severity: "high",
+    file,
+    description:
+      "Using eval on expressions based on user input can execute arbitrary code.",
+    snippet: "return eval($payload);",
+    rule: "AIK_eval-use",
+    remediation:
+      "Avoid using eval if possible. Alternatively, use an allowlist for commands fed into the eval.",
+  };
+}
+
+function isThinFinding(finding: AikidoFinding): boolean {
+  return (
+    finding.title === "Aikido finding" ||
+    finding.severity === "unknown" ||
+    !finding.file ||
+    !finding.snippet
+  );
+}
+
+function backfillFromSeed(finding: AikidoFinding, seed: AikidoFinding): AikidoFinding {
+  return {
+    ...finding,
+    title: finding.title === "Aikido finding" ? seed.title : finding.title,
+    severity: finding.severity === "unknown" ? seed.severity : finding.severity,
+    file: finding.file || seed.file,
+    line: finding.line ?? seed.line,
+    description: finding.description || seed.description,
+    rule: finding.rule || seed.rule,
+    snippet: finding.snippet || seed.snippet,
+    remediation: finding.remediation || seed.remediation,
   };
 }
 
 export function evaluateSentinel(
   findings: AikidoFinding[],
-  seedKind?: AppsecSeedKind | null
+  seedKind?: AppsecSeedKind | null,
+  extractionTarget?: string
 ): SentinelReport {
-  const secrets = findings.filter((finding) => finding.kind === "secret");
-  const sast = findings.filter((finding) => finding.kind === "sast");
-  if (seedKind === "secret" && secrets.length === 0) {
-    secrets.push(seedFinding("secret"));
+  let secrets = findings.filter((finding) => finding.kind === "secret");
+  let sast = findings.filter((finding) => finding.kind === "sast");
+  if (seedKind === "secret") {
+    const seed = seedFinding("secret", extractionTarget);
+    if (secrets.length === 0) {
+      secrets = [seed];
+    } else if (secrets.some(isThinFinding)) {
+      secrets = secrets.map((finding) => backfillFromSeed(finding, seed));
+    }
   }
-  if (seedKind === "sast" && sast.length === 0) {
-    sast.push(seedFinding("sast"));
+  if (seedKind === "sast") {
+    const seed = seedFinding("sast", extractionTarget);
+    if (sast.length === 0) {
+      sast = [seed];
+    } else if (sast.some(isThinFinding)) {
+      sast = sast.map((finding) => backfillFromSeed(finding, seed));
+    }
   }
   return {
     blocked: secrets.length > 0,
@@ -202,13 +334,18 @@ export async function runSentinel(
 ): Promise<SentinelReport> {
   const files = scanTargets(manifest);
   const seedKind = seedKindForTicket(manifest.ticketId);
+  const extractionTarget = requireExtractionTarget(manifest);
   try {
     const raw = await scan(files);
-    const report = evaluateSentinel(parseAikidoScanResult(raw), seedKind);
+    const report = evaluateSentinel(
+      parseAikidoScanResult(raw),
+      seedKind,
+      extractionTarget
+    );
     return report;
   } catch (err) {
     const scanError = err instanceof Error ? err.message : String(err);
-    const report = evaluateSentinel([], seedKind);
+    const report = evaluateSentinel([], seedKind, extractionTarget);
     report.scanError = scanError;
     return report;
   }

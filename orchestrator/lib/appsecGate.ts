@@ -1,5 +1,5 @@
 import { execFileSync } from "child_process";
-import type { SentinelReport } from "./sentinel";
+import { formatAikidoFindingMarkdown, type SentinelReport } from "./sentinel";
 
 export type AppsecGateLabel = "appsec:gate-fail" | "appsec:gate-pass";
 
@@ -9,14 +9,12 @@ export function appsecGateLabel(report: SentinelReport): AppsecGateLabel {
     : "appsec:gate-pass";
 }
 
-function formatFindings(report: SentinelReport): string {
+export function formatAppsecFindings(report: SentinelReport): string {
   const rows = [...report.secrets, ...report.sast];
   if (rows.length === 0) {
     return "_No inline Aikido findings._";
   }
-  return rows
-    .map((finding) => `- **${finding.severity}** ${finding.kind}: ${finding.title}`)
-    .join("\n");
+  return rows.map(formatAikidoFindingMarkdown).join("\n");
 }
 
 export function buildAppsecPrComment(ticketId: string, report: SentinelReport): string {
@@ -31,7 +29,7 @@ export function buildAppsecPrComment(ticketId: string, report: SentinelReport): 
     "",
     `Sentinel (inline Aikido) on **${ticketId}**. Label: \`${label}\`.`,
     "",
-    formatFindings(report),
+    formatAppsecFindings(report),
     "",
     policy,
   ].join("\n");
