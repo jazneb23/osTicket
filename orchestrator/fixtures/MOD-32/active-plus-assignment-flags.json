@@ -1,0 +1,8 @@
+{
+  "name": "active-plus-assignment-flags",
+  "branch": "FLAG_ACTIVE set alongside FLAG_ASSIGN_MEMBERS_ONLY and FLAG_DISABLE_AUTO_CLAIM (flags=7) — proves unrelated assignment/auto-claim bits don't affect the FLAG_ACTIVE test.",
+  "input": {
+    "flags": 7
+  },
+  "expected": true
+}

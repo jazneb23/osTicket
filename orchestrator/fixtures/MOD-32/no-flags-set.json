@@ -1,0 +1,8 @@
+{
+  "name": "no-flags-set",
+  "branch": "Inactive/disabled baseline: flags=0, FLAG_ACTIVE not set — isActive() returns false.",
+  "input": {
+    "flags": 0
+  },
+  "expected": false
+}

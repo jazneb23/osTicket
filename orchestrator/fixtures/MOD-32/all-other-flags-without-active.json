@@ -1,0 +1,8 @@
+{
+  "name": "all-other-flags-without-active",
+  "branch": "Every other known flag bit set (assign-members-only, disable-auto-claim, archived, assign-primary-only, disable-reopen-auto-assign = 59) but FLAG_ACTIVE bit absent — isActive() must still return false despite maximal unrelated bit noise.",
+  "input": {
+    "flags": 59
+  },
+  "expected": false
+}

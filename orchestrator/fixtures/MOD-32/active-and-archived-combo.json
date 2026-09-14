@@ -1,0 +1,8 @@
+{
+  "name": "active-and-archived-combo",
+  "branch": "Both FLAG_ACTIVE and FLAG_ARCHIVED set simultaneously — proves FLAG_ARCHIVED does not suppress a true result when FLAG_ACTIVE is present.",
+  "input": {
+    "flags": 12
+  },
+  "expected": true
+}

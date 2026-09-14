@@ -1,0 +1,8 @@
+{
+  "name": "archived-only-not-active",
+  "branch": "FLAG_ARCHIVED set but FLAG_ACTIVE not set — proves archived status alone does not make isActive() true.",
+  "input": {
+    "flags": 8
+  },
+  "expected": false
+}
