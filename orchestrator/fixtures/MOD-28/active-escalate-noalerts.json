@@ -1,0 +1,8 @@
+{
+  "name": "active-escalate-noalerts",
+  "branch": "flags=7 (FLAG_ACTIVE|FLAG_ESCALATE|FLAG_NOALERTS) — NOALERTS set alongside two other bits, alerts disabled (false)",
+  "input": {
+    "flags": 7
+  },
+  "expected": false
+}

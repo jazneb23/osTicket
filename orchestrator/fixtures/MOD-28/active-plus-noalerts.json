@@ -1,0 +1,8 @@
+{
+  "name": "active-plus-noalerts",
+  "branch": "flags=5 (FLAG_ACTIVE|FLAG_NOALERTS) — NOALERTS set alongside an unrelated bit, alerts disabled (false)",
+  "input": {
+    "flags": 5
+  },
+  "expected": false
+}
