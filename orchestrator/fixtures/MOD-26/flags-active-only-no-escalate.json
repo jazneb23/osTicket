@@ -1,0 +1,8 @@
+{
+  "name": "flags-active-only-no-escalate",
+  "branch": "flags=1 (FLAG_ACTIVE only, ESCALATE bit unset): core bug-divergence case — intended semantics say false, but && bug returns true because flags != 0",
+  "input": {
+    "flags": 1
+  },
+  "expected": true
+}

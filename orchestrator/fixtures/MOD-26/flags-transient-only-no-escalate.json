@@ -1,0 +1,8 @@
+{
+  "name": "flags-transient-only-no-escalate",
+  "branch": "flags=8 (FLAG_TRANSIENT only, ESCALATE bit unset): third distinct sibling-bit bug-divergence case — intended false, buggy true",
+  "input": {
+    "flags": 8
+  },
+  "expected": true
+}

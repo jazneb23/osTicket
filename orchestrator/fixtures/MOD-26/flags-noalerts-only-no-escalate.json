@@ -1,0 +1,8 @@
+{
+  "name": "flags-noalerts-only-no-escalate",
+  "branch": "flags=4 (FLAG_NOALERTS only, ESCALATE bit unset): another bug-divergence case via a different sibling flag bit — intended false, buggy true",
+  "input": {
+    "flags": 4
+  },
+  "expected": true
+}

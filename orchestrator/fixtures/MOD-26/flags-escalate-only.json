@@ -1,0 +1,8 @@
+{
+  "name": "flags-escalate-only",
+  "branch": "flags=2 (FLAG_ESCALATE only): bug and intended semantics agree — both return true",
+  "input": {
+    "flags": 2
+  },
+  "expected": true
+}

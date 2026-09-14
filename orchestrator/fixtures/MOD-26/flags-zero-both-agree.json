@@ -1,0 +1,8 @@
+{
+  "name": "flags-zero-both-agree",
+  "branch": "flags=0: the only input where buggy (&&) and intended (&) semantics agree — both return false",
+  "input": {
+    "flags": 0
+  },
+  "expected": false
+}
