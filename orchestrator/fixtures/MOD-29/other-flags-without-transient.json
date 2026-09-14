@@ -1,0 +1,8 @@
+{
+  "name": "other-flags-without-transient",
+  "branch": "FLAG_ACTIVE | FLAG_ESCALATE | FLAG_NOALERTS set but FLAG_TRANSIENT absent (0x0001 | 0x0002 | 0x0004 = 7) — falsy branch despite other bits being set, proving the AND does not false-positive on unrelated flags",
+  "input": {
+    "flags": 7
+  },
+  "expected": 0
+}

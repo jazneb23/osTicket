@@ -1,0 +1,8 @@
+{
+  "name": "all-flags-including-transient",
+  "branch": "All known flags set together (FLAG_ACTIVE | FLAG_ESCALATE | FLAG_NOALERTS | FLAG_TRANSIENT = 0x000F = 15) — truthy edge case at the maximum defined bitmask value",
+  "input": {
+    "flags": 15
+  },
+  "expected": 8
+}
