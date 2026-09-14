@@ -177,7 +177,7 @@ export async function runPipeline(
     }
 
     writeStageBanner("pr-agent", ticketId);
-    const { prUrl } = await prAgent(manifest, report);
+    const { prUrl } = await prAgent(manifest, report, sentinelReport);
     if (!prUrl) {
       throw new Error("PR agent did not return a pull request URL");
     }
@@ -191,7 +191,10 @@ export async function runPipeline(
       }
     }
     await notifyPrOpened(ticketId, report, prUrl);
-    await addIssueComment(ticketId, buildInReviewComment(manifest, report, prUrl));
+    await addIssueComment(
+      ticketId,
+      buildInReviewComment(manifest, report, prUrl, sentinelReport)
+    );
     await updateTicketStatus(ticketId, STATUS_IN_REVIEW);
     console.log(`Linear ticket ${ticketId} moved to ${STATUS_IN_REVIEW}`);
   } catch (err) {

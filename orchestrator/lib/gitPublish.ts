@@ -1,5 +1,7 @@
 import { execFileSync } from "child_process";
+import { appsecGateLabel, formatAppsecFindings } from "./appsecGate";
 import { committedManifestPath, requireCopiedManifestForPublish } from "./parityScope";
+import type { SentinelReport } from "./sentinel";
 import type { SeamManifest, ParityReport } from "./types";
 
 export type PublishPaths = {
@@ -245,8 +247,12 @@ export function buildPrTitle(manifest: SeamManifest): string {
   return `${prefix}${description.slice(0, Math.max(budget, 8))}…`;
 }
 
-export function buildPrBody(manifest: SeamManifest, report: ParityReport): string {
-  return [
+export function buildPrBody(
+  manifest: SeamManifest,
+  report: ParityReport,
+  sentinel?: SentinelReport
+): string {
+  const sections = [
     "## Summary",
     "",
     `Seam manifest for ticket ${manifest.ticketId}:`,
@@ -261,6 +267,22 @@ export function buildPrBody(manifest: SeamManifest, report: ParityReport): strin
     "## Parity verification",
     "",
     `${report.passed}/${report.totalCases} golden fixture cases passed.`,
+  ];
+
+  if (sentinel && appsecGateLabel(sentinel) === "appsec:gate-fail") {
+    sections.push(
+      "",
+      "## AppSec gate",
+      "",
+      `Sentinel (inline Aikido) labeled this PR \`${appsecGateLabel(sentinel)}\`.`,
+      "",
+      formatAppsecFindings(sentinel),
+      "",
+      "In production, critical or high findings on this check would block merge. This demo never merges — the failing label is the gate exhibit."
+    );
+  }
+
+  sections.push(
     "",
     "## Note",
     "",
@@ -268,8 +290,9 @@ export function buildPrBody(manifest: SeamManifest, report: ParityReport): strin
     `${manifest.extractionTarget} wraps existing logic from ${manifest.coreLogic}`,
     "rather than reimplementing it.",
     "",
-    "**Demo only — do not merge into the base branch.**",
-  ].join("\n");
+    "**Demo only — do not merge into the base branch.**"
+  );
+  return sections.join("\n");
 }
 
 function ghRepoArgs(): string[] {

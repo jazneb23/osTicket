@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  buildInReviewComment,
   buildSentinelFailedComment,
   buildSentinelSastComment,
 } from "./linear";
 import type { SentinelReport } from "./sentinel";
+import type { ParityReport, SeamManifest } from "./types";
 
 const secretReport: SentinelReport = {
   blocked: true,
@@ -49,7 +51,55 @@ describe("Sentinel Linear comments", () => {
     assert.match(body, /^## Sentinel AppSec/);
     assert.match(body, /MOD-31/);
     assert.match(body, /Use of eval/);
+    assert.match(body, /TopicActiveChecker\.php:22/);
     assert.match(body, /does not halt/i);
     assert.match(body, /pull request/i);
+  });
+});
+
+const inReviewManifest: SeamManifest = {
+  ticketId: "MOD-25",
+  entryPoint: "SLA::addGracePeriod()",
+  coreLogic: "grace hours",
+  consumers: [],
+  inputShape: "start",
+  outputShape: "datetime",
+  sideEffects: [],
+  constraints: [],
+  facadeFile: "include/class.sla.php",
+  extractionTarget: "include/Services/SlaGracePeriodCalculator.php",
+};
+
+const passedParity: ParityReport = {
+  totalCases: 6,
+  passed: 6,
+  failed: 0,
+  mismatches: [],
+  gatePassed: true,
+};
+
+describe("Pipeline complete Linear comment", () => {
+  it("repeats SAST findings on the success comment so the AppSec exhibit is not buried", () => {
+    const body = buildInReviewComment(
+      inReviewManifest,
+      passedParity,
+      "https://github.com/jazneb23/osTicket/pull/125",
+      sastReport
+    );
+    assert.match(body, /## Pipeline complete/);
+    assert.match(body, /### AppSec/);
+    assert.match(body, /appsec:gate-fail/);
+    assert.match(body, /Use of eval/);
+    assert.match(body, /TopicActiveChecker\.php:22/);
+  });
+
+  it("omits the AppSec section when Sentinel is clean", () => {
+    const body = buildInReviewComment(
+      inReviewManifest,
+      passedParity,
+      "https://github.com/jazneb23/osTicket/pull/121"
+    );
+    assert.doesNotMatch(body, /### AppSec/);
+    assert.doesNotMatch(body, /appsec:gate-fail/);
   });
 });

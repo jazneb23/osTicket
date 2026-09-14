@@ -1,4 +1,9 @@
-import type { AikidoFinding, SentinelReport } from "./sentinel";
+import {
+  formatAikidoFindingMarkdown,
+  type AikidoFinding,
+  type SentinelReport,
+} from "./sentinel";
+import { appsecGateLabel, formatAppsecFindings } from "./appsecGate";
 import type { ParityReport, SeamManifest } from "./types";
 import { incrementAttempts, maxStageRetries } from "./attempts";
 import { paritySummary, passedFixtureNames } from "./slack";
@@ -279,7 +284,8 @@ export async function updateTicketStatus(ticketId: string, status: string): Prom
 export function buildInReviewComment(
   manifest: SeamManifest,
   report: ParityReport,
-  prUrl: string
+  prUrl: string,
+  sentinel?: SentinelReport
 ): string {
   const fixtureList = passedFixtureNames(manifest.ticketId, report)
     .map((name) => `- ${name}`)
@@ -287,8 +293,13 @@ export function buildInReviewComment(
   const prLine = prUrl
     ? `[View pull request](${prUrl})`
     : "_PR URL not returned by agent_";
+  const gateLabel = sentinel ? appsecGateLabel(sentinel) : "appsec:gate-pass";
+  const sentinelLine =
+    gateLabel === "appsec:gate-fail"
+      ? `- **Sentinel** — Inline Aikido scan reported findings; PR labeled \`${gateLabel}\``
+      : "- **Sentinel** — Inline Aikido scan (secrets halt; SAST reported)";
 
-  return [
+  const sections = [
     "## Pipeline complete",
     "",
     "The strangler extraction pipeline finished successfully.",
@@ -299,20 +310,35 @@ export function buildInReviewComment(
     "- **Fixture generation** — Parity inputs proposed from manifest branches",
     `- **Extraction** — \`${manifest.extractionTarget ?? "(see PR)"}\` created`,
     `- **Strangler** — \`${manifest.facadeFile ?? "(see PR)"}\` patched to delegate`,
-    "- **Sentinel** — Inline Aikido scan (secrets halt; SAST reported)",
+    sentinelLine,
     `- **Verification** — ${paritySummary(report)}`,
     "- **Pull request** — Opened for review",
     "",
     "### Parity verification",
     "",
     fixtureList,
+  ];
+
+  if (sentinel && gateLabel === "appsec:gate-fail") {
+    sections.push(
+      "",
+      "### AppSec",
+      "",
+      `Sentinel reported findings and did not halt on SAST. PR labeled \`${gateLabel}\`.`,
+      "",
+      formatAppsecFindings(sentinel)
+    );
+  }
+
+  sections.push(
     "",
     "### Pull request",
     "",
     prLine,
     "",
-    "Kodus (Kody) reviews this PR automatically. Auto-approve is off — a human is the only approver.",
-  ].join("\n");
+    "Kodus (Kody) reviews this PR automatically. Auto-approve is off — a human is the only approver."
+  );
+  return sections.join("\n");
 }
 
 /** Comment body when a pipeline stage throws — ticket returns to Ready or moves to Blocked. */
@@ -374,15 +400,7 @@ function formatSentinelFindings(findings: AikidoFinding[]): string {
   if (findings.length === 0) {
     return "_No findings._";
   }
-  return findings
-    .map((finding) => {
-      const where = [finding.file, finding.line != null ? `:${finding.line}` : ""]
-        .join("")
-        .trim();
-      const loc = where ? ` \`${where}\`` : "";
-      return `- **${finding.severity}** ${finding.title}${loc}`;
-    })
-    .join("\n");
+  return findings.map(formatAikidoFindingMarkdown).join("\n");
 }
 
 /** Comment body when Sentinel halts on a secret — Blocked, no Ready retry. */
