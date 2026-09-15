@@ -1,0 +1,8 @@
+{
+  "name": "archived-only",
+  "branch": "FLAG_ARCHIVED set but FLAG_ACTIVE absent (flags=4): isActive() returns false, proving the method ignores the archived bit entirely",
+  "input": {
+    "flags": 4
+  },
+  "expected": "{\"isActive\":false,\"isEnabled\":false}"
+}

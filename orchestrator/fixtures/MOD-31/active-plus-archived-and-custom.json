@@ -1,0 +1,8 @@
+{
+  "name": "active-plus-archived-and-custom",
+  "branch": "FLAG_ACTIVE combined with both FLAG_ARCHIVED and FLAG_CUSTOM_NUMBERS (flags=7): isActive() still returns true, confirming indifference to all non-FLAG_ACTIVE bits even when all three are set together",
+  "input": {
+    "flags": 7
+  },
+  "expected": "{\"isActive\":true,\"isEnabled\":true}"
+}

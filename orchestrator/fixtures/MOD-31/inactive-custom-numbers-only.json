@@ -1,0 +1,8 @@
+{
+  "name": "inactive-custom-numbers-only",
+  "branch": "FLAG_CUSTOM_NUMBERS set but FLAG_ACTIVE absent (flags=1): isActive() returns false since the inspected bit (0x0002) is unset even though another bit is on",
+  "input": {
+    "flags": 1
+  },
+  "expected": "{\"isActive\":false,\"isEnabled\":false}"
+}

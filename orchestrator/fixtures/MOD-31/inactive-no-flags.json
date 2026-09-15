@@ -1,0 +1,8 @@
+{
+  "name": "inactive-no-flags",
+  "branch": "No bits set (flags=0): isActive() returns false via `!!(0 & 2)`, the zero-flags edge case",
+  "input": {
+    "flags": 0
+  },
+  "expected": "{\"isActive\":false,\"isEnabled\":false}"
+}

@@ -1,0 +1,8 @@
+{
+  "name": "active-plus-custom-numbers",
+  "branch": "FLAG_ACTIVE combined with FLAG_CUSTOM_NUMBERS (flags=3): isActive() still returns true because only the FLAG_ACTIVE bit is masked/checked",
+  "input": {
+    "flags": 3
+  },
+  "expected": "{\"isActive\":true,\"isEnabled\":true}"
+}
