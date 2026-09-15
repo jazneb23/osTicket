@@ -1,0 +1,33 @@
+{
+  "ticketId": "MOD-25",
+  "entryPoint": "SLA::addGracePeriod(Datetime $date, BusinessHoursSchedule $schedule = null, &$timeline = array()) in include/class.sla.php (lines 46-64)",
+  "coreLogic": "Two-branch calculation: (1) schedule path — if a schedule is resolved, calls BusinessHoursSchedule::addWorkingHours($date, $this->getGracePeriod(), $timeline) in include/class.schedule.php (lines 475-485), which instantiates new BusinessHours($schedule) and calls BusinessHours::addWorkingHours($date, $hours) in include/class.businesshours.php (starting line 87) — this walks the schedule's business-hours entries/holidays, mutates $date's timezone to the schedule's zone, accumulates working seconds until the requested grace hours are met (backtracking with DateTime::sub if it overshoots), and returns false if the schedule has zero entries; on success $timeline is set from $bhrs->getTimeline() and the mutated $date is returned. (2) fallback path — reached when no schedule resolves OR addWorkingHours() returns false: $time = round($this->getGracePeriod()*3600); $date->add(new DateInterval('PT'.$time.'S')); return $date.",
+  "consumers": [
+    "Ticket::getSLADueDate() in include/class.ticket.php (lines 547-563) — resolves $schedule = $this->getDept()->getSchedule(), builds $dt from getReopenDate()/getCreateDate() in the DB timezone, calls $dt = $sla->addGracePeriod($dt, $schedule), converts $dt back to the DB timezone, and returns $dt->format('Y-m-d H:i:s'). Downstream callers of getSLADueDate(): Ticket::updateEstDueDate() persists the result as $this->est_duedate, and Ticket::getEstDueDate() falls back to it when no hard due date is set."
+  ],
+  "inputShape": "$date: DateTime instance, mutated in place and also returned (advance point for the grace period). $schedule: optional BusinessHoursSchedule, nullable — an explicitly requested schedule that overrides the SLA's own. $timeline: optional array passed by reference, populated with BusinessHours audit-log entries only when the schedule path succeeds. Implicit inputs read from object/global state: $this->getGracePeriod() (SLA's grace_period field, in hours), $this->getSchedule() (SLA's own schedule via schedule_id, lazily loaded), global $cfg->getDefaultSchedule() (system default schedule, lazily loaded).",
+  "outputShape": "Returns the same DateTime instance passed as $date, advanced in place by the grace period — either via the business-hours-aware path (schedule resolved and has entries) or a flat DateInterval of round(gracePeriodHours*3600) seconds (fallback path). No new DateTime is constructed; callers rely on both the return value and the in-place mutation of $date. The by-reference $timeline argument is populated only on the successful schedule path.",
+  "sideEffects": [
+    "Reads global $cfg to call $cfg->getDefaultSchedule() as the last fallback in schedule precedence resolution.",
+    "SLA::getSchedule() lazily loads and memoizes $this->_schedule via BusinessHoursSchedule::lookup($this->getScheduleId()) — a DB read cached on the SLA instance.",
+    "Config::getDefaultSchedule() lazily loads and memoizes $cfg->defaultSchedule via BusinessHoursSchedule::lookup($cfg->getDefaultScheduleId()) — a DB read cached on the config instance.",
+    "BusinessHoursSchedule::addWorkingHours() constructs a new BusinessHours($schedule) object each call and invokes its addWorkingHours(), which reads schedule entries and holiday schedules off the Schedule object (DB-backed lazy-loaded properties) and builds an internal audit timeline via BusinessHours::timeline()/getTimeline().",
+    "Mutates the caller-supplied $date DateTime in place: setTimezone() to the schedule's DateTimeZone on the schedule path, plus DateInterval add()/sub() operations on both the schedule and fallback paths.",
+    "Mutates the by-reference $timeline argument (only on the successful schedule path).",
+    "No direct SQL writes occur in this method or its delegation chain; all side effects are reads/lazy-caching plus in-place mutation of $date and $timeline."
+  ],
+  "constraints": [
+    "Schedule precedence is fixed and order-sensitive: explicitly passed $schedule argument > SLA's own schedule ($this->getSchedule()) > system default ($cfg->getDefaultSchedule()), using an ?: short-circuit chain where the first truthy value wins.",
+    "If a schedule resolves to non-null AND BusinessHoursSchedule::addWorkingHours() succeeds (returns the DateTime, not false), that result is returned immediately and the fallback path must not execute.",
+    "If no schedule resolves (all three precedence sources falsy) OR addWorkingHours() returns false (e.g. the resolved schedule has zero business-hours entries), execution falls through to the flat wall-clock addition: round(gracePeriodHours * 3600) seconds via DateInterval('PT{n}S').",
+    "Grace period hours always come from $this->getGracePeriod() (the SLA instance's own grace_period field) on both paths — never from the $schedule argument's own configuration — even though a different schedule object may be supplied by the caller.",
+    "$timeline is populated only on the successful schedule path; on the fallback path it retains whatever value the caller passed in (defaults to an empty array).",
+    "Method signature (Datetime $date, BusinessHoursSchedule $schedule = null, &$timeline = array()) and the return contract (same DateTime instance, advanced in place) must be unchanged after extraction — callers keep working identically.",
+    "Timezone handling differs by branch: the schedule path forces $date's timezone to the schedule's DateTimeZone before computing; the fallback path performs no timezone change and adds the interval in $date's existing timezone. This distinction must be preserved exactly.",
+    "Extracted service must never call back into SLA::addGracePeriod() (anti-recursion). It should perform forward delegation to BusinessHoursSchedule::addWorkingHours()/BusinessHours (or lift the inline fallback DateInterval expression), while include/class.sla.php retains the $cfg/global schedule-precedence orchestration and simply calls the service with an already-resolved schedule (or null) plus the grace-period hours."
+  ],
+  "facadeFile": "include/class.sla.php",
+  "extractionTarget": "include/Services/SlaGracePeriodCalculator.php",
+  "harnessScript": "legacy/harness/sla_capture.php",
+  "harnessInputShape": "JSON object with: start (string, ISO 8601 datetime); hours (number, grace period hours — use 0 for guard cases); schedule_id (integer, BusinessHoursSchedule id — 1 for normal business-hours schedule, 5 for empty-schedule fallback testing)"
+}
