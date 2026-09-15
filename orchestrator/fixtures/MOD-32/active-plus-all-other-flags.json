@@ -1,0 +1,8 @@
+{
+  "name": "active-plus-all-other-flags",
+  "branch": "FLAG_ACTIVE combined with every other defined bit (flags=23 = 0x17: ACTIVE|ASSIGN_MEMBERS_ONLY|DISABLE_AUTO_CLAIM|ARCHIVED) — confirms isActive() masks strictly on 0x0004 and returns true regardless of any other bits present",
+  "input": {
+    "flags": 23
+  },
+  "expected": "true"
+}

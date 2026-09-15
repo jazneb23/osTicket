@@ -1,0 +1,8 @@
+{
+  "name": "archived-only",
+  "branch": "FLAG_ARCHIVED set alone (flags=8), FLAG_ACTIVE absent — isActive() is indifferent to FLAG_ARCHIVED and returns false purely because the active bit is unset",
+  "input": {
+    "flags": 8
+  },
+  "expected": "false"
+}

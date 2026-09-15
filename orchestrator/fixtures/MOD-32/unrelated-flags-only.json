@@ -1,0 +1,8 @@
+{
+  "name": "unrelated-flags-only",
+  "branch": "FLAG_ASSIGN_MEMBERS_ONLY|FLAG_DISABLE_AUTO_CLAIM set (flags=3) but FLAG_ACTIVE absent — isActive() still returns false since it only inspects bit 0x0004",
+  "input": {
+    "flags": 3
+  },
+  "expected": "false"
+}

@@ -1,0 +1,8 @@
+{
+  "name": "no-flags-set",
+  "branch": "flags=0, no bits set at all — FLAG_ACTIVE absent, isActive() returns false",
+  "input": {
+    "flags": 0
+  },
+  "expected": "false"
+}
