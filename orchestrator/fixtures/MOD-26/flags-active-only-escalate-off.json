@@ -1,0 +1,8 @@
+{
+  "name": "flags-active-only-escalate-off",
+  "branch": "flags=1 (FLAG_ACTIVE only, escalation OFF per getInfo()'s bitwise definition) -> `&&` still returns true, exposing the legacy && vs & bug since the escalate bit itself is unset",
+  "input": {
+    "flags": 1
+  },
+  "expected": true
+}

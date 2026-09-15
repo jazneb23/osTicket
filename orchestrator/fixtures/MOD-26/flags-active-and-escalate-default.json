@@ -1,0 +1,8 @@
+{
+  "name": "flags-active-and-escalate-default",
+  "branch": "flags=3 (FLAG_ACTIVE|FLAG_ESCALATE, the real-world ost_sla.flags schema default) -> true; the common production configuration",
+  "input": {
+    "flags": 3
+  },
+  "expected": true
+}

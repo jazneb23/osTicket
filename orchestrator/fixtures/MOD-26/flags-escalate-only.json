@@ -1,0 +1,8 @@
+{
+  "name": "flags-escalate-only",
+  "branch": "flags=2 (FLAG_ESCALATE only, not active) -> nonzero flags makes `&&` true, and this case also happens to be true under a correct bitwise & interpretation",
+  "input": {
+    "flags": 2
+  },
+  "expected": true
+}

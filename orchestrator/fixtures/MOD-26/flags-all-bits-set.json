@@ -1,0 +1,8 @@
+{
+  "name": "flags-all-bits-set",
+  "branch": "flags=15 (FLAG_ACTIVE|FLAG_ESCALATE|FLAG_NOALERTS|FLAG_TRANSIENT, all known bits set) -> true; upper-bound/all-flags normal path",
+  "input": {
+    "flags": 15
+  },
+  "expected": true
+}

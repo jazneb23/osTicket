@@ -1,0 +1,8 @@
+{
+  "name": "flags-noalerts-only-unrelated-bit",
+  "branch": "flags=4 (FLAG_NOALERTS only, an unrelated higher bit with escalate bit unset) -> nonzero flags still makes `&&` true, further exposing that the method is truthy for ANY set bit regardless of which one",
+  "input": {
+    "flags": 4
+  },
+  "expected": true
+}

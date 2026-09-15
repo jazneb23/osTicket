@@ -1,0 +1,8 @@
+{
+  "name": "flags-zero-no-bits-set",
+  "branch": "flags === 0 -> `0 && FLAG_ESCALATE` short-circuits to false; the only branch that returns false",
+  "input": {
+    "flags": 0
+  },
+  "expected": false
+}
