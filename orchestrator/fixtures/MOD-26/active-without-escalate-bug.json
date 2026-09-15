@@ -1,0 +1,8 @@
+{
+  "name": "active-without-escalate-bug",
+  "branch": "Bug path: flags is non-zero (FLAG_ACTIVE=1 only) but does NOT include FLAG_ESCALATE — the `&&` (not `&`) operator still returns true, diverging from correct bitwise intent; must capture this legacy quirk exactly.",
+  "input": {
+    "flags": 1
+  },
+  "expected": "true"
+}

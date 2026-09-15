@@ -1,0 +1,8 @@
+{
+  "name": "noalerts-without-escalate-bug",
+  "branch": "Bug path: flags is non-zero (FLAG_NOALERTS=4 only) but does NOT include FLAG_ESCALATE — same `&&`-vs-`&` bug, confirms behavior holds for a different non-escalate bit, not just FLAG_ACTIVE.",
+  "input": {
+    "flags": 4
+  },
+  "expected": "true"
+}

@@ -1,0 +1,8 @@
+{
+  "name": "escalate-plus-active",
+  "branch": "Normal path: FLAG_ESCALATE combined with FLAG_ACTIVE (2|1=3) — escalation enabled alongside another set bit, returns true.",
+  "input": {
+    "flags": 3
+  },
+  "expected": "true"
+}

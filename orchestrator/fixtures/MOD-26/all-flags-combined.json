@@ -1,0 +1,8 @@
+{
+  "name": "all-flags-combined",
+  "branch": "Normal path: all documented flag bits combined (FLAG_ACTIVE|FLAG_ESCALATE|FLAG_NOALERTS|FLAG_TRANSIENT = 1|2|4|8=15) — non-zero with FLAG_ESCALATE included, returns true, exercising the upper end of the packed-int input space.",
+  "input": {
+    "flags": 15
+  },
+  "expected": "true"
+}

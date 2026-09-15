@@ -1,0 +1,8 @@
+{
+  "name": "zero-flags-edge-case",
+  "branch": "Edge case: flags === 0 is the sole input value for which `$this->flags && self::FLAG_ESCALATE` is falsy — the only false-returning branch.",
+  "input": {
+    "flags": 0
+  },
+  "expected": "false"
+}

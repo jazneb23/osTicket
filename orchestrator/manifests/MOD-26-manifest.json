@@ -1,0 +1,31 @@
+{
+  "ticketId": "MOD-26",
+  "entryPoint": "SLA::priorityEscalation() in include/class.sla.php (lines 116-118): a zero-argument public instance method that returns the expression `$this->flags && self::FLAG_ESCALATE`.",
+  "coreLogic": "The entire core logic is a single inline expression: `$flags && SLA::FLAG_ESCALATE` (logical AND, not bitwise). There is no delegation chain below priorityEscalation() today — it does not call getSchedule(), getInfo(), update(), or any other method; it reads only the already-loaded `flags` int property on `$this`. FLAG_ESCALATE = 0x0002 is defined as a class constant alongside FLAG_ACTIVE (0x0001), FLAG_NOALERTS (0x0004), and FLAG_TRANSIENT (0x0008), all packed into the single `flags` column on the ost_sla table. getInfo() (line 80-86) separately exposes the same bit correctly via bitwise `&` as `enable_priority_escalation` for the admin form, and update() (line 155-213) separately persists `enable_priority_escalation` back into the packed `flags` int via bitwise `|` when saving. Those two methods read/write the same underlying bit but are independent call paths from priorityEscalation() and are not part of this method's call chain — they are documented here only as context per the acceptance criteria, not as delegation targets to preserve or extract.",
+  "consumers": [
+    "No call sites of SLA::priorityEscalation() exist anywhere in the current codebase (verified via repo-wide search for '->priorityEscalation('); it is presently dead/unused product code, only referenced by name in orchestrator/agents/extractor.ts as an illustrative example of the anti-recursion rule.",
+    "include/staff/slaplan.inc.php (lines 15-18): on the 'add new SLA' path, defaults $info['enable_priority_escalation'] to 1 for form pre-population; on the 'update' path it populates $info from $sla->getInfo() instead — neither path calls priorityEscalation() directly, and the rendered form template in this file has no visible checkbox wired to enable_priority_escalation, so today it is not user-editable in the UI, only settable via whatever raw $vars an update()/create() caller supplies.",
+    "SLA::update($vars, &$errors) (same file, line 191): reads $vars['enable_priority_escalation'] (already normalized to 0 or FLAG_ESCALATE by whatever caller built $vars) and OR's it into the new packed $this->flags value on save — a write-side consumer of the same bit, not of the priorityEscalation() boolean-returning method."
+  ],
+  "inputShape": "None. priorityEscalation() takes no parameters. Its only implicit input is $this->flags (int), the packed bitmask column already loaded onto the SLA instance by the ORM (VerySimpleModel) before this method is called; the method itself performs no lazy-load or fetch.",
+  "outputShape": "A PHP boolean-context value produced by `$this->flags && self::FLAG_ESCALATE`. Because this is logical `&&` (not bitwise `&`), and FLAG_ESCALATE (2) is always truthy, the expression collapses to `(bool)$this->flags`: it returns true whenever flags is ANY non-zero value — regardless of which bit(s) are actually set — and returns false only when flags === 0. This is NOT equivalent to `(bool)($this->flags & self::FLAG_ESCALATE)` (the bitwise check getInfo() correctly uses). This is a pre-existing behavioral quirk/bug that distinguishes this seam from other flag-check methods in the same class and MUST be preserved exactly, not corrected, during extraction.",
+  "sideEffects": [
+    "None. No DB reads or writes are performed by priorityEscalation() itself.",
+    "No global state ($cfg or otherwise) is read.",
+    "No lazy-loading or caching is triggered — it reads a single already-in-memory scalar property ($this->flags) that was populated when the SLA row was originally fetched by the ORM.",
+    "No file I/O.",
+    "No mutation of $this or any by-reference parameters (there are none)."
+  ],
+  "constraints": [
+    "Preserve the logical `&&` operator exactly as-is; do NOT silently change it to bitwise `&` to 'match' getInfo()'s correct FLAG_ESCALATE check — that would alter observable behavior for any SLA whose flags is non-zero but does not have the escalate bit set (currently returns true; a bitwise fix would return false).",
+    "Method signature `priorityEscalation()` (zero args) and its return type/shape (PHP boolean coerced from the `&&` expression) on the SLA facade must remain byte-for-byte unchanged after the strangler patch.",
+    "The extracted service must accept the raw `flags` int as a plain parameter (not the SLA object), matching the 'lifted logic' pattern — it must never call back into SLA::priorityEscalation() or any other SLA instance method (anti-recursion).",
+    "Do not introduce any new DB reads, global reads, or side effects beyond the single in-memory flags-property read that exists today.",
+    "getInfo()'s and update()'s bitwise handling of enable_priority_escalation/FLAG_ESCALATE are out of scope for this seam's facade patch — do not consolidate or refactor them as part of extracting priorityEscalation().",
+    "flags=0 is the sole input value for which the method returns false; every other integer value (including flag combinations that do not include FLAG_ESCALATE, e.g. flags=1 or flags=4) must continue to return true, per the existing bug."
+  ],
+  "facadeFile": "include/class.sla.php",
+  "extractionTarget": "include/Services/SlaPriorityEscalationChecker.php",
+  "harnessScript": "legacy/harness/sla_priority_escalation_capture.php",
+  "harnessInputShape": "JSON input has a single field: flags (int) — the raw SLA bitmask value to set directly on an in-memory SLA object's `flags` property (via SLA::create()/property assignment, without saving to the DB, since priorityEscalation() only reads the in-process property and this method has no other side effects to capture) before calling priorityEscalation() and recording its boolean return value. Use flags=2 or flags=3 (FLAG_ESCALATE bit set, alone or combined with FLAG_ACTIVE) for the 'escalation enabled' fixture; flags=1 or flags=4 (a non-zero value that deliberately excludes the FLAG_ESCALATE bit) for the 'escalation disabled' fixture, which is expected to still return true today due to the `&&`-vs-`&` bug and must capture that exact legacy behavior; and flags=0 for the edge case, the only input that returns false."
+}
