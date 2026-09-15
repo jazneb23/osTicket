@@ -49,7 +49,10 @@ Requirements:
    actual facade method on a properly constructed object, not a reimplementation.
 4. Echo json_encode(['input' => $input, 'output' => $result]) where $result is
    the raw return value from the invoked method (preserve scalar types; do not
-   cast booleans unless the reference harness does).
+   cast booleans unless the reference harness does). If $result is an array or
+   object, json_encode it so `output` is a string — the verifier compares
+   strings (see legacy/harness/overdue_capture.php). The orchestrator also
+   JSON-stringifies non-string output, so either form is compared by value.
 5. Write ONLY ${harnessScript} — do not modify any other file.
 
 Harness input shape:
