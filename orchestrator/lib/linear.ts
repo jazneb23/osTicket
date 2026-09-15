@@ -207,30 +207,48 @@ export async function claimNextReadyTicket(): Promise<{
 
   await updateTicketStatus(ticketId, STATUS_IN_PROGRESS);
 
-  const afterClaim = await findTicketsByStatus(STATUS_IN_PROGRESS, 10);
-  if (afterClaim.length > 1) {
-    const winner = [...afterClaim].sort((a, b) =>
-      a.createdAt.localeCompare(b.createdAt)
-    )[0];
-    if (winner && winner.identifier !== ticketId) {
-      console.log(
-        `Claim race · reverting ${ticketId} to Ready (winner ${winner.identifier})`
-      );
-      await updateTicketStatus(ticketId, READY_STATUS);
-      return null;
+  // Linear can lag on read-after-write. Retry before aborting; treat either
+  // list membership or getTicketState as confirmation. On abort, revert if
+  // the ticket is In Progress so the queue cannot stall with no pipeline.
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const afterClaim = await findTicketsByStatus(STATUS_IN_PROGRESS, 10);
+    if (afterClaim.length > 1) {
+      const winner = [...afterClaim].sort((a, b) =>
+        a.createdAt.localeCompare(b.createdAt)
+      )[0];
+      if (winner && winner.identifier !== ticketId) {
+        console.log(
+          `Claim race · reverting ${ticketId} to Ready (winner ${winner.identifier})`
+        );
+        await updateTicketStatus(ticketId, READY_STATUS);
+        return null;
+      }
+    }
+
+    const listed = afterClaim.some((t) => t.identifier === ticketId);
+    const state = await getTicketState(ticketId);
+    if (listed || state === STATUS_IN_PROGRESS) {
+      const ticket = await getLinearTicket(ticketId);
+      return { ticketId, description: ticket.description };
+    }
+
+    if (attempt < 3) {
+      await sleep(250 * 2 ** attempt);
     }
   }
 
-  const state = await getTicketState(ticketId);
-  if (state !== STATUS_IN_PROGRESS) {
+  const finalState = await getTicketState(ticketId);
+  if (finalState === STATUS_IN_PROGRESS) {
     console.log(
-      `Claim aborted · ${ticketId} is "${state ?? "unknown"}", expected "${STATUS_IN_PROGRESS}"`
+      `Claim aborted · ${ticketId} stuck In Progress after verification lag; reverting to Ready`
     );
-    return null;
+    await updateTicketStatus(ticketId, READY_STATUS);
+  } else {
+    console.log(
+      `Claim aborted · ${ticketId} is "${finalState ?? "unknown"}", expected "${STATUS_IN_PROGRESS}"`
+    );
   }
-
-  const ticket = await getLinearTicket(ticketId);
-  return { ticketId, description: ticket.description };
+  return null;
 }
 
 export async function updateTicketStatus(ticketId: string, status: string): Promise<void> {
