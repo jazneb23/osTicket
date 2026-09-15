@@ -1,0 +1,8 @@
+{
+  "name": "transient-flag-only",
+  "branch": "FLAG_TRANSIENT (0x0008) set alone, no other bits — core truthy path: bitwise AND isolates the bit and returns the raw int 8",
+  "input": {
+    "flags": 8
+  },
+  "expected": "8"
+}

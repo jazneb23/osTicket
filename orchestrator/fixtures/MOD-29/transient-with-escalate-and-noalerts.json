@@ -1,0 +1,8 @@
+{
+  "name": "transient-with-escalate-and-noalerts",
+  "branch": "FLAG_TRANSIENT combined with FLAG_ESCALATE and FLAG_NOALERTS (0x0008 | 0x0002 | 0x0004 = 14) — proves multiple unrelated bits set alongside FLAG_TRANSIENT still isolate to the correct bit",
+  "input": {
+    "flags": 14
+  },
+  "expected": "8"
+}

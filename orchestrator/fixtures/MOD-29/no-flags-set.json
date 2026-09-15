@@ -1,0 +1,8 @@
+{
+  "name": "no-flags-set",
+  "branch": "flags=0, no bits set — baseline falsy path: bitwise AND against FLAG_TRANSIENT yields 0",
+  "input": {
+    "flags": 0
+  },
+  "expected": "0"
+}

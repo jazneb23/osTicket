@@ -1,0 +1,8 @@
+{
+  "name": "active-escalate-noalerts-without-transient",
+  "branch": "FLAG_ACTIVE | FLAG_ESCALATE | FLAG_NOALERTS set (0x0001 | 0x0002 | 0x0004 = 7) but FLAG_TRANSIENT unset — falsy path proving other bits alone, even combined, never trigger a truthy result",
+  "input": {
+    "flags": 7
+  },
+  "expected": "0"
+}

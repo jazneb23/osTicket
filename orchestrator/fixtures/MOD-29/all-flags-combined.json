@@ -1,0 +1,8 @@
+{
+  "name": "all-flags-combined",
+  "branch": "All four flags set together (FLAG_ACTIVE|FLAG_ESCALATE|FLAG_NOALERTS|FLAG_TRANSIENT = 15) — worst-case combined-bitmask truthy path, guards against any accidental full-mask short-circuit",
+  "input": {
+    "flags": 15
+  },
+  "expected": "8"
+}
