@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { listGoldenFixtureFiles, PARITY_REPORT_FILENAME } from "../lib/fixtures";
-import { runHarness } from "../lib/harness";
+import { canonicalizeHarnessOutput, harnessOutputsEqual, runHarness } from "../lib/harness";
 import { fixtureHarnessInput, loadManifest, requireHarnessScript } from "../lib/manifest";
 import { fixtureDir } from "./fixtureGenerator";
 import type { Fixture, ParityReport } from "../lib/types";
@@ -33,11 +33,19 @@ export async function verifier(ticketId: string): Promise<ParityReport> {
     }
     try {
       const output = runHarness(harnessScript, fixtureHarnessInput(fixture));
-      if (output !== fixture.expected) {
-        mismatches.push({ name: fixture.name, expected: fixture.expected, actual: output ?? "null" });
+      if (!harnessOutputsEqual(output, fixture.expected)) {
+        mismatches.push({
+          name: fixture.name,
+          expected: canonicalizeHarnessOutput(fixture.expected),
+          actual: output ?? "null",
+        });
       }
     } catch (err) {
-      mismatches.push({ name: fixture.name, expected: fixture.expected, actual: `error: ${(err as Error).message}` });
+      mismatches.push({
+        name: fixture.name,
+        expected: canonicalizeHarnessOutput(fixture.expected),
+        actual: `error: ${(err as Error).message}`,
+      });
     }
   }
 
