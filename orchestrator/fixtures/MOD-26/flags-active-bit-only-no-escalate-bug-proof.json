@@ -1,0 +1,8 @@
+{
+  "name": "flags-active-bit-only-no-escalate-bug-proof",
+  "branch": "FLAG_ACTIVE (1) alone set, ESCALATE bit NOT set → correct bitwise semantics would be false, but && bug makes any non-zero flags truthy → true; the critical case proving the &&-vs-& bug is preserved",
+  "input": {
+    "flags": 1
+  },
+  "expected": "true"
+}

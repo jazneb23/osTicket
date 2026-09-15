@@ -1,0 +1,8 @@
+{
+  "name": "flags-zero-no-bits-set",
+  "branch": "$this->flags === 0 → logical AND short-circuits on falsy left operand → false (the only false-returning case)",
+  "input": {
+    "flags": 0
+  },
+  "expected": "false"
+}

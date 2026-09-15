@@ -1,0 +1,8 @@
+{
+  "name": "flags-noalerts-bit-only-no-escalate-bug-proof",
+  "branch": "FLAG_NOALERTS (4) alone set, ESCALATE bit NOT set → a different single non-ESCALATE bit than the FLAG_ACTIVE case, still forced true by the && bug, confirming the bug is bit-agnostic (any non-zero flags value, not just FLAG_ACTIVE)",
+  "input": {
+    "flags": 4
+  },
+  "expected": "true"
+}

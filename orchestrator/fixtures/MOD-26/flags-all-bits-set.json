@@ -1,0 +1,8 @@
+{
+  "name": "flags-all-bits-set",
+  "branch": "All four flags combined (FLAG_ACTIVE|FLAG_ESCALATE|FLAG_NOALERTS|FLAG_TRANSIENT = 1|2|4|8=15) → non-zero flags && truthy literal → true; upper-bound/edge combination of the bitmask",
+  "input": {
+    "flags": 15
+  },
+  "expected": "true"
+}
