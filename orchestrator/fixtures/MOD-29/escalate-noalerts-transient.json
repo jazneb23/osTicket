@@ -1,0 +1,8 @@
+{
+  "name": "escalate-noalerts-transient",
+  "branch": "truthy path: FLAG_TRANSIENT combined with FLAG_ESCALATE and FLAG_NOALERTS (0x0002|0x0004|0x0008=14)",
+  "input": {
+    "flags": 14
+  },
+  "expected": "8"
+}

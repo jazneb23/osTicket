@@ -1,0 +1,8 @@
+{
+  "name": "active-escalate-noalerts-no-transient",
+  "branch": "falsy path: other bits set (ACTIVE|ESCALATE|NOALERTS=7) but TRANSIENT bit absent, proves non-TRANSIENT bits don't trigger a false positive",
+  "input": {
+    "flags": 7
+  },
+  "expected": "0"
+}

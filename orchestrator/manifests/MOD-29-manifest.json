@@ -1,0 +1,29 @@
+{
+  "ticketId": "MOD-29",
+  "entryPoint": "SLA::isTransient() in include/class.sla.php (line ~101) — zero-argument instance method returning the bitwise-AND of $this->flags and self::FLAG_TRANSIENT (0x0008); callers use the result purely as a truthy/falsy guard.",
+  "coreLogic": "Single expression, no delegation chain: `return $this->flags & self::FLAG_TRANSIENT;`. $this->flags is an int property already hydrated on the SLA ORM object (VerySimpleModel) before this method runs. No other method or class is called from within isTransient().",
+  "consumers": [
+    "Ticket::transfer() in include/class.ticket.php (~line 2663): `if (!$this->getSLAId() || $this->getSLA()->isTransient()) if (($slaId=$this->getDept()->getSLAId())) $this->selectSLAId($slaId);` — when a ticket is transferred to a new department, a missing or transient current SLA triggers reselecting the SLA from the new department's default via selectSLAId(), which internally may call setSLAId()/save().",
+    "Ticket::update() in include/class.ticket.php (~line 3767): `if (!$keepSLA && (!$this->getSLA() || $this->getSLA()->isTransient())) { $this->selectSLAId(); }` — during ticket field updates, unless caller passed $keepSLA, a missing or transient SLA triggers reselection (selectSLAId() falls back through dept -> topic -> system default $cfg->getDefaultSLAId()).",
+    "Both consumers combine the isTransient() result with `!$this->getSLA()` via short-circuit boolean logic (||/&&); the return value is never stored or compared numerically, only branched on inside an `if`."
+  ],
+  "inputShape": "None (zero parameters). Implicit input is the instance's own $this->flags int property (bitmask of FLAG_ACTIVE=0x0001, FLAG_ESCALATE=0x0002, FLAG_NOALERTS=0x0004, FLAG_TRANSIENT=0x0008), already loaded on the SLA object at call time.",
+  "outputShape": "int — result of `$this->flags & self::FLAG_TRANSIENT`: 8 when the TRANSIENT bit is set, 0 otherwise. Every current caller treats this purely as a boolean truthy/falsy value inside `if` conditions; the raw int is never assigned, returned onward, or compared to a specific number.",
+  "sideEffects": [
+    "None inside isTransient() itself: it is a pure, synchronous read of the already-loaded $this->flags property with no DB query, no global state ($cfg etc.) access, no caching, no file I/O, and no mutation of $this or any argument.",
+    "Contextual only (outside this method's scope): $this->flags is populated earlier when the SLA row is hydrated by the ORM (VerySimpleModel row load, e.g. via SLA::lookup() or Ticket's lazy 'sla' relation in getSLA()) — this hydration happens before isTransient() is ever invoked and must not be re-triggered by the extracted service."
+  ],
+  "constraints": [
+    "Preserve isTransient()'s exact signature (no parameters) and exact int return semantics (0 or 8), not a coerced real boolean — no known caller depends on the specific int today, but the smallest-patch rule means we must not change the literal return value type/shape.",
+    "FLAG_TRANSIENT must remain sourced from SLA::FLAG_TRANSIENT (0x0008); the extracted service must not hardcode a duplicate constant that could drift out of sync.",
+    "Extracted service must never call back into SLA::isTransient() (anti-recursion) — it must either accept the flags int (or the SLA instance) as a parameter and reimplement the identical bitwise expression, or operate purely on data passed in from the facade.",
+    "Do not alter or extract any other SLA flag method (isActive(), sendAlerts(), hasFlag(), priorityEscalation()) or the FLAG_* constants — those are out of scope for MOD-29.",
+    "Do not modify Ticket::transfer(), Ticket::update(), or selectSLAId() in include/class.ticket.php — they are callers, not part of the seam being extracted.",
+    "Do not touch orchestrator/fixtures/MOD-25, MOD-26, MOD-27, or MOD-28, or their manifests/harnesses — new fixtures and any new harness for this ticket live only under orchestrator/fixtures/MOD-29/ and legacy/harness/ as a new file.",
+    "This is an E2E pipeline test only — resulting PR must not be merged and should be closed/deleted after the run along with any throwaway branch."
+  ],
+  "facadeFile": "include/class.sla.php",
+  "extractionTarget": "include/Services/SlaTransientChecker.php",
+  "harnessScript": "legacy/harness/sla_transient_capture.php",
+  "harnessInputShape": "JSON object with one field: `flags` (int) — the raw SLA flags bitmask to set on a throwaway SLA instance before calling isTransient(), mirroring the existing priority_escalation_capture.php pattern (`new SLA(array('id'=>1))`, then `$sla->flags = (int) $input['flags']`, call `$sla->isTransient()`, echo `{input, output}`). Fixtures should cover: flags=0 (no bits set), FLAG_TRANSIENT only (8), FLAG_TRANSIENT combined with other bits (e.g. ACTIVE|TRANSIENT=9, ESCALATE|NOALERTS|TRANSIENT=14), all bits set (15), and a negative case with bits set but excluding TRANSIENT (e.g. ACTIVE|ESCALATE|NOALERTS=7) to prove the falsy path."
+}

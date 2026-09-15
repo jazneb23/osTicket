@@ -1,0 +1,8 @@
+{
+  "name": "no-flags-set",
+  "branch": "falsy path: flags=0, no bits set, TRANSIENT bit absent",
+  "input": {
+    "flags": 0
+  },
+  "expected": "0"
+}

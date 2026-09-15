@@ -1,0 +1,8 @@
+{
+  "name": "transient-only",
+  "branch": "truthy path: only FLAG_TRANSIENT (0x0008) set, isolates the bit being tested",
+  "input": {
+    "flags": 8
+  },
+  "expected": "8"
+}

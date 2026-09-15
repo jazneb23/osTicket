@@ -1,0 +1,8 @@
+{
+  "name": "all-flags-set",
+  "branch": "truthy path: every known flag set including TRANSIENT (0x0001|0x0002|0x0004|0x0008=15), upper edge case",
+  "input": {
+    "flags": 15
+  },
+  "expected": "8"
+}
