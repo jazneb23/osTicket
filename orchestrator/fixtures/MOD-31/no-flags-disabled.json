@@ -1,0 +1,8 @@
+{
+  "name": "no-flags-disabled",
+  "branch": "flags=0: no bits set, FLAG_ACTIVE bit absent — isActive() returns false (topic disabled, default/uninitialized state)",
+  "input": {
+    "flags": 0
+  },
+  "expected": "false"
+}

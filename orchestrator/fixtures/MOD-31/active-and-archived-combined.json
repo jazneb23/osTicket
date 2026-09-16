@@ -1,0 +1,8 @@
+{
+  "name": "active-and-archived-combined",
+  "branch": "flags=6 (FLAG_ACTIVE | FLAG_ARCHIVED both set): edge case proving the check is a bitwise AND against FLAG_ACTIVE alone, not an equality/exclusive check — must still resolve true",
+  "input": {
+    "flags": 6
+  },
+  "expected": "true"
+}

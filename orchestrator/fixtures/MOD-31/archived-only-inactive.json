@@ -1,0 +1,8 @@
+{
+  "name": "archived-only-inactive",
+  "branch": "flags=4 (FLAG_ARCHIVED alone, FLAG_ACTIVE unset): confirms archived state is NOT conflated with active — isActive() returns false",
+  "input": {
+    "flags": 4
+  },
+  "expected": "false"
+}

@@ -1,0 +1,8 @@
+{
+  "name": "active-only",
+  "branch": "flags=2 (FLAG_ACTIVE alone): normal/true path — bitwise AND against 0x0002 is non-zero, isActive() returns true",
+  "input": {
+    "flags": 2
+  },
+  "expected": "true"
+}
