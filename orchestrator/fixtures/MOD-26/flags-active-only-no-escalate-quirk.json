@@ -1,0 +1,8 @@
+{
+  "name": "flags-active-only-no-escalate-quirk",
+  "branch": "FLAG_ACTIVE (1) only, FLAG_ESCALATE bit unset: `1 && 2` is true — exposes the logical-AND quirk since escalation bit itself is off yet method returns true",
+  "input": {
+    "flags": 1
+  },
+  "expected": "true"
+}

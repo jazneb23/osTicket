@@ -1,0 +1,8 @@
+{
+  "name": "flags-noalerts-only-no-escalate-quirk",
+  "branch": "FLAG_NOALERTS (4) only, FLAG_ESCALATE bit unset: `4 && 2` is true — second, distinct non-escalate bit reproducing the same logical-AND quirk",
+  "input": {
+    "flags": 4
+  },
+  "expected": "true"
+}

@@ -1,0 +1,8 @@
+{
+  "name": "flags-escalate-bit-only",
+  "branch": "FLAG_ESCALATE (2) alone set: `2 && 2` is true — normal/intended path, agrees with bitwise semantics",
+  "input": {
+    "flags": 2
+  },
+  "expected": "true"
+}

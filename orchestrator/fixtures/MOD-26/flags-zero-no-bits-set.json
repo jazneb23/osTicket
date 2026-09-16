@@ -1,0 +1,8 @@
+{
+  "name": "flags-zero-no-bits-set",
+  "branch": "flags=0 edge case: `0 && 2` short-circuits to false — the one case where logical-AND and bitwise-AND intent agree",
+  "input": {
+    "flags": 0
+  },
+  "expected": "false"
+}

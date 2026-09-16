@@ -1,0 +1,8 @@
+{
+  "name": "flags-all-bits-set",
+  "branch": "All four flag bits set (ACTIVE|ESCALATE|NOALERTS|TRANSIENT = 15): `15 && 2` is true — upper-bound combined case confirming non-zero flags always yield true regardless of which bits are present",
+  "input": {
+    "flags": 15
+  },
+  "expected": "true"
+}
