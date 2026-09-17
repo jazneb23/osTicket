@@ -1,0 +1,8 @@
+{
+  "name": "kb-lower-boundary",
+  "branch": "kb branch lower edge — $bytes == 1024 crosses into kb formatting with round(bytes/1024,1)",
+  "input": {
+    "bytes": 1024
+  },
+  "expected": "1 kb"
+}

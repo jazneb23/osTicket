@@ -1,0 +1,8 @@
+{
+  "name": "bytes-upper-boundary",
+  "branch": "bytes branch strict upper edge — $bytes == 1023 must still format as 'bytes'",
+  "input": {
+    "bytes": 1023
+  },
+  "expected": "1023 bytes"
+}

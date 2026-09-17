@@ -1,0 +1,8 @@
+{
+  "name": "zero-bytes",
+  "branch": "bytes branch lower edge — $bytes < 1024 with a zero value",
+  "input": {
+    "bytes": 0
+  },
+  "expected": "0 bytes"
+}

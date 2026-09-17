@@ -1,0 +1,8 @@
+{
+  "name": "kb-upper-boundary",
+  "branch": "kb branch strict upper edge — $bytes == 921599 (900<<10 - 1) must still format as 'kb'",
+  "input": {
+    "bytes": 921599
+  },
+  "expected": "900 kb"
+}
